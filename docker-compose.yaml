@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: tridmo
+    build: .
+    volumes:
+      - ./:/home/node/app
+    stdin_open: true
+    network_mode: "host"
+    tty: true
+    ports:
+      - '4000:4000'
