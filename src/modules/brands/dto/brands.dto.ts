@@ -1,4 +1,4 @@
-import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, MinLength } from "class-validator";
 import { ICreateBrand, IUpdateBrand } from "../interface/brands.interface";
 
 export class CreateBrandDTO implements ICreateBrand {
@@ -17,6 +17,17 @@ export class CreateBrandDTO implements ICreateBrand {
     @IsNotEmpty()
     @MaxLength(1024)
     site_link: string;
+
+    @IsDefined()
+    @IsNotEmpty()
+    @IsString()
+    username: string;
+
+    @IsDefined()
+    @IsNotEmpty()
+    @IsString()
+    @MinLength(6)
+    password: string;
 }
 export class UpdateBrandDTO implements IUpdateBrand {
     @IsString()
@@ -26,10 +37,6 @@ export class UpdateBrandDTO implements IUpdateBrand {
     @IsString()
     @IsOptional()
     description: string;
-
-    @IsString()
-    @IsOptional()
-    image_id: string;
 
     @IsString()
     @IsOptional()

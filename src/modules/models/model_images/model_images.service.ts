@@ -3,9 +3,9 @@ import { ICreateModelImage, IModelImage } from "./interface/model_images.interfa
 
 export default class ModelImageService {
     private modelImagesDao = new ModelImagesDAO()
-    async create({ product_id, image_id, is_main }: ICreateModelImage) {
+    async create({ model_id, image_id, is_main }: ICreateModelImage) {
         const data = await this.modelImagesDao.create({
-            product_id,
+            model_id,
             image_id,
             is_main
         })
@@ -14,23 +14,23 @@ export default class ModelImageService {
     async findOne(id: string) {
         return await this.modelImagesDao.getById(id)
     }
-    async findProductCover(product_id: string) {
-        return await this.modelImagesDao.getProductCover(product_id)
+    async findModelCover(model_id: string) {
+        return await this.modelImagesDao.getModelCover(model_id)
     }
-    async findByProduct(product_id: string): Promise<IModelImage[]> {
-        return await this.modelImagesDao.getByProduct(product_id)
+    async findByModel(model_id: string): Promise<IModelImage[]> {
+        return await this.modelImagesDao.getByModel(model_id)
     }
     async delete(id: string) {
         await this.modelImagesDao.deleteById(id)
     }
-    async deleteByProduct(id: string) {
-        await this.modelImagesDao.deleteByProductId(id)
+    async deleteByModel(id: string) {
+        await this.modelImagesDao.deleteByModelId(id)
     }
     async deleteByImage(image_id: string) {
         await this.modelImagesDao.deleteByImageId(image_id)
     }
 
-    async deleteCoverImage(product_id: string) {
-        await this.modelImagesDao.deleteCoverImageByProductId(product_id)
+    async deleteCoverImage(model_id: string) {
+        await this.modelImagesDao.deleteCoverImageByModelId(model_id)
     }
 }

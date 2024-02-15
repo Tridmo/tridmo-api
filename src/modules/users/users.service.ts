@@ -1,7 +1,7 @@
 import UsersDAO from './dao/users.dao';
 import { ICreateUser, IUpdateUser, IUser } from './interface/users.interface';
 
-export default class {
+export default class UsersService {
   private usersDao = new UsersDAO();
 
   create({ full_name, email, user_id, birth_date, username }: ICreateUser) {
@@ -44,5 +44,8 @@ export default class {
   }
   verify(id: string) {
     return this.usersDao.verify(id);
+  }
+  deleteByUserId(user_id: string) {
+    return this.usersDao.deleteById(user_id);
   }
 }

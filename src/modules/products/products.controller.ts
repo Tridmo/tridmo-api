@@ -11,7 +11,7 @@ import { deleteFile, uploadFile } from "../shared/utils/fileUpload";
 
 import { ICreateProduct, IGetProductsQuery, IProduct } from "./interface/products.interface";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
-import { ICreateProductImage } from "./product_images/interface/product_images.interface";
+import { ICreateModelImage } from "./model_images/interface/model_images.interface";
 
 import { defaults } from "../shared/defaults/defaults"
 
@@ -19,9 +19,9 @@ import ProductService from "./products.service";
 import CategoryService from "../categories/categories.service";
 import ImageService from "../shared/modules/images/images.service";
 import FileService from "../shared/modules/files/files.service";
-import ProductImageService from "./product_images/product_images.service";
+import ModelImageService from "./model_images/model_images.service";
 import ModelMaterialService from "../models/model_materials/model_materials.service";
-import ProductColorService from "./product_colors/product_colors.service";
+import ModelColorService from "./model_colors/model_colors.service";
 import UserProductViewService from "../views/user_views/user_product_views.service";
 import ColorService from "../colors/colors.service";
 import StyleService from "../styles/styles.service";
@@ -48,8 +48,8 @@ export default class ProductsController {
   private imagesService = new ImageService()
   private modelsService = new ModelService()
   private modelMaterialsService = new ModelMaterialService()
-  private productColorsService = new ProductColorService()
-  private productImagesService = new ProductImageService()
+  private modelColorsService = new ModelColorService()
+  private modelImagesService = new ModelImageService()
   private userProductViewsService = new UserProductViewService()
   private downloadsService = new DownloadsService()
   private interiorsService = new InteriorService()
@@ -145,7 +145,7 @@ export default class ProductsController {
   public getCoverImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { product_id } = req.params
-      const cover = await this.productImagesService.findProductCover(product_id)
+      const cover = await this.modelImagesService.findProductCover(product_id)
 
       res.status(200).json({
         success: true,
@@ -169,7 +169,7 @@ export default class ProductsController {
         ? await this.productsService.findBySlug(identifier)
         : await this.productsService.findOne(identifier)
 
-      const file = await this.filesService.findOne(data.file_id)      
+      const file = await this.filesService.findOne(data.file_id)
 
       const filePublicData: IFilePublic = {
         name: file.name,
@@ -195,11 +195,11 @@ export default class ProductsController {
         const purchasedModel = await purchased_items.find((product) => product.product_id == data.id)
         const user_role = (await this.roleService.getByUser(user_id)).role_id
 
-        if(user_role == 3){
+        if (user_role == 3) {
           is_bought = true
           data.is_free = true
         }
-        else if (user_role != 3){
+        else if (user_role != 3) {
           if (data.is_free || purchasedModel) {
             is_bought = true
           }
@@ -239,7 +239,7 @@ export default class ProductsController {
 
   public deleteImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const image_id = Number(req.params.image_id)
+      const image_id = req.params.image_id
 
       const image = await this.imagesService.findOne(image_id);
       if (isEmpty(image)) {
@@ -247,7 +247,7 @@ export default class ProductsController {
       }
       await deleteFile(s3Vars.imagesBucket, image.src)
 
-      await this.productImagesService.deleteByImage(image_id)
+      await this.modelImagesService.deleteByImage(image_id)
       await this.imagesService.delete(image_id)
 
       res.status(200).json({
@@ -272,12 +272,12 @@ export default class ProductsController {
 
       if (_colors.length > 1) {
         for (const color_id of _colors) {
-          const found_product_color = await this.productColorsService.findByProductAndColor(id, color_id)
-          if (!found_product_color) await this.productColorsService.create({ product_id: id, color_id })
+          const found_model_color = await this.modelColorsService.findByProductAndColor(id, color_id)
+          if (!found_model_color) await this.modelColorsService.create({ product_id: id, color_id })
         }
       } else {
-        const found_product_color = await this.productColorsService.findByProductAndColor(id, _colors[0])
-        if (!found_product_color) await this.productColorsService.create({ product_id: id, color_id: _colors[0] })
+        const found_model_color = await this.modelColorsService.findByProductAndColor(id, _colors[0])
+        if (!found_model_color) await this.modelColorsService.create({ product_id: id, color_id: _colors[0] })
       }
 
       res.status(200).json({
@@ -296,24 +296,24 @@ export default class ProductsController {
       if (req["files"] && req["files"][defaults.reqCoverName]) {
         const cover = await uploadFile(req['files'][defaults.reqCoverName], "images/product-images", s3Vars.imagesBucket)
         const cover_image = await this.imagesService.create({ ...cover[0] })
-        const coverModelImageData: ICreateProductImage = {
+        const coverModelImageData: ICreateModelImage = {
           product_id: id,
           image_id: cover_image.id,
           is_main: true
         }
-        await this.productImagesService.create(coverModelImageData)
+        await this.modelImagesService.create(coverModelImageData)
       }
 
       if (req["files"] && req["files"][defaults.reqImagesName]) {
         const images = await uploadFile(req['files'][defaults.reqImagesName], "images/product-images", s3Vars.imagesBucket)
         for (const i of images) {
           const image = await this.imagesService.create(i)
-          const imageData: ICreateProductImage = {
+          const imageData: ICreateModelImage = {
             product_id: id,
             image_id: image.id,
             is_main: false
           }
-          await this.productImagesService.create(imageData)
+          await this.modelImagesService.create(imageData)
         }
       }
 
@@ -340,9 +340,9 @@ export default class ProductsController {
       }
 
       const files = await uploadFile(req['files'][defaults.reqFileName], "files/product-files", s3Vars.filesBucket)
-      const file = await this.filesService.update(foundProduct.file_id, {...files[0]})
+      const file = await this.filesService.update(foundProduct.file_id, { ...files[0] })
 
-      await this.productsService.update(id, {file_exists: true})
+      await this.productsService.update(id, { file_exists: true })
 
       res.status(200).json({
         success: true,
@@ -415,7 +415,7 @@ export default class ProductsController {
         throw new ErrorResponse(400, "Product was not found");
       }
 
-      await this.productColorsService.deleteByColorAndProduct(id, Number(color_id))
+      await this.modelColorsService.deleteByColorAndProduct(id, Number(color_id))
 
       res.status(200).json({
         success: true,
@@ -454,8 +454,8 @@ export default class ProductsController {
         await this.interiorsService.delete(interior.id)
       }
 
-      await this.productColorsService.deleteByProduct(id)
-      await this.productImagesService.deleteByProduct(id)
+      await this.modelColorsService.deleteByProduct(id)
+      await this.modelImagesService.deleteByProduct(id)
       await this.userProductViewsService.deleteByProduct(id)
       await this.downloadsService.deleteByProduct(id)
 
@@ -465,10 +465,10 @@ export default class ProductsController {
         await this.collectionsService.deleteByProduct(id)
       }
 
-      for await (const product_image of (await this.productImagesService.findByProduct(id))) {
-        const image = await this.imagesService.findOne(product_image.image_id)
+      for await (const model_image of (await this.modelImagesService.findByProduct(id))) {
+        const image = await this.imagesService.findOne(model_image.image_id)
         await deleteFile(s3Vars.imagesBucket, image.src)
-        await this.imagesService.delete(product_image.image_id)
+        await this.imagesService.delete(model_image.image_id)
       }
       await this.productsService.delete(id)
 

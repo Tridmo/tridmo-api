@@ -9,14 +9,14 @@ import generateSlug, { indexSlug } from "../shared/utils/generateSlug";
 
 import { ICreateProduct } from "../products/interface/products.interface";
 import { ICreateInterior, IInterior } from "./interface/interiors.interface";
-import { ICreateProductImage } from "../products/product_images/interface/product_images.interface";
+import { ICreateModelImage } from "../products/model_images/interface/model_images.interface";
 import { defaults, fileDefaults } from "../shared/defaults/defaults"
 import { RequestWithUser } from "../shared/interface/routes.interface";
 
 import ImageService from "../shared/modules/images/images.service";
 import FileService from "../shared/modules/files/files.service";
-import ProductImageService from "../products/product_images/product_images.service";
-import ProductColorService from "../products/product_colors/product_colors.service";
+import ModelImageService from "../products/model_images/model_images.service";
+import ModelColorService from "../products/model_colors/model_colors.service";
 import ProductService from "../products/products.service";
 import RoleService from "../auth/roles/roles.service";
 import { CreateInteriorDTO, UpdateInteriorDTO } from "./dto/interiors.dto";
@@ -38,8 +38,8 @@ export default class InteriorsController {
   private productsService = new ProductService()
   private imagesService = new ImageService()
   private filesService = new FileService()
-  private productImagesService = new ProductImageService()
-  private productColorsService = new ProductColorService()
+  private modelImagesService = new ModelImageService()
+  private modelColorsService = new ModelColorService()
   private ordersService = new OrderService()
   private orderItemsService = new OrderItemService()
   private interiorModelsService = new InteriorModelsService()
@@ -95,31 +95,31 @@ export default class InteriorsController {
 
       if (_colors.length > 1) {
         for (const color_id of _colors) {
-          await this.productColorsService.create({ product_id: product.id, color_id })
+          await this.modelColorsService.create({ product_id: product.id, color_id })
         }
       } else {
         const color_id = _colors[0]
-        await this.productColorsService.create({ product_id: product.id, color_id })
+        await this.modelColorsService.create({ product_id: product.id, color_id })
       }
 
       const cover = await uploadFile(req['files'][defaults.reqCoverName], "images/product-images", s3Vars.imagesBucket, fileDefaults.interior_cover)
       const cover_image = await this.imagesService.create({ ...cover[0] })
-      const coverInteriorImageData: ICreateProductImage = {
+      const coverInteriorImageData: ICreateModelImage = {
         product_id: product.id,
         image_id: cover_image.id,
         is_main: true
       }
-      await this.productImagesService.create(coverInteriorImageData)
+      await this.modelImagesService.create(coverInteriorImageData)
 
       const images = await uploadFile(req['files'][defaults.reqImagesName], "images/product-images", s3Vars.imagesBucket, fileDefaults.interior)
       for (const i of images) {
         const image = await this.imagesService.create(i)
-        const imageData: ICreateProductImage = {
+        const imageData: ICreateModelImage = {
           product_id: product.id,
           image_id: image.id,
           is_main: false
         }
-        await this.productImagesService.create(imageData)
+        await this.modelImagesService.create(imageData)
       }
 
       if (_models && _models.length) {
@@ -188,7 +188,7 @@ export default class InteriorsController {
       let data = isSlug
         ? await this.interiorsService.findBySlug(identifier)
         : await this.interiorsService.findOne(identifier)
-      
+
       const file = await this.filesService.findOne(data['products.file_id'])
 
       if (isEmpty(data)) {
@@ -210,25 +210,25 @@ export default class InteriorsController {
         const purchased_items = await this.orderItemsService.findPurchasedItemsByUser(user_id)
         const purchasedModel = await purchased_items.find((product) => product.product_id == data.product_id)
         const user_role = (await this.roleService.getByUser(user_id)).role_id
-        if(user_role == 3){
+        if (user_role == 3) {
           is_bought = true
           data['products']['is_free'] = true
           data['products']['file'] = file
         }
-        else if (user_role != 3){
+        else if (user_role != 3) {
           if (data['products']['is_free'] || purchasedModel) {
             is_bought = true
             data['products']['file'] = file
           }
         }
-        
+
         order = getFirst(await this.ordersService.findByUserAndStatus(user_id, 1))
         const userProductView = await this.userProductViewService.findOneByFilters({ user_id, product_id: data.product_id })
         if (!userProductView) {
           await this.userProductViewService.create({ user_id, product_id: data.product_id, remote_ip, device })
         }
       }
-      else{
+      else {
         if (data['products']['is_free']) {
           is_bought = true
           data['products']['file'] = file
@@ -294,25 +294,25 @@ export default class InteriorsController {
       if (_colors && _colors.length) {
         if (_colors.length > 1) {
           for (const color_id of _colors) {
-            await this.productColorsService.create({ product_id: foundProduct.id, color_id })
+            await this.modelColorsService.create({ product_id: foundProduct.id, color_id })
           }
         } else {
           const color_id = _colors[0]
-          await this.productColorsService.create({ product_id: foundProduct.id, color_id })
+          await this.modelColorsService.create({ product_id: foundProduct.id, color_id })
         }
       }
 
       if (req['files'] && req['files'][defaults.reqCoverName]) {
-        await this.productImagesService.deleteCoverImage(foundProduct.id)
+        await this.modelImagesService.deleteCoverImage(foundProduct.id)
 
         const cover = await uploadFile(req['files'][defaults.reqCoverName], "images/product-images", s3Vars.imagesBucket)
         const cover_image = await this.imagesService.create({ ...cover[0] })
-        const coverInteriorImageData: ICreateProductImage = {
+        const coverInteriorImageData: ICreateModelImage = {
           product_id: foundProduct.id,
           image_id: cover_image.id,
           is_main: true
         }
-        await this.productImagesService.create(coverInteriorImageData)
+        await this.modelImagesService.create(coverInteriorImageData)
       }
 
 
@@ -321,12 +321,12 @@ export default class InteriorsController {
         const images = await uploadFile(req['files'][defaults.reqImagesName], "images/product-images", s3Vars.imagesBucket)
         for (const i of images) {
           const image = await this.imagesService.create(i)
-          const imageData: ICreateProductImage = {
+          const imageData: ICreateModelImage = {
             product_id: foundProduct.id,
             image_id: image.id,
             is_main: false
           }
-          await this.productImagesService.create(imageData)
+          await this.modelImagesService.create(imageData)
         }
       }
 

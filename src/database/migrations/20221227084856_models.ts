@@ -6,7 +6,8 @@ export async function up(knex: Knex): Promise<void> {
     create table if not exists models(
         id uuid primary key default uuid_generate_v4(),
         category_id int references categories(id) not null,
-        platform_id uuid references platforms(id) not null,
+        model_platform_id uuid references platforms(id) not null,
+        render_platform_id uuid references platforms(id) not null,
         brand_id uuid references brands(id) not null,
         file_id uuid references files(id) not null,
         style_id int references styles(id),

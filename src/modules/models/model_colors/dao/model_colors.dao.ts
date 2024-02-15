@@ -3,44 +3,46 @@ import KnexService from '../../../../database/connection';
 import { ICreateModelColor } from "../interface/model_colors.interface";
 
 export default class ModelColorsDAO {
-    async create({ product_id, color_id }: ICreateModelColor) {
+    async create({ model_id, color_id }: ICreateModelColor) {
         return getFirst(
             await KnexService("model_colors")
                 .insert({
-                    product_id,
+                    model_id,
                     color_id
                 })
+                .onConflict(['model_id', 'color_id'])
+                .ignore()
                 .returning("*")
         )
     }
 
-    async getByProductAndColor(product_id: string, color_id: number) {
+    async getByModelAndColor(model_id: string, color_id: number) {
         return getFirst(
             await KnexService('model_colors')
                 .where({
-                    product_id,
+                    model_id,
                     color_id
                 })
         )
     }
 
 
-    async deleteById(id: string) {
+    async deleteById(id: string): Promise<number> {
         return await KnexService('model_colors')
             .where({ id: id })
             .delete()
     }
 
-    async deleteByProductId(id: string) {
+    async deleteByModelId(id: string): Promise<number> {
         return await KnexService('model_colors')
-            .where({ product_id: id })
+            .where({ model_id: id })
             .delete()
     }
 
-    async deleteByColorAndProduct(product_id: string, color_id: number) {
+    async deleteByColorAndModel(model_id: string, color_id: number): Promise<number> {
         return await KnexService('model_colors')
             .where({
-                product_id,
+                model_id,
                 color_id
             })
             .delete()

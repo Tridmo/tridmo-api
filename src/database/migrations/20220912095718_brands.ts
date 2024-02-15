@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
             name varchar(1024) not null,
             description text,
             site_link varchar(1024) not null,
-            image_id uuid references images(id) not null,
+            image_id uuid references images(id) on delete no action,
             created_at timestamp with time zone not null default current_timestamp,
             updated_at timestamp with time zone not null default current_timestamp
         );

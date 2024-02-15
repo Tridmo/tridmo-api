@@ -4,8 +4,8 @@ export async function up(knex: Knex): Promise<void> {
     await knex.raw(`
         create table if not exists messages ( 
             id uuid primary key default uuid_generate_v4(), 
-            sender_id uuid references profiles(id) not null,
-            receiver_id uuid references profiles(id) not null,
+            sender_id uuid references profiles(id) on delete cascade not null,
+            receiver_id uuid references profiles(id) on delete cascade not null,
             subject varchar(256) not null, 
             message text not null
         );

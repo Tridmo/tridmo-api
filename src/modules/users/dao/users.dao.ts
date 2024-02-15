@@ -117,4 +117,10 @@ export default class UsersDAO {
       .update({ email_confirmed_at: true })
       .where({ id })
   }
+
+  deleteById(id: string) {
+    return KnexService('auth.users')
+      .where({ id })
+      .delete()
+  }
 }

@@ -1,33 +1,66 @@
-import { IsDefined, IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { IsArrayOrStringifiedArray, IsNumberOrStringifiedNumber } from "../../shared/custom/validators";
-import { CreateProductDTO } from "../../products/dto/products.dto";
+import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../../shared/custom/validators";
+import { DefaultQueryDTO } from "modules/shared/dto/query.dto";
+import { IGetModelsQuery } from "../interface/models.interface";
 
-export class CreateModelDTO extends CreateProductDTO {
-  @IsNumberOrStringifiedNumber()
-  length: number;
+export class CreateModelDTO {
+  @IsString()
+  @IsOptional()
+  brand_id: number;
 
-  @IsNumberOrStringifiedNumber()
-  height: number;
+  @IsDefined()
+  @IsString()
+  @IsUUID('4')
+  @IsNotEmpty()
+  model_platform_id: string;
 
-  @IsNumberOrStringifiedNumber()
-  width: string | number;
+  @IsDefined()
+  @IsString()
+  @IsUUID('4')
+  @IsNotEmpty()
+  render_platform_id: string;
 
   @IsDefined()
   @IsNotEmpty()
-  @IsString()
-  yamo_id: string;
-
   @IsNumberOrStringifiedNumber()
-  polygons_count: string | number;
+  style_id: number;
 
+  @IsDefined()
+  @IsNotEmpty()
   @IsNumberOrStringifiedNumber()
-  vertices_count: string | number;
+  category_id: number;
 
+  @IsDefined()
   @IsString()
-  brand_id: number;
+  @IsNotEmpty()
+  name: string;
 
+  @IsDefined()
   @IsString()
-  formfactor_id: number;
+  @IsNotEmpty()
+  description: string;
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsNumberOrStringifiedNumber()
+  furniture_cost: number;
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsNumberOrStringifiedNumber()
+  availability: number;
+
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  length: number;
+
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  height: number;
+
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  width: string | number;
 
   @IsDefined()
   @IsNotEmpty()
@@ -44,55 +77,98 @@ export class CreateModelDTO extends CreateProductDTO {
     typeOfArrayItems: ['number', 'string']
   })
   colors: number[];
-
-  @IsDefined()
-  @IsNotEmpty()
-  @IsNumberOrStringifiedNumber()
-  category_id: number;
 }
 
 export class UpdateModelDTO {
-
   @IsString()
-  @MaxLength(1024)
-  title: string;
-
-  @IsString()
-  description: string;
-
-  @IsNumberOrStringifiedNumber()
-  length: string | number;
-
-  @IsNumberOrStringifiedNumber()
-  height: string | number;
-
-  @IsNumberOrStringifiedNumber()
-  width: string | number;
-
-  @IsNumberOrStringifiedNumber()
-  polygons_count: string | number;
-
-  @IsNumberOrStringifiedNumber()
-  vertices_count: string | number;
-
-  @IsString()
+  @IsOptional()
   brand_id: number;
 
+  @IsOptional()
   @IsString()
-  cost_id: string;
+  @IsUUID('4')
+  @IsNotEmpty()
+  model_platform_id: string;
 
+  @IsOptional()
   @IsString()
-  style_id: string;
+  @IsUUID('4')
+  @IsNotEmpty()
+  render_platform_id: string;
 
-  @IsString()
-  yamo_id: string;
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumberOrStringifiedNumber()
+  style_id: number;
 
-  @IsString()
-  formfactor_id: number;
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumberOrStringifiedNumber()
+  category_id: number;
 
+  @IsOptional()
   @IsString()
-  slug: string;
+  @IsNotEmpty()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumberOrStringifiedNumber()
+  furniture_cost: number;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumberOrStringifiedNumber()
+  availability: number;
+
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  length: number;
+
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  height: number;
+
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  width: string | number;
+}
+
+export class AddMaterialsDTO {
+  @IsDefined()
+  @IsNotEmpty()
+  @IsArrayOrStringifiedArray({
+    allowEmptyArray: false,
+    typeOfArrayItems: ['number', 'string']
+  })
+  materials: number[];
+}
+
+export class AddColorsDTO {
+  @IsDefined()
+  @IsNotEmpty()
+  @IsArrayOrStringifiedArray({
+    allowEmptyArray: false,
+    typeOfArrayItems: ['number', 'string']
+  })
+  colors: number[];
+}
+
+export class GetModelsQueryDTO extends DefaultQueryDTO implements IGetModelsQuery {
+  @IsNumberOrStringifiedNumber()
+  brand_id: number;
 
   @IsNumberOrStringifiedNumber()
-  category_id: string | number;
+  category_id: string;
+
+  @IsNumberOrStringifiedNumber()
+  style_id: number;
+
+  @IsBooleanOrStringifiedBoolean()
+  is_deleted?: boolean;
 }

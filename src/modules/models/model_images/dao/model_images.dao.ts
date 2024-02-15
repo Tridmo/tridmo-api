@@ -3,11 +3,11 @@ import KnexService from '../../../../database/connection';
 import { ICreateModelImage } from "../interface/model_images.interface";
 
 export default class ModelImagesDAO {
-    async create({ product_id, image_id, is_main }: ICreateModelImage) {
+    async create({ model_id, image_id, is_main }: ICreateModelImage) {
         return getFirst(
             await KnexService("model_images")
                 .insert({
-                    product_id,
+                    model_id,
                     image_id,
                     is_main
                 })
@@ -28,24 +28,24 @@ export default class ModelImagesDAO {
         )
     }
 
-    async getByProduct(product_id: string) {
+    async getByModel(model_id: string) {
         return await KnexService('model_images')
-            .where({ product_id })
+            .where({ model_id })
     }
 
-    async getProductCover(product_id: string) {
+    async getModelCover(model_id: string) {
         return getFirst(
             await KnexService('model_images')
                 .where({
-                    product_id,
+                    model_id,
                     is_main: true
                 })
         )
     }
 
-    async deleteByProductId(id: string) {
+    async deleteByModelId(id: string) {
         return await KnexService('model_images')
-            .where({ product_id: id })
+            .where({ model_id: id })
             .delete()
     }
 
@@ -55,10 +55,10 @@ export default class ModelImagesDAO {
             .delete()
     }
 
-    async deleteCoverImageByProductId(product_id: string) {
+    async deleteCoverImageByModelId(model_id: string) {
         return await KnexService('model_images')
             .where({
-                product_id,
+                model_id,
                 is_main: true
             })
             .delete()

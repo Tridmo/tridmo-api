@@ -53,8 +53,8 @@ export const s3Vars = {
   secretAccessKey: env.S3_SECRET_KEY,
   provateEndpoint: `https://${env.S3_ACCOUNT_ID || 'cfd8d75b2205161fcfe63d07fd422e88'}.r2.cloudflarestorage.com`,
   publicEndpoint: `https://pub-6ce793af255644e1a9778fab814f41bb.r2.dev`,
-  imagesBucket: env.S3_IMAGES_BUCKET_NAME || 'tridmo-images',
-  filesBucket: env.S3_FILES_BUCKET_NAME || 'tridmo-files',
+  imagesBucket: env.S3_IMAGES_BUCKET_NAME || 'demod-images',
+  filesBucket: env.S3_FILES_BUCKET_NAME || 'demod-files',
 };
 
 export const supabaseConfig = {

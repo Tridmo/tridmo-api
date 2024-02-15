@@ -10,6 +10,7 @@ import { IDefaultQuery } from "../shared/interface/query.interface";
 import { defaults } from "../shared/defaults/defaults";
 import ImageService from "../shared/modules/images/images.service";
 import { uploadFile } from "../shared/utils/fileUpload";
+import { UploadedFile } from "express-fileupload";
 
 export default class BrandsController {
   private brandsService = new BrandService()
@@ -17,13 +18,24 @@ export default class BrandsController {
 
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { name, site_link, description }: CreateBrandDTO = req.body
+      const { name, site_link, description, username, password }: CreateBrandDTO = req.body
 
-      const data = await this.brandsService.create({ name: name.replace(/\s/g, ''), site_link, description })
+      const data = await this.brandsService.create(
+        {
+          name: name.replace(/\s/g, ''),
+          site_link,
+          description,
+          username,
+          password
+        },
+        req.files.image as UploadedFile
+      )
 
       res.status(201).json({
         success: true,
-        data,
+        data: {
+          ...data
+        },
         message: "Brand created successfully"
       })
     } catch (error) {
@@ -36,11 +48,13 @@ export default class BrandsController {
       const brandData: UpdateBrandDTO = req.body
       const { id } = req.params
 
-      const data = await this.brandsService.update(Number(id), brandData)
+      const data = await this.brandsService.update(id, brandData, req.files?.image as UploadedFile)
 
       res.status(200).json({
         success: true,
-        data,
+        data: {
+          brand: data
+        },
         message: "Brand updated successfully"
       })
     } catch (error) {
@@ -70,8 +84,10 @@ export default class BrandsController {
 
       res.status(200).json({
         success: true,
-        data: data,
-        pagination
+        data: {
+          brands: data,
+          pagination
+        }
       })
     } catch (error) {
       next(error)
@@ -82,11 +98,13 @@ export default class BrandsController {
     try {
       const { id } = req.params
 
-      const data = await this.brandsService.findOne(Number(id))
+      const data = await this.brandsService.findOne(id)
 
       res.status(200).json({
         success: true,
-        data: flat.unflatten(data)
+        data: {
+          brand: flat.unflatten(data)
+        }
       })
     } catch (error) {
       next(error)
@@ -97,7 +115,7 @@ export default class BrandsController {
     try {
       const { id } = req.params
 
-      await this.brandsService.delete(Number(id))
+      await this.brandsService.delete(id)
 
       res.status(200).json({
         success: true,

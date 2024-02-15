@@ -11,6 +11,7 @@ export const defaultQueryValues: IDefaultQuery = {
 export const defaults = {
   rangeSplitter: "and",
   reqImagesName: "images",
+  reqImageName: "image",
   reqFilesName: "files",
   reqFileName: "file",
   reqCoverName: "cover",

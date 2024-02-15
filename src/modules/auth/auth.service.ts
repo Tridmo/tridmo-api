@@ -15,6 +15,7 @@ import { IUserSession } from "./interface/sessions.interface";
 import UserRoleService from "../users/user_roles/user_roles.service";
 import supabase from "../../database/supabase/supabase";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { authVariables } from "./variables";
 
 export default class AuthService {
   private OtpDigitsCount = 6;
@@ -47,6 +48,27 @@ export default class AuthService {
     await this.userRolesService.create({ user_id: profile.id, role_id: 2 })
 
     return { otpEmail: email };
+  }
+
+  async createVerifiedUser({ email, full_name, password, birth_date, username }: ISignup) {
+
+    const { data: { user }, error } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true
+    })
+
+    if (!user?.identities?.length)
+      throw new ErrorResponse(400, "User already registered");
+    if (error)
+      throw new Error(error.message);
+
+    const profile = await this.usersService.create({
+      user_id: user.id, full_name, email, birth_date, username
+    })
+    await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.brand })
+
+    return profile;
   }
 
   async resendOtp(email: string) {

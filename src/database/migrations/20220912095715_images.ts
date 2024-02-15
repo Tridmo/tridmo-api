@@ -7,6 +7,7 @@ export async function up(knex: Knex): Promise<void> {
             id uuid primary key default uuid_generate_v4(),
             name varchar(1024) not null,
             src varchar not null,
+            key varchar not null,
             size bigint not null,
             ext varchar(16) not null,
             mimetype varchar not null,

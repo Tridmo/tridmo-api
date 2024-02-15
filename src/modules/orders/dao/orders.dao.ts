@@ -50,19 +50,19 @@ export default class OrdersDAO {
               'products.id',
               'products.title',
               'products.slug',
-              KnexService.raw('jsonb_agg(distinct "product_images") as cover'),
+              KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
             ])
               .leftJoin(function () {
                 this.select([
-                  'product_images.product_id',
+                  'model_images.product_id',
                   "image.src as image.src"
                 ])
-                  .from('product_images')
+                  .from('model_images')
                   .where({ is_main: true })
-                  .leftJoin({ image: "images" }, { 'product_images.image_id': 'image.id' })
-                  .groupBy('product_images.id', "image.id")
-                  .as('product_images')
-              }, { 'products.id': 'product_images.product_id' })
+                  .leftJoin({ image: "images" }, { 'model_images.image_id': 'image.id' })
+                  .groupBy('model_images.id', "image.id")
+                  .as('model_images')
+              }, { 'products.id': 'model_images.product_id' })
               .from('products')
               .as('products')
               .groupBy("products.id")
@@ -111,19 +111,19 @@ export default class OrdersDAO {
               'file.src as file_src',
               'model.id as model_id',
               'interior.id as interior_id',
-              // KnexService.raw('jsonb_agg(distinct "product_images") as cover'),
+              // KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
             ])
               .leftJoin(function () {
                 this.select([
-                  'product_images.product_id',
+                  'model_images.product_id',
                   "image.src as image_src"
                 ])
-                  .from('product_images')
+                  .from('model_images')
                   .where({ is_main: true })
-                  .innerJoin({ image: "images" }, { 'product_images.image_id': 'image.id' })
-                  .groupBy('product_images.id', "image.id")
-                  .as('product_images')
-              }, { 'products.id': 'product_images.product_id' })
+                  .innerJoin({ image: "images" }, { 'model_images.image_id': 'image.id' })
+                  .groupBy('model_images.id', "image.id")
+                  .as('model_images')
+              }, { 'products.id': 'model_images.product_id' })
               .leftJoin({ file: "files" }, { "products.file_id": "file.id" })
               .leftJoin({ model: "models" }, { "products.id": "model.product_id" })
               .leftJoin({ interior: "interiors" }, { "products.id": "interior.product_id" })
@@ -174,22 +174,22 @@ export default class OrdersDAO {
               'model.id as model_id',
               'interior.id as interior_id',
               'style.name as style_name',
-              KnexService.raw('jsonb_agg(distinct "product_images") as cover'),
+              KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
             ])
               .leftJoin({ style: "styles" }, { "products.style_id": "style.id" })
               .leftJoin({ model: "models" }, { "model.product_id": "products.id" })
               .leftJoin({ interior: "interiors" }, { "interior.product_id": "products.id" })
               .leftJoin(function () {
                 this.select([
-                  'product_images.product_id',
+                  'model_images.product_id',
                   "image.src as image.src"
                 ])
-                  .from('product_images')
+                  .from('model_images')
                   .where({ is_main: true })
-                  .leftJoin({ image: "images" }, { 'product_images.image_id': 'image.id' })
-                  .groupBy('product_images.id', "image.id")
-                  .as('product_images')
-              }, { 'products.id': 'product_images.product_id' })
+                  .leftJoin({ image: "images" }, { 'model_images.image_id': 'image.id' })
+                  .groupBy('model_images.id', "image.id")
+                  .as('model_images')
+              }, { 'products.id': 'model_images.product_id' })
 
               .from('products')
               .as('products')

@@ -3,15 +3,16 @@ import { s3delete, s3upload } from "./s3";
 import { getExtension } from "./getExtension";
 import processImage from "./compressFile";
 import { s3Vars } from "../../../config/conf";
+import { IFile, IImage } from "../interface/files.interface";
 
-export const uploadFile = async (files, folder: string, bucketName: string, dimensions?) => {
+export const uploadFile = async (files, folder: string, bucketName: string, dimensions?): Promise<Array<IImage | IFile>> => {
   const arr = []
   let bucketUrl: string;
 
   if (bucketName == s3Vars.imagesBucket) {
     bucketUrl = `${s3Vars.publicEndpoint}`
   }
-  else if (bucketName == s3Vars.filesBucket){
+  else if (bucketName == s3Vars.filesBucket) {
     bucketUrl = `${s3Vars.provateEndpoint}/${s3Vars.filesBucket}`
   }
 

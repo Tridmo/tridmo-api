@@ -1,13 +1,14 @@
 export interface IRequestFile {
   name: string;
   data: Buffer;
-  size: bigint;
+  size: bigint | number;
   encoding: string;
   tempFilePath: string;
   truncated: boolean;
   mimetype: string;
   md5: string;
-  mv: Function;
+  mv(path: string, callback: (err: any) => void): void;
+  mv(path: string): Promise<void>;
 }
 
 export interface IFile {
@@ -32,6 +33,7 @@ export interface IImage {
   id: string;
   name: string;
   src: string;
+  key: string;
   size: string;
   ext: string;
   mimetype: string;
@@ -58,6 +60,7 @@ export interface IUpdateFile {
 export interface ICreateImage {
   name: string;
   src: string;
+  key: string;
   size: string;
   ext: string;
   mimetype: string;

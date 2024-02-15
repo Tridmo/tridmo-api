@@ -8,7 +8,7 @@ import BrandsController from './brands.controller';
 import { CreateBrandDTO, UpdateBrandDTO } from './dto/brands.dto';
 import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from '../shared/defaults/defaults';
-const { reqImagesName } = defaults
+const { reqImageName } = defaults
 import check_access from '../shared/middlewares/auth/check_access';
 
 export default class BrandsRoute implements Routes {
@@ -22,12 +22,12 @@ export default class BrandsRoute implements Routes {
 
   private initializeRoutes() {
     // Get all
-    this.router.get(`${this.path}/`,  validate(DefaultQueryDTO, "query", true), this.brandsController.getAll);
+    this.router.get(`${this.path}/`, validate(DefaultQueryDTO, "query", true), this.brandsController.getAll);
     // Get one
     this.router.get(`${this.path}/:id`, this.brandsController.getOne);
-    
+
     // Create new
-    this.router.post(`${this.path}/`, protect, check_access("create_brand"), validate(CreateBrandDTO, "body"), this.brandsController.create);
+    this.router.post(`${this.path}/`, protect, check_access("create_brand"), validate(CreateBrandDTO, "body"), validateFiles(reqImageName), this.brandsController.create);
     // Update one
     this.router.put(`${this.path}/:id`, protect, check_access("update_brand"), validate(UpdateBrandDTO, "body", true), this.brandsController.update);
     // Delete one
