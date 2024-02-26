@@ -53,9 +53,12 @@ export default class ModelService {
         const foundSlugs = await this.modelsDao.getBySlug(data.slug)
         if (foundSlugs && !isEmpty(foundSlugs)) data.slug = indexSlug(data.slug, foundSlugs.map(model => model.slug))
 
+        // const interactions = await interactionService.create();
+
         // create model
         const model = await this.modelsDao.create({
             ...modelValues,
+            // interaction_id: interactions.id,
             file_id: newFile.id
         })
 

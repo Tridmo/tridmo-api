@@ -47,95 +47,14 @@ export default class InteriorsController {
 
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { colors, models }: CreateInteriorDTO = req.body
-      const { category_id } = req.body
-
-      const { style_id, title, description, cost_id, is_free }: ICreateProduct = req.body
-      let { slug }: ICreateProduct = req.body
-
-      const _colors = Array.isArray(colors) ? colors : typeof colors == 'string' ? JSON.parse(String(colors).includes("'") ? String(colors).replace(/'/g, '"') : colors) : []
-      const _models = Array.isArray(models) ? models : typeof models == 'string' ? JSON.parse(String(models).includes("'") ? String(models).replace(/'/g, '"') : models) : []
-
-
-      const files = await uploadFile(req['files'][defaults.reqFilesName], "files/product-files", s3Vars.filesBucket)
-      const file = await this.filesService.create({ ...files[0] })
-      const file_id = file.id
-
-      slug = slug ? slug : generateSlug(title)
-      const foundSlugs = await this.productsService.searchBySlug(slug)
-      if (foundSlugs && !isEmpty(foundSlugs)) {
-        console.log(foundSlugs.map(product => product.slug));
-        slug = indexSlug(slug, foundSlugs.map(product => product.slug))
-      }
-
-      const product = await this.productsService.create({
-        title,
-        description,
-        slug,
-        cost_id,
-        style_id,
-        is_free,
-        file_id
-      });
-
-      // adding presentation
-      let presentation_id;
-      if (req['files'][defaults.reqPresentationName]) {
-        const presentation = await uploadFile(req['files'][defaults.reqPresentationName], "files/product-files", s3Vars.filesBucket)
-        const createdPresentation = await this.filesService.create({ ...presentation[0] })
-        presentation_id = createdPresentation.id
-      }
-
-
-      const interior = await this.interiorsService.create({
-        product_id: product.id,
-        presentation_id,
-        category_id
-      })
-
-      if (_colors.length > 1) {
-        for (const color_id of _colors) {
-          await this.modelColorsService.create({ product_id: product.id, color_id })
-        }
-      } else {
-        const color_id = _colors[0]
-        await this.modelColorsService.create({ product_id: product.id, color_id })
-      }
-
-      const cover = await uploadFile(req['files'][defaults.reqCoverName], "images/product-images", s3Vars.imagesBucket, fileDefaults.interior_cover)
-      const cover_image = await this.imagesService.create({ ...cover[0] })
-      const coverInteriorImageData: ICreateModelImage = {
-        product_id: product.id,
-        image_id: cover_image.id,
-        is_main: true
-      }
-      await this.modelImagesService.create(coverInteriorImageData)
-
-      const images = await uploadFile(req['files'][defaults.reqImagesName], "images/product-images", s3Vars.imagesBucket, fileDefaults.interior)
-      for (const i of images) {
-        const image = await this.imagesService.create(i)
-        const imageData: ICreateModelImage = {
-          product_id: product.id,
-          image_id: image.id,
-          is_main: false
-        }
-        await this.modelImagesService.create(imageData)
-      }
-
-      if (_models && _models.length) {
-        if (_models.length > 1) {
-          for (const model_id of _models) {
-            let i_m = await this.interiorModelsService.create({ interior_id: interior.id, model_id })
-          }
-        } else {
-          const model_id = _models[0]
-          let i_m = await this.interiorModelsService.create({ interior_id: interior.id, model_id })
-        }
-      }
+      const { image_tags, ...interiorValues } = req.body
+      const interior = await this.interiorsService.create(interiorValues, models)
 
       res.status(201).json({
         success: true,
-        data: product,
+        data: {
+          interior
+        },
         message: "Interior created successfully"
       })
     } catch (error) {

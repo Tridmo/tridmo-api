@@ -32,7 +32,7 @@ export default class ModelsRoute implements Routes {
       protect,
       check_access("create_product"),
       validate(CreateModelDTO, "body", true),
-      validateFiles(reqCoverName, reqFilesName, reqImagesName),
+      validateFiles(reqCoverName, reqFileName, reqImagesName),
       this.modelsController.create
     );
     // Get cover

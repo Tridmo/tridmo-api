@@ -3,12 +3,11 @@ import KnexService from '../../../../database/connection';
 import { ICreateInteriorModel } from "../interface/interior_models.interface";
 
 export default class InteriorModelsDAO {
-    async create({model_id, interior_id}: ICreateInteriorModel){
+    async create(values: ICreateInteriorModel) {
         return getFirst(
             await KnexService("interior_models")
                 .insert({
-                    model_id,
-                    interior_id
+                    ...values
                 })
                 .returning("*")
         )
@@ -16,13 +15,13 @@ export default class InteriorModelsDAO {
 
     async deleteById(id: number) {
         return await KnexService('interior_models')
-            .where({id: id})
+            .where({ id: id })
             .delete()
     }
 
     async deleteByModelId(id: string) {
         return await KnexService('interior_models')
-            .where({model_id: id})
+            .where({ model_id: id })
             .delete()
     }
 
@@ -46,11 +45,11 @@ export default class InteriorModelsDAO {
     async getByInteriorAndModel(model_id: string, interior_id: string) {
         return getFirst(
             await KnexService('interior_models')
-            .select("*")
-            .where({
-                model_id,
-                interior_id
-            })
+                .select("*")
+                .where({
+                    model_id,
+                    interior_id
+                })
         )
     }
 }
