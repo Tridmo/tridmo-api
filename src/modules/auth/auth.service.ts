@@ -45,7 +45,7 @@ export default class AuthService {
     const profile = await this.usersService.create({
       user_id: user.id, full_name, email, birth_date, username
     })
-    await this.userRolesService.create({ user_id: profile.id, role_id: 2 })
+    await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.designer })
 
     return { otpEmail: email };
   }

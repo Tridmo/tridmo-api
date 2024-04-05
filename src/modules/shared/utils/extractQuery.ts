@@ -1,7 +1,10 @@
 import { isEmpty } from "class-validator"
 import { defaultQueryValues } from "../defaults/defaults"
 
-const extractQuery = (query) => {
+export default function extractQuery(query): {
+    filters: any;
+    sorts: any;
+} {
     const result = {}
     const defaultProps = Object.assign({}, defaultQueryValues)
 
@@ -37,5 +40,3 @@ const extractQuery = (query) => {
         sorts: defaultProps
     }
 }
-
-export default extractQuery

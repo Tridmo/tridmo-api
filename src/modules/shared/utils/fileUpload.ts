@@ -25,10 +25,10 @@ export const uploadFile = async (files, folder: string, bucketName: string, dime
       const ext = getExtension(file.name)
 
       const filename = `${folder}/${uuidv4() + ext}`
-      let src = `${bucketUrl}/${filename}`
+
       await s3upload(file.data, { bucket_name: bucketName, filename })
       const f = {
-        src,
+        src: filename,
         key: filename,
         ext,
         name: file.name,
@@ -46,10 +46,10 @@ export const uploadFile = async (files, folder: string, bucketName: string, dime
 
     const ext = getExtension(file['name'])
     const filename = `${folder}/${uuidv4() + ext}`
-    let src = `${bucketUrl}/${filename}`
+
     await s3upload(file.data, { bucket_name: bucketName, filename })
     const f = {
-      src,
+      src: filename,
       key: filename,
       ext,
       name: file.name,

@@ -19,7 +19,7 @@ export interface ISignup {
   email: string;
   username: string;
   password: string;
-  birth_date: Date;
+  birth_date?: Date;
 }
 
 export interface ITokenPayload {

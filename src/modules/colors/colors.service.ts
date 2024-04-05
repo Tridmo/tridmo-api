@@ -7,26 +7,26 @@ import { IColor, ICreateColor } from "./interface/colors.interface";
 export default class ColorService {
     private colorsDao = new ColorsDAO()
 
-    async create({name, hex_value}: ICreateColor) {
-        const foundColor: IColor = await this.colorsDao.getByName(name);        
+    async create({ name, hex_value }: ICreateColor) {
+        const foundColor: IColor = await this.colorsDao.getByName(name);
         if (foundColor) {
-          throw new ErrorResponse(400, "This color already exists");
+            throw new ErrorResponse(400, "This color already exists");
         }
         const color: IColor = await this.colorsDao.create({
             name,
             hex_value
         })
-        
+
         return color
     }
 
     async update(id: number, values: ICreateColor) {
         const foundColor: IColor = await this.colorsDao.getById(id);
         if (isEmpty(foundColor)) {
-          throw new ErrorResponse(400, "Color was not found");
+            throw new ErrorResponse(400, "Color was not found");
         }
         const color: IColor = await this.colorsDao.update(id, values)
-        
+
         return color
     }
 
@@ -42,7 +42,7 @@ export default class ColorService {
 
     async findOne(id: number) {
         const color = await this.colorsDao.getById(id);
-        if (isEmpty(color)) {
+        if (!color) {
             throw new ErrorResponse(400, "Color was not found");
         }
 

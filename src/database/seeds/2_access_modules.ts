@@ -55,5 +55,11 @@ export async function seed(knex: Knex): Promise<void> {
         { id: 38, name: "create_product" },
         { id: 39, name: "update_product" },
         { id: 40, name: "delete_product" },
+
+        { id: 41, name: "get_interior" },
+        { id: 42, name: "get_interiors" },
+        { id: 43, name: "create_interior" },
+        { id: 44, name: "update_interior" },
+        { id: 45, name: "delete_interior" },
     ]);
 };  

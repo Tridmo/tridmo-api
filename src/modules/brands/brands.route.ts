@@ -24,7 +24,7 @@ export default class BrandsRoute implements Routes {
     // Get all
     this.router.get(`${this.path}/`, validate(DefaultQueryDTO, "query", true), this.brandsController.getAll);
     // Get one
-    this.router.get(`${this.path}/:id`, this.brandsController.getOne);
+    this.router.get(`${this.path}/:identifier`, this.brandsController.getOne);
 
     // Create new
     this.router.post(`${this.path}/`, protect, check_access("create_brand"), validate(CreateBrandDTO, "body"), validateFiles(reqImageName), this.brandsController.create);

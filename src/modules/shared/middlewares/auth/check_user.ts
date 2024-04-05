@@ -13,44 +13,29 @@ import supabase from "../../../../database/supabase/supabase";
 const accessToken = server.accessToken
 
 const checkUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-  try { 
+  try {
 
     const usersDao = new UsersDAO();
     let authToken = ""
-    const authorization = req.headers.authorization 
-    if (!authorization) {next(); return}
-    else if (!authorization.startsWith("Bearer ")) {next(); return}
+    const authorization = req.headers.authorization
+    if (!authorization) { next(); return }
+    else if (!authorization.startsWith("Bearer ")) { next(); return }
     else authToken = authorization.split(" ")[1];
 
-    if (!authToken) {next(); return}
+    if (!authToken) { next(); return }
 
     const decodedToken = verify(authToken, accessToken.secret) as IDecodedToken;
-    
-    if (!decodedToken) {next(); return}
 
-    const {data: {user}, error} = await supabase.auth.getUser(authToken)
-    
-    if (!user) {next(); return}
+    if (!decodedToken) { next(); return }
 
-    let profile = await usersDao.getByUserId(user.id)
+    const { data: { user }, error } = await supabase.auth.getUser(authToken)
 
-    if (!profile) {
-      profile = getFirst(
-        await knexInstance('profiles')
-        .insert({
-            user_id: user.id,
-            email: user.email, 
-            full_name: 'Trimdo Admin', 
-            language_id: 1 
-        }).returning("*")
-      )
-      await knexInstance("user_roles").insert([
-          { user_id: profile.id, role_id: 1 }
-      ]);
-    }
+    if (!user) { next(); return }
+
+    const profile = await usersDao.getByUserId(user.id)
 
     req.user = { ...user, profile }
-    
+
     next()
 
   } catch (error) {

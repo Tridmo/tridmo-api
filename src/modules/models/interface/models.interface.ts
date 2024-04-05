@@ -3,14 +3,15 @@ import { IDefaultQuery } from "../../shared/interface/query.interface";
 
 export interface IModel {
   id: string;
-  brand_id: number;
+  brand_id: string;
   category_id: number;
-  model_platform_id: string;
-  render_platform_id: string;
+  model_platform_id?: string;
+  render_platform_id?: string;
   interaction_id: string;
   file_id: string;
   style_id: number;
   name: string;
+  top: boolean;
   description: string;
   slug?: string;
   furniture_cost: number;
@@ -24,7 +25,7 @@ export interface IModel {
 }
 
 export interface ICreateModel {
-  brand_id: number;
+  brand_id: string;
   category_id: number;
   model_platform_id: string;
   render_platform_id: string;
@@ -32,6 +33,7 @@ export interface ICreateModel {
   file_id: string;
   style_id: number;
   name: string;
+  top?: boolean;
   description: string;
   slug?: string;
   furniture_cost: number;
@@ -39,12 +41,29 @@ export interface ICreateModel {
   length: number;
   height: number;
   width: number;
-  materials?: number[];
-  colors?: number[];
 }
 
+export interface ICreateModelBody {
+  brand_id: string;
+  category_id: number;
+  model_platform_id: string;
+  render_platform_id: string;
+  style_id: number;
+  name: string;
+  top?: boolean;
+  description: string;
+  furniture_cost: number;
+  availability: number;
+  length: number;
+  height: number;
+  width: number;
+  materials: number[];
+  colors: number[];
+}
+
+
 export interface IUpdateModel {
-  brand_id?: number;
+  brand_id?: string;
   category_id?: number;
   model_platform_id?: string;
   render_platform_id?: string;
@@ -52,6 +71,7 @@ export interface IUpdateModel {
   file_id?: string;
   style_id?: number;
   name?: string;
+  top?: boolean;
   description?: string;
   slug?: string;
   furniture_cost?: number;
@@ -63,13 +83,17 @@ export interface IUpdateModel {
 
 export interface IGetModelsQuery extends IDefaultQuery {
   name?: string;
-  availability?: string[];
+  top?: boolean;
+  orderBy?: string;
+  availability?: boolean;
+  brand_id?: string;
   model_platforms?: string[];
   render_platforms?: string[];
   brands?: string[];
   styles?: string[];
   categories?: string[];
   colors?: string[];
+  is_deleted?: boolean;
 }
 
 export interface IAddImageResult {

@@ -1,13 +1,15 @@
+import { isUUID } from 'class-validator';
 import KnexService from '../../../database/connection';
 import { getFirst } from "../../shared/utils/utils";
 import { IBrand, IBrandAdmin, ICreateBrand, ICreateBrandAdmin, IUpdateBrand } from "../interface/brands.interface";
 
 export default class BrandsDAO {
-    async create({ name, site_link, description, image_id }: ICreateBrand): Promise<IBrand> {
+    async create({ name, slug, site_link, description, image_id }: ICreateBrand): Promise<IBrand> {
         return getFirst(
             await KnexService('brands')
                 .insert({
                     name,
+                    slug,
                     site_link,
                     description,
                     image_id
@@ -47,41 +49,97 @@ export default class BrandsDAO {
         )
     }
 
-    async getAll(keyword: string = "", filters, sorts): Promise<IBrand[]> {
-        const { limit, offset, order } = sorts
+    async getAll(filters, sorts): Promise<IBrand[]> {
+
+        const { limit, offset, order, orderBy } = sorts
+        const { name, ...otherFilters } = filters
+
         return await KnexService('brands')
             .select([
                 "brands.id",
                 "brands.name",
+                "brands.slug",
                 "brands.site_link",
                 "brands.description",
-                "brands.image_id"
+                "images.key as image_src",
+                KnexService.raw(`count("models"."id") as models_count`),
+                KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`)
             ])
+            .leftJoin('images', { 'brands.image_id': 'images.id' })
+            .leftJoin('models', { 'models.brand_id': 'brands.id' })
+            .leftJoin(function () {
+                this.distinct([
+                    'brand_id',
+                    'styles.id',
+                    'styles.name'
+                ])
+                    .from('brand_styles')
+                    .as('brand_styles')
+                    .leftJoin('styles', { 'brand_styles.style_id': 'styles.id' })
+                    .groupBy('brand_styles.id', 'styles.id')
+            }, { 'brand_styles.brand_id': 'brands.id' })
             .limit(limit)
             .offset(offset)
-            .orderBy(`brands.name`, order)
-            .whereILike('brands.name', `%${keyword}%`)
-            .andWhere(filters)
-            .groupBy("brands.id")
+            .orderBy(orderBy ? `brands.${orderBy}` : 'models_count', order)
+            .groupBy("brands.id", "images.key")
+            .modify((q) => {
+                if (name) q.whereILike('brands.name', `%${name}%`)
+                if (Object.entries(otherFilters)) q.andWhere(otherFilters)
+            })
     }
 
-    async count() {
-        return await KnexService('brands')
-            .count("brands.id")
+    async count(filters) {
+        const { name, ...otherFilters } = filters
+
+        return (
+            await KnexService('brands')
+                .count("brands.id")
+                .modify((q) => {
+                    if (name) q.whereILike('brands.name', `%${name}%`)
+                    if (Object.entries(otherFilters)) q.andWhere(otherFilters)
+                })
+        )[0].count
     }
 
-    async getById(brandId: string): Promise<IBrand> {
+    async getBySlugOrId(identifier: string): Promise<IBrand> {
         return getFirst(
             await KnexService('brands')
                 .select([
                     "brands.id",
                     "brands.name",
+                    "brands.slug",
                     "brands.site_link",
+                    "brands.address",
+                    "brands.email",
+                    "brands.phone",
                     "brands.description",
-                    "brands.image_id"
+                    "images.key as image_src",
+
+                    KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`)
                 ])
-                .where("brands.id", brandId)
-                .groupBy("brands.id")
+                .leftJoin('images', { 'brands.image_id': 'images.id' })
+                .leftJoin(function () {
+                    this.distinct([
+                        'brand_id',
+                        'styles.id',
+                        'styles.name'
+                    ])
+                        .from('brand_styles')
+                        .as('brand_styles')
+                        .leftJoin('styles', { 'brand_styles.style_id': 'styles.id' })
+                        .groupBy('brand_styles.id', 'styles.id')
+                }, { 'brand_styles.brand_id': 'brands.id' })
+                .groupBy("brands.id", "images.key")
+                .where({
+                    [`brands.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+                })
+        )
+    }
+
+    async getById(id: string): Promise<IBrand> {
+        return getFirst(
+            await KnexService('brands')
+                .where({ id })
         )
     }
 

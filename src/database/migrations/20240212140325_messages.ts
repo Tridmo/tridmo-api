@@ -7,7 +7,9 @@ export async function up(knex: Knex): Promise<void> {
             sender_id uuid references profiles(id) on delete cascade not null,
             receiver_id uuid references profiles(id) on delete cascade not null,
             subject varchar(256) not null, 
-            message text not null
+            message text not null,
+            created_at timestamp with time zone not null default current_timestamp,
+            updated_at timestamp with time zone not null default current_timestamp
         );
     `);
 }

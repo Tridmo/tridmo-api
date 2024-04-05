@@ -56,22 +56,16 @@ export default class ModelsController {
 
   public getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { keyword }: ISearchQuery = req.query
-      const extractedQuery = extractQuery(req.query)
-      const filters: IGetModelsQuery = extractedQuery.filters
-      const sorts: IDefaultQuery = extractedQuery.sorts
+      const { filters, sorts } = extractQuery(req.query)
 
-      const data = await this.modelsService.findAll(
-        keyword,
-        filters,
-        sorts
-      )
+      const data = await this.modelsService.findAll(filters, sorts)
+      const count = await this.modelsService.count(filters)
 
       res.status(200).json({
         success: true,
         data: {
-          models: data.models,
-          pagination: buildPagination(data.count, sorts)
+          models: data,
+          pagination: buildPagination(count, sorts)
         },
       })
     } catch (error) {
@@ -83,11 +77,7 @@ export default class ModelsController {
     try {
       let { identifier } = req.params
 
-      const isSlug = !isUUID(identifier)
-
-      const model = isSlug
-        ? await this.modelsService.findBySlug(identifier)
-        : await this.modelsService.findOne(identifier)
+      const model = await this.modelsService.findOne(identifier)
 
       res.status(200).json({
         success: true,

@@ -26,6 +26,21 @@ export class CreateBrandDTO implements ICreateBrand {
     @IsDefined()
     @IsNotEmpty()
     @IsString()
+    phone: string;
+
+    @IsDefined()
+    @IsNotEmpty()
+    @IsString()
+    email: string;
+
+    @IsDefined()
+    @IsNotEmpty()
+    @IsString()
+    address: string;
+
+    @IsDefined()
+    @IsNotEmpty()
+    @IsString()
     @MinLength(6)
     password: string;
 }
@@ -42,4 +57,16 @@ export class UpdateBrandDTO implements IUpdateBrand {
     @IsOptional()
     @MaxLength(1024)
     site_link: string;
+
+    @IsOptional()
+    @IsString()
+    phone: string;
+
+    @IsOptional()
+    @IsString()
+    email: string;
+
+    @IsOptional()
+    @IsString()
+    address: string;
 }

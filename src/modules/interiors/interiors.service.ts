@@ -1,19 +1,25 @@
-import { ICreateImageTag, IImageTag } from 'modules/image_tags/interface/image_tags.interface';
+import { ICreateImageTag, IImageTag } from '../image_tags/interface/image_tags.interface';
 import { IDefaultQuery } from './../../modules/shared/interface/query.interface';
 import InteriorsDAO from "./dao/interiors.dao";
-import { ICreateInterior, IInterior, IUpdateInterior } from "./interface/interiors.interface";
-import { IRequestFile } from 'modules/shared/interface/files.interface';
-import generateSlug, { indexSlug } from 'modules/shared/utils/generateSlug';
+import { IAddImageResult, ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery, IInterior, IUpdateInterior } from "./interface/interiors.interface";
+import { IRequestFile } from '../shared/interface/files.interface';
+import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
 import InteriorImageService from './interior_images/interior_images.service';
-import { fileDefaults } from 'modules/shared/defaults/defaults';
-import { s3Vars } from 'config/conf';
-import ImageService from 'modules/shared/modules/images/images.service';
-import { uploadFile } from 'modules/shared/utils/fileUpload';
+import { fileDefaults } from '../shared/defaults/defaults';
+import { s3Vars } from '../../config/conf';
+import ImageService from '../shared/modules/images/images.service';
+import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
 import InteriorModelsService from './interior_models/interior_models.service';
 import { isUUID } from 'class-validator';
-import ModelService from 'modules/models/models.service';
-import ImageTagsService from 'modules/image_tags/image_tags.service';
+import ModelService from '../models/models.service';
+import ImageTagsService from '../image_tags/image_tags.service';
+import ErrorResponse from '../shared/utils/errorResponse';
+import flat from 'flat';
+import UsersService from '../users/users.service';
+import InteractionService from '../interactions/interactions.service';
+import { IUser } from '../users/interface/users.interface';
+import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
 
 export default class InteriorService {
     private interiorsDao = new InteriorsDAO()
@@ -22,26 +28,38 @@ export default class InteriorService {
     private imageService = new ImageService()
     private modelService = new ModelService()
     private imageTagService = new ImageTagsService()
+    private usersService = new UsersService()
+    private interactionService = new InteractionService()
+    private savedInteriorsService = new SavedInteriorsService()
 
     async create(
-        data: ICreateInterior,
+        data: ICreateInteriorBody,
         cover: IRequestFile,
         images: IRequestFile[],
+        author: IUser
     ): Promise<IInterior> {
 
         const { tags, ...interiorValues } = data
 
         // generate unique slug
-        data.slug = data.slug || generateSlug(data.name)
-        const foundSlugs = await this.interiorsDao.getBySlug(data.slug)
-        if (foundSlugs && !isEmpty(foundSlugs)) data.slug = indexSlug(data.slug, foundSlugs.map(model => model.slug))
+        let slug = generateSlug(data.name)
+        const foundSlugs = await this.interiorsDao.getSimilarSlugs(slug)
+        if (foundSlugs && !isEmpty(foundSlugs)) slug = indexSlug(slug, foundSlugs.map(model => model.slug))
+
+        console.log(slug)
+        console.log(foundSlugs)
+
+        const interaction = await this.interactionService.create()
 
         const interior = await this.interiorsDao.create({
-            ...interiorValues
+            ...interiorValues,
+            interaction_id: interaction.id,
+            user_id: author.id,
+            slug,
         })
 
         // upload and create cover image
-        const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, fileDefaults.model_cover)
+        const uploadedCover = await uploadFile(cover, "images/interiors", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
         const cover_image = await this.imageService.create({ ...uploadedCover[0] })
         await this.interiorImageService.create({
             interior_id: interior.id,
@@ -50,23 +68,23 @@ export default class InteriorService {
         })
 
         // upload and create other images
-        const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, fileDefaults.interior)
+        const uploadedImages = await uploadFile(images, "images/interiors", s3Vars.imagesBucket, /*fileDefaults.interior*/)
         Promise.all(uploadedImages.map(async i => {
             const image = await this.imageService.create(i)
             await this.interiorImageService.create({
                 interior_id: interior.id,
                 image_id: image.id,
-                is_main: true
+                is_main: false
             })
         }))
 
-        if (tags.length) {
+        if (tags && tags.length) {
             tags.map(async tag => {
                 const modelUrl = tag.text.split('/')
                 let identifier = modelUrl[modelUrl.length - 1]
 
                 if (!isUUID(identifier)) {
-                    const model = await this.modelService.findBySlug(identifier);
+                    const model = await this.modelService.findOne(identifier);
                     identifier = model.id
                 }
 
@@ -86,39 +104,152 @@ export default class InteriorService {
         return interior
     }
 
-    async update(id: string, { category_id }: IUpdateInterior): Promise<IInterior> {
-        const interior = await this.interiorsDao.update(id, { category_id })
-        return interior
+    async update(id: string, values: IUpdateInterior): Promise<IInterior> {
+        const interior = await this.interiorsDao.getByIdMinimal(id)
+        if (!interior) throw new ErrorResponse(400, "Interior was not found");
+
+        return await this.interiorsDao.update(id, values)
     }
 
-    async findAll(keyword: string, sorts: IDefaultQuery, categories, styles, colors, filters) {
-        const interiors = await this.interiorsDao.getAll(keyword, sorts, categories, styles, colors, filters);
+    async findAll(
+        filters: IGetInteriorsQuery,
+        sorts: IDefaultQuery
+    ): Promise<IInterior[]> {
+
+        const interiors = await this.interiorsDao.getAll(filters, sorts);
+
+        interiors.forEach((e, i) => {
+            interiors[i] = flat.unflatten(e)
+        })
+
         return interiors
     }
 
-    async count(keyword, filters, categories, styles, colors) {
-        const data = await this.interiorsDao.count(keyword, filters, categories, styles, colors);
-        console.log(data);
-
-        return data[0] ? data[0].count : 0
+    async count(filters: IGetInteriorsQuery): Promise<number> {
+        return await this.interiorsDao.count(filters);
     }
 
-    async findOne(id): Promise<IInterior> {
-        const interior = await this.interiorsDao.getById(id);
+    async findOne(identifier: string, currentUser?: IUser): Promise<IInterior> {
+
+        const interior = await this.interiorsDao.getByIdOrSlug(identifier);
+
+        if (isEmpty(interior)) throw new ErrorResponse(400, "Interior was not found");
+
+        interior.is_saved = false;
+
+        if (currentUser) {
+            const saved = await this.savedInteriorsService.findAll({
+                user_id: currentUser.id,
+                interior_id: interior.id
+            })
+
+            interior.is_saved = saved.length > 0;
+        }
+
+        if (interior.used_models?.length && !interior.used_models[0]) {
+            interior.used_models = [];
+        }
+        if (interior.images?.length && !interior.images[0]) {
+            interior.images = [];
+        }
+
+        return flat.unflatten(interior)
+    }
+
+    async findById(id: string): Promise<IInterior> {
+
+        const interior = await this.interiorsDao.getByIdMinimal(id);
+
+        if (!interior) throw new ErrorResponse(400, "Interior was not found");
+
         return interior
     }
 
-    async findBySlug(slug): Promise<IInterior> {
-        const interior = await this.interiorsDao.getBySlug(slug);
-        return interior
+    async findByAuthorUsername(username: string, sorts: IDefaultQuery): Promise<IInterior[]> {
+
+        const user = await this.usersService.getByUsername(username)
+
+        if (!user) throw new ErrorResponse(404, 'User was not found')
+
+        const interiors = await this.interiorsDao.getByAuthor(user.id);
+
+        return interiors
     }
 
-    async findByProduct(product_id): Promise<IInterior> {
-        const interior = await this.interiorsDao.getByProductId(product_id);
-        return interior
+    async addImages(interior_id: string, cover: IRequestFile, images: IRequestFile[]): Promise<IAddImageResult> {
+
+        const interior = await this.interiorsDao.getByIdMinimal(interior_id)
+        if (!interior) throw new ErrorResponse(400, "Interior was not found");
+
+        const result: IAddImageResult = {};
+
+        if (cover) {
+            const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket)
+            const cover_image = await this.imageService.create({ ...uploadedCover[0] })
+            await this.interiorImageService.create({
+                interior_id,
+                image_id: cover_image.id,
+                is_main: true
+            })
+
+            result.cover = cover_image
+        }
+
+        if (images) {
+            const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket)
+            if (uploadedImages.length > 1) {
+                Promise.all(uploadedImages.map(async i => {
+                    const image = await this.imageService.create(i)
+                    await this.interiorImageService.create({
+                        interior_id,
+                        image_id: image.id,
+                        is_main: false
+                    })
+                    result.images.push(image)
+                }))
+            } else {
+                const image = await this.imageService.create(uploadedImages[0])
+                await this.interiorImageService.create({
+                    interior_id,
+                    image_id: image.id,
+                    is_main: false
+                })
+                result.images.push(image)
+            }
+        }
+
+        return result
     }
 
-    async delete(id) {
-        await this.interiorsDao.deleteById(id);
+    async deleteImage(image_id: string): Promise<number> {
+        const image = await this.imageService.findOne(image_id);
+        if (isEmpty(image)) throw new ErrorResponse(404, "Image was not found");
+
+        await deleteFile(s3Vars.imagesBucket, image.src)
+
+        await this.interiorImageService.deleteByImage(image_id)
+        const deleted = await this.imageService.delete(image_id)
+
+        return deleted
+    }
+
+    async deleteById(id: string): Promise<number> {
+        const interior = await this.interiorsDao.getByIdMinimal(id)
+        if (!interior) throw new ErrorResponse(404, "Interior was not found");
+
+
+        const interiorImages = await this.interiorImageService.findByInterior(id)
+
+        for await (const interior_image of interiorImages) {
+            const image = await this.imageService.findOne(interior_image.image_id)
+            await deleteFile(s3Vars.imagesBucket, image.src)
+            await this.imageService.delete(interior_image.image_id)
+        }
+
+        const deleted = await this.interiorsDao.deleteById(id)
+
+        await this.interactionService.delete(interior.interaction_id)
+
+        return deleted
     }
 }

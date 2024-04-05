@@ -1,10 +1,20 @@
 import { isEmpty } from 'class-validator'
 import slugify from 'slugify'
 
-const generateSlug = (text: string) => {
- return slugify(text, {
-    replacement: '-',
-    lower: true
+const generateSlug = (
+  text: string,
+  options?: {
+    replacement?: string;
+    remove?: RegExp;
+    lower?: boolean;
+    strict?: boolean;
+    locale?: string;
+    trim?: boolean;
+  }
+) => {
+  return slugify(text, {
+    replacement: options?.replacement || '-',
+    lower: options?.lower || true
   })
 }
 
@@ -15,22 +25,25 @@ export const indexSlug = (slug: string, similarSlugs: string[]) => {
   let result;
   let matched = slug;
   let matchedFound = false
+  let highestIndex = 0;
 
   loop: for (const item of similarSlugs) {
-      if (item.includes(slug) && item.includes("_") && item.length - 2 == slug.length){
-          matched = item
-          matchedFound = true
-          break loop;
-      }
+    const s = item.split("_")[0]
+    const i = Number(item.split("_")[1])
+    if (item.split("_")[0] == slug) {
+      matched = item
+      matchedFound = true
+    }
+
+    if (i && !isNaN(i) && i > highestIndex) highestIndex = i
   }
 
-  const index = (matched.split("_"))[1]
-  if (matchedFound && index && !isNaN(Number(index)))
-    result = `${slug}_${Number(index) + 1}`
-  else if (!index || isNaN(Number(index)))
+  if (matchedFound && highestIndex && !isNaN(highestIndex))
+    result = `${slug}_${highestIndex + 1}`
+  else if (!highestIndex || isNaN(highestIndex))
     result = `${slug}_1`;
   else
-    return slug
+    result = slug
 
   return result
 }

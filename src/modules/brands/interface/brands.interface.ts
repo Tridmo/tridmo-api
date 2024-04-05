@@ -3,8 +3,13 @@ import { IUser } from "../../users/interface/users.interface";
 export interface IBrand {
     id: string;
     name: string;
+    slug: string;
     description: string;
     site_link: string;
+    phone: string;
+    email: string;
+    address: string;
+    styles?: any[];
     image_id: string;
     created_at: Date;
     updated_at: Date;
@@ -12,9 +17,17 @@ export interface IBrand {
 
 export interface ICreateBrand {
     name: string;
+    phone: string;
+    email: string;
+    address: string;
     description: string;
     site_link: string;
     image_id?: string;
+    slug?: string;
+}
+
+export interface IGetBrandsQuery {
+    name?: string;
 }
 
 export interface IBrandAuth {
@@ -40,6 +53,10 @@ export interface ICreateBrandAdmin {
 
 export interface IUpdateBrand {
     name?: string;
+    slug?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
     description?: string;
     site_link?: string;
     image_id?: string;

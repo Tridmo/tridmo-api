@@ -8,7 +8,7 @@ import { UpdateUserDTO } from './dto/users.dto';
 import { CreateUserRoleDTO } from '../auth/roles/dto/roles.dto';
 
 export default class AuthRoute implements Routes {
-  public path = '/users/';
+  public path = '/users';
   public router = Router();
   public usersController = new UsersController();
 
@@ -17,10 +17,12 @@ export default class AuthRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`,protect, check_access("get_users"), this.usersController.getAll);
-    this.router.get(`${this.path}me`,protect, check_access("get_user"), this.usersController.getMe);
-    this.router.get(`${this.path}profile`,protect, check_access("get_user"), this.usersController.profile);
-    this.router.put(`${this.path}profile`,protect, check_access("update_user"), validate(UpdateUserDTO, "body", true), this.usersController.update);
-    this.router.put(`${this.path}role/:id`,protect, check_access("create_role"), validate(CreateUserRoleDTO, 'body', true), this.usersController.updateUserRole);
+    this.router.get(`${this.path}/designers`, this.usersController.getDesigners);
+    this.router.get(`${this.path}/`, protect, check_access("get_users"), this.usersController.getAll);
+    this.router.get(`${this.path}/profile`, protect, check_access("get_user"), this.usersController.profile);
+    this.router.put(`${this.path}/profile`, protect, check_access("update_user"), validate(UpdateUserDTO, "body", true), this.usersController.update);
+    this.router.put(`${this.path}/role/:id`, protect, check_access("create_role"), validate(CreateUserRoleDTO, 'body', true), this.usersController.updateUserRole);
+    this.router.get(`${this.path}/check/:username`, this.usersController.checkUsername);
+    this.router.get(`${this.path}/:username`, this.usersController.profileByUsername);
   }
 }

@@ -7,23 +7,23 @@ import { IMaterial, ICreateMaterial } from "./interface/materials.interface";
 export default class MaterialService {
     private materialsDao = new MaterialsDAO()
 
-    async create({name}: ICreateMaterial) {
-        const foundMaterial: IMaterial = await this.materialsDao.getByName(name);        
+    async create({ name }: ICreateMaterial) {
+        const foundMaterial: IMaterial = await this.materialsDao.getByName(name);
         if (foundMaterial) {
-          throw new ErrorResponse(400, "This material already exists");
+            throw new ErrorResponse(400, "This material already exists");
         }
         const material: IMaterial = await this.materialsDao.create({ name })
-        
+
         return material
     }
 
-    async update(id: string, values: ICreateMaterial) {
+    async update(id: number, values: ICreateMaterial) {
         const foundMaterial: IMaterial = await this.materialsDao.getById(id);
         if (isEmpty(foundMaterial)) {
-          throw new ErrorResponse(400, "Material was not found");
+            throw new ErrorResponse(400, "Material was not found");
         }
         const material: IMaterial = await this.materialsDao.update(id, values)
-        
+
         return material
     }
 
@@ -32,16 +32,16 @@ export default class MaterialService {
         return materials
     }
 
-    async findOne(id: string) {
+    async findOne(id: number) {
         const material = await this.materialsDao.getById(id);
-        if (isEmpty(material)) {
+        if (!material) {
             throw new ErrorResponse(400, "Material was not found");
         }
 
         return material
     }
 
-    async delete(id: string) {
+    async delete(id: number) {
         await this.materialsDao.deleteById(id);
     }
 }

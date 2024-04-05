@@ -4,6 +4,11 @@ import errorHandler from "./modules/shared/middlewares/errorHandler";
 import morgan from 'morgan';
 import expressFileUpload from 'express-fileupload';
 import path from "path";
+import consoleStamp from 'console-stamp'
+
+consoleStamp(console, {
+  format: ':date(HH:MM:ss)'
+})
 
 class App {
   public app: Express;
@@ -29,7 +34,6 @@ class App {
     this.app.use(expressFileUpload())
     this.app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")))
     this.app.use(morgan("tiny"))
-
   }
 
   private initializeRoutes(router: Router) {

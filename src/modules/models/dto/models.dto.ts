@@ -1,12 +1,12 @@
-import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../../shared/custom/validators";
-import { DefaultQueryDTO } from "modules/shared/dto/query.dto";
-import { IGetModelsQuery } from "../interface/models.interface";
+import { DefaultQueryDTO } from "../../shared/dto/query.dto";
+import { ICreateModel, ICreateModelBody, IGetModelsQuery } from "../interface/models.interface";
 
-export class CreateModelDTO {
+export class CreateModelDTO implements ICreateModelBody {
   @IsString()
   @IsOptional()
-  brand_id: number;
+  brand_id: string;
 
   @IsDefined()
   @IsString()
@@ -34,6 +34,9 @@ export class CreateModelDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsBoolean()
+  top: boolean;
 
   @IsDefined()
   @IsString()
@@ -60,7 +63,7 @@ export class CreateModelDTO {
 
   @IsOptional()
   @IsNumberOrStringifiedNumber()
-  width: string | number;
+  width: number;
 
   @IsDefined()
   @IsNotEmpty()
@@ -82,7 +85,7 @@ export class CreateModelDTO {
 export class UpdateModelDTO {
   @IsString()
   @IsOptional()
-  brand_id: number;
+  brand_id: string;
 
   @IsOptional()
   @IsString()
@@ -110,6 +113,9 @@ export class UpdateModelDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsBoolean()
+  top: boolean;
 
   @IsOptional()
   @IsString()
@@ -160,14 +166,25 @@ export class AddColorsDTO {
 }
 
 export class GetModelsQueryDTO extends DefaultQueryDTO implements IGetModelsQuery {
-  @IsNumberOrStringifiedNumber()
-  brand_id: number;
+  @IsString()
+  name?: string;
 
-  @IsNumberOrStringifiedNumber()
-  category_id: string;
+  @IsBooleanOrStringifiedBoolean()
+  top: boolean;
 
-  @IsNumberOrStringifiedNumber()
-  style_id: number;
+  @IsString()
+  brand_id?: string;
+
+  @IsBooleanOrStringifiedBoolean()
+  availability?: boolean;
+
+  categories?: any[];
+
+  styles?: any[];
+
+  model_platforms?: any[];
+
+  render_platforms?: any[];
 
   @IsBooleanOrStringifiedBoolean()
   is_deleted?: boolean;

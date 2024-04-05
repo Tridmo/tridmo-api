@@ -38,11 +38,6 @@ export class SignupDTO implements ISignup {
   @IsString()
   @MinLength(6)
   password: string;
-
-  @IsDefined()
-  @IsNotEmpty()
-  @IsDateString()
-  birth_date: Date;
 }
 
 export class SigninDTO implements ISignin {

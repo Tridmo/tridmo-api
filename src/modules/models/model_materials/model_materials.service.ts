@@ -1,9 +1,15 @@
+import MaterialService from '../../materials/materials.service';
 import ModelMaterialsDAO from "./dao/model_materials.dao";
 import { ICreateModelMaterial } from "./interface/model_materials.interface";
 
 export default class ModelMaterialService {
     private modelMaterialsDao = new ModelMaterialsDAO()
+    private materialService = new MaterialService()
+
     async create({ model_id, material_id }: ICreateModelMaterial) {
+
+        await this.materialService.findOne(material_id)
+
         const data = await this.modelMaterialsDao.create({
             model_id,
             material_id

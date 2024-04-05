@@ -3,7 +3,11 @@ export interface ICreateUser {
   full_name: string;
   email: string;
   username: string;
-  birth_date: Date;
+  birth_date?: Date;
+  address?: string;
+  phone?: string;
+  telegram?: string;
+  portfolio_link?: string;
 }
 
 export interface IUpdateUser {
@@ -11,6 +15,10 @@ export interface IUpdateUser {
   language_id?: number;
   username?: string;
   birth_date?: Date;
+  address?: string;
+  phone?: string;
+  telegram?: string;
+  portfolio_link?: string;
 }
 export interface IUserMetadata {
   full_name: string;
@@ -32,6 +40,18 @@ export interface IUser {
   email: string;
   username: string;
   birth_date: Date;
+  address: string;
+  phone: string;
+  telegram: string;
+  portfolio_link: string;
+  image_id?: string;
+  image_src?: string;
   created_at: Date;
   updated_at: Date;
+  designs_count?: number | string;
+}
+
+export interface IGetUsersQuery {
+  full_name: string;
+  role_id: string | number;
 }

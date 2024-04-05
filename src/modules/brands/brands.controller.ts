@@ -18,16 +18,9 @@ export default class BrandsController {
 
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { name, site_link, description, username, password }: CreateBrandDTO = req.body
 
       const data = await this.brandsService.create(
-        {
-          name: name.replace(/\s/g, ''),
-          site_link,
-          description,
-          username,
-          password
-        },
+        req.body as CreateBrandDTO,
         req.files.image as UploadedFile
       )
 
@@ -65,28 +58,17 @@ export default class BrandsController {
   public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { query } = req
-      const { keyword }: ISearchQuery = query
       const filters = extractQuery(query).filters
       const sorts = extractQuery(query).sorts
 
-      if (!query.limit) {
-        const brandsCount = await this.brandsService.count()
-        sorts.limit = brandsCount
-      }
-
-      const data = await this.brandsService.findAll(keyword, filters, sorts)
-      const pagination = buildPagination((await this.brandsService.count()), sorts)
-
-      // const result = []
-      // for (const brand of data) {
-      //     result.push(flat.unflatten(brand))
-      // }
+      const data = await this.brandsService.findAll(filters, sorts)
+      const count = await this.brandsService.count(filters)
 
       res.status(200).json({
         success: true,
         data: {
           brands: data,
-          pagination
+          pagination: buildPagination(count, sorts)
         }
       })
     } catch (error) {
@@ -96,9 +78,9 @@ export default class BrandsController {
 
   public getOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params
+      const { identifier } = req.params
 
-      const data = await this.brandsService.findOne(id)
+      const data = await this.brandsService.findOne(identifier)
 
       res.status(200).json({
         success: true,

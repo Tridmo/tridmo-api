@@ -8,7 +8,7 @@ export class UpdateUserDTO implements IUpdateUser {
   @IsString()
   username?: string;
 
-  @IsDate()
+  @IsString()
   birth_date?: Date;
 }
 export class UpdateUserEmailDTO implements IUpdateUserEmail {

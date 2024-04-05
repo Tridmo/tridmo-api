@@ -4,7 +4,7 @@ import MaterialService from "./materials.service";
 
 import { CreateMaterialDTO, UpdateMaterialDTO } from "./dto/materials.dto";
 import { ISearchQuery } from "../shared/interface/query.interface";
- 
+
 export default class MaterialsController {
     private materialsService = new MaterialService()
 
@@ -27,7 +27,7 @@ export default class MaterialsController {
         try {
             const materialData: UpdateMaterialDTO = req.body
             const { id } = req.params
-            const data = await this.materialsService.update(id, materialData)
+            const data = await this.materialsService.update(Number(id), materialData)
 
             res.status(200).json({
                 success: true,
@@ -57,7 +57,7 @@ export default class MaterialsController {
     public getOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { id } = req.params
-            const data = await this.materialsService.findOne(id)
+            const data = await this.materialsService.findOne(Number(id))
 
             res.status(200).json({
                 success: true,
@@ -71,8 +71,8 @@ export default class MaterialsController {
     public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { id } = req.params
-            await this.materialsService.delete(id)
-            
+            await this.materialsService.delete(Number(id))
+
             res.status(200).json({
                 success: true,
                 message: "Material deleted successfully"

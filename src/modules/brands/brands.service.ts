@@ -2,15 +2,16 @@ import { isEmpty } from "class-validator";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import ErrorResponse from "../shared/utils/errorResponse";
 import BrandsDAO from "./dao/brands.dao";
-import { IBrand, IBrandAuth, ICreateBrand } from "./interface/brands.interface";
+import { IBrand, IBrandAuth, ICreateBrand, IGetBrandsQuery } from "./interface/brands.interface";
 import ModelService from "../models/models.service";
 import { uploadFile } from "../shared/utils/fileUpload";
 import { IImage, IRequestFile } from "../shared/interface/files.interface";
-import { s3Vars } from "config/conf";
+import { s3Vars } from "../../config/conf";
 import ImageService from "../shared/modules/images/images.service";
 import AuthService from "../auth/auth.service";
-import { IUser } from "modules/users/interface/users.interface";
-import UsersService from "modules/users/users.service";
+import { IUser } from "../users/interface/users.interface";
+import UsersService from "../users/users.service";
+import generateSlug from '../shared/utils/generateSlug';
 
 export default class BrandService {
     private brandsDao = new BrandsDAO()
@@ -20,7 +21,7 @@ export default class BrandService {
     private usersService = new UsersService()
 
     async create(
-        { name, site_link, description, username, password }: ICreateBrand & IBrandAuth,
+        { name, site_link, description, username, password, phone, email, address }: ICreateBrand & IBrandAuth,
         brand_image: IRequestFile
     ): Promise<{
         brand: IBrand,
@@ -29,6 +30,9 @@ export default class BrandService {
 
         const foundBrand: IBrand = await this.brandsDao.getByName(name);
         if (foundBrand) throw new ErrorResponse(400, "This brand already exists");
+
+        // generate unique slug
+        const slug = generateSlug(name, { replacement: "", lower: false })
 
         const admin = await this.authService.createVerifiedUser({
             email: `admin@${name.toLowerCase()}.com`,
@@ -40,6 +44,10 @@ export default class BrandService {
 
         const brand: IBrand = await this.brandsDao.create({
             name,
+            slug,
+            phone,
+            email,
+            address,
             site_link,
             description
         })
@@ -91,19 +99,22 @@ export default class BrandService {
         return imageUpdate
     }
 
-    async findAll(keyword: string, filters: IDefaultQuery, sorts: IDefaultQuery): Promise<IBrand[]> {
-        const brands = await this.brandsDao.getAll(keyword, filters, sorts);
+    async findAll(filters: IGetBrandsQuery, sorts: IDefaultQuery): Promise<IBrand[]> {
+        const brands = await this.brandsDao.getAll(filters, sorts);
         return brands
     }
 
-    async count(): Promise<number> {
-        const data = await this.brandsDao.count();
-        return data[0] ? Number(data[0].count) : 0
+    async count(filters): Promise<number> {
+        return await this.brandsDao.count(filters);
     }
 
-    async findOne(brand_id: string): Promise<IBrand> {
-        const brand = await this.brandsDao.getById(brand_id);
-        if (!brand) throw new ErrorResponse(400, "Brand was not found");
+    async findOne(identifier: string): Promise<IBrand> {
+        const brand = await this.brandsDao.getBySlugOrId(identifier);
+        if (!brand) throw new ErrorResponse(404, "Brand was not found");
+
+        if (brand.styles && !brand.styles[0]) {
+            brand.styles = []
+        }
 
         return brand
     }

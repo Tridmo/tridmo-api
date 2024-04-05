@@ -9,13 +9,11 @@ import ColorsRoute from './modules/colors/colors.route';
 import MaterialsRoute from './modules/materials/materials.route';
 import CostsRoute from './modules/costs/costs.route';
 import StylesRoute from './modules/styles/styles.route';
-import FormfactorsRoute from './modules/formfactors/formfactors.route';
 import UserProductViewsRoute from './modules/views/user_views/user_product_views.route';
-import OrdersRoute from './modules/orders/orders.route';
-import ProductsRoute from './modules/products/products.route';
 import InteriorsRoute from './modules/interiors/interiors.route';
-import TransactionsRoute from './modules/transactions/transactions.route';
-import CollectionsRoute from './modules/collections/collections.route'
+import SavedInteriorsRoute from './modules/saved_interiors/saved_interiors.route';
+import SavedModelsRoute from './modules/saved_models/saved_models.route';
+import CommentsRoute from './modules/comments/comments.route';
 
 const router = Router()
 
@@ -24,17 +22,15 @@ const usersRoute = new UsersRoute()
 const categoriesRoute = new CategoriesRoute()
 const brandsRoute = new BrandsRoute()
 const modelsRoute = new ModelsRoute()
-const productsRoute = new ProductsRoute()
 const colorsRoute = new ColorsRoute()
 const materialsRoute = new MaterialsRoute()
 const costsRoute = new CostsRoute()
 const stylesRoute = new StylesRoute()
-const formfactorsRoute = new FormfactorsRoute()
 const userProductViewsRoute = new UserProductViewsRoute()
-const ordersRoute = new OrdersRoute()
 const interiorsRoute = new InteriorsRoute()
-const transactionsRoute = new TransactionsRoute()
-const collectionRoute = new CollectionsRoute()
+const savedInteriorsRoute = new SavedInteriorsRoute()
+const savedModelsRoute = new SavedModelsRoute()
+const commentsRoute = new CommentsRoute()
 
 
 router.use("/", authRoute.router)
@@ -42,17 +38,15 @@ router.use("/", usersRoute.router)
 router.use("/", categoriesRoute.router)
 router.use("/", brandsRoute.router)
 router.use("/", modelsRoute.router)
-router.use("/", productsRoute.router)
 router.use("/", colorsRoute.router)
 router.use("/", materialsRoute.router)
 router.use("/", costsRoute.router)
 router.use("/", stylesRoute.router)
-router.use("/", formfactorsRoute.router)
 router.use("/", userProductViewsRoute.router)
-router.use("/", ordersRoute.router)
 router.use("/", interiorsRoute.router)
-router.use("/", transactionsRoute.router)
-router.use("/", collectionRoute.router)
+router.use("/", savedInteriorsRoute.router)
+router.use("/", savedModelsRoute.router)
+router.use("/", commentsRoute.router)
 
 
 export default router
