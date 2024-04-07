@@ -135,6 +135,7 @@ export default class ModelsDAO {
                     'brands.id as brand.id',
                     'brand_logo as brand.logo',
                     'brands.name as brand.name',
+                    'brands.slug as brand.slug',
                     'brands.description as brand.description',
                     'brands.address as brand.address',
                     'brands.phone as brand.phone',
@@ -163,7 +164,7 @@ export default class ModelsDAO {
                     KnexService.raw('jsonb_agg(distinct "model_materials") as materials'),
                     KnexService.raw('jsonb_agg(distinct "model_images") as images'),
                     KnexService.raw('jsonb_agg(distinct "model_colors") as colors'),
-                    KnexService.raw(`coalesce(jsonb_agg(distinct "interior_models") filter (where "interior_models" is not null), '[]'::jsonb ) as used_interiors`),
+                    KnexService.raw(`jsonb_agg(distinct "interior_models") as used_interiors`),
 
                 ])
                 .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
@@ -261,6 +262,7 @@ export default class ModelsDAO {
                     'interactions.id',
                     'brands.id',
                     'brands.name',
+                    'brands.slug',
                     'brands.address',
                     'brands.phone',
                     'brands.brand_logo',

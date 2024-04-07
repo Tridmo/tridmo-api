@@ -19,8 +19,6 @@ export default class SavedModelsDAO {
             .select([
                 'saved_models.*'
             ])
-            .innerJoin("models", { 'saved_models.model_id': 'models.id' })
-            .innerJoin("users", { 'saved_models.user_id': 'users.id' })
             .where(filters)
     }
 
