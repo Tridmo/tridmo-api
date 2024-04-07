@@ -1,4 +1,4 @@
-import { RequestWithUser } from "../../interface/routes.interface";
+import { CustomRequest } from "../../interface/routes.interface";
 import SessionDAO from "../../../auth/dao/sessions.dao";
 import UsersDAO from "../../../users/dao/users.dao";
 import { NextFunction, Request, Response } from "express";
@@ -12,7 +12,7 @@ import supabase from "../../../../database/supabase/supabase";
 
 const accessToken = server.accessToken
 
-const checkUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const checkUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
 
     const usersDao = new UsersDAO();

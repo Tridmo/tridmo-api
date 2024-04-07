@@ -5,7 +5,7 @@ import extractQuery from "../shared/utils/extractQuery";
 import { IGetModelsQuery } from "./interface/models.interface";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import { defaults } from "../shared/defaults/defaults"
-import { RequestWithUser } from "../shared/interface/routes.interface";
+import { CustomRequest } from "../shared/interface/routes.interface";
 import ModelService from "./models.service";
 import { UploadedFile } from "express-fileupload";
 import ModelImageService from "./model_images/model_images.service";
@@ -73,11 +73,9 @@ export default class ModelsController {
     }
   }
 
-  public getOne = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getOne = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      let { identifier } = req.params
-
-      const model = await this.modelsService.findOne(identifier)
+      const model = await this.modelsService.findOne(req.params.identifier, req.user?.profile)
 
       res.status(200).json({
         success: true,
@@ -103,7 +101,7 @@ export default class ModelsController {
     }
   }
 
-  public getOneByFilters = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getOneByFilters = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const { query } = req
       const extractedQuery = extractQuery(query)
@@ -248,7 +246,7 @@ export default class ModelsController {
     }
   }
 
-  public download = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public download = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const presignedUrl = await this.modelsService.download(
         req.params.id,

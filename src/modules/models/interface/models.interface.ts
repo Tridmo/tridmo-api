@@ -1,3 +1,4 @@
+import { IInterior } from '../../interiors/interface/interiors.interface';
 import { IImage } from "../../shared/interface/files.interface";
 import { IDefaultQuery } from "../../shared/interface/query.interface";
 
@@ -19,6 +20,10 @@ export interface IModel {
   length: number;
   height: number;
   width: number;
+  is_saved?: boolean;
+  images?: any;
+  file?: any;
+  used_interiors?: IInterior[];
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;

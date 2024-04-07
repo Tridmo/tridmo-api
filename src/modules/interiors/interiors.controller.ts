@@ -2,7 +2,7 @@ import { ISearchQuery, IDefaultQuery } from './../shared/interface/query.interfa
 import { isEmpty, isUUID } from "class-validator";
 import { NextFunction, Request, Response } from "express";
 import { defaults, fileDefaults } from "../shared/defaults/defaults"
-import { RequestWithUser } from "../shared/interface/routes.interface";
+import { CustomRequest } from "../shared/interface/routes.interface";
 
 import ImageService from "../shared/modules/images/images.service";
 import { uploadFile } from "../shared/utils/fileUpload";
@@ -16,6 +16,7 @@ import { IGetInteriorsQuery } from './interface/interiors.interface';
 import ErrorResponse from '../shared/utils/errorResponse';
 import UsersService from '../users/users.service';
 import InteriorImageService from './interior_images/interior_images.service';
+import { reqT } from '../shared/utils/language';
 
 export default class InteriorsController {
   private interiorsService = new InteriorService()
@@ -24,7 +25,7 @@ export default class InteriorsController {
   private usersService = new UsersService()
   private interiorModelsService = new InteriorModelsService()
 
-  public create = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { image_tags, ...interiorValues } = req.body
       const interior = await this.interiorsService.create(
@@ -39,7 +40,7 @@ export default class InteriorsController {
         data: {
           interior
         },
-        message: "Interior created successfully"
+        message: reqT('interior_created')
       })
     } catch (error) {
       next(error)
@@ -56,7 +57,7 @@ export default class InteriorsController {
 
       if (filters.author) {
         const user = await this.usersService.getByUsername(filters.author)
-        if (!user) throw new ErrorResponse(404, 'User was not found')
+        if (!user) throw new ErrorResponse(404, reqT('user_404'))
         filters.author = user.id
       }
 
@@ -123,9 +124,9 @@ export default class InteriorsController {
     }
   }
 
-  public getOne = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getOne = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      const data = await this.interiorsService.findOne(req.params.identifier, req.user.profile)
+      const data = await this.interiorsService.findOne(req.params.identifier, req.user?.profile)
 
       res.status(200).json({
         success: true,
@@ -148,7 +149,7 @@ export default class InteriorsController {
 
       res.status(201).json({
         success: true,
-        message: "Interior updated successfully",
+        message: reqT('saved_successfully'),
         data: {
           interior: data
         },
@@ -168,7 +169,7 @@ export default class InteriorsController {
 
       res.status(201).json({
         success: true,
-        message: "Images added successfully"
+        message: reqT('saved_successfully'),
       })
     } catch (error) {
       next(error)
@@ -183,7 +184,7 @@ export default class InteriorsController {
 
       res.status(200).json({
         success: true,
-        message: "Interior was deleted successfully"
+        message: reqT('deleted_successfully')
       })
     } catch (error) {
       next(error)
@@ -196,7 +197,7 @@ export default class InteriorsController {
 
       res.status(deleted ? 200 : 500).json({
         success: Boolean(deleted),
-        message: deleted ? "Image deleted successfully" : "Something went wrong"
+        message: deleted ? reqT('deleted_successfully') : reqT('sth_went_wrong')
       })
     } catch (error) {
       next(error)

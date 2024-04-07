@@ -23,8 +23,6 @@ export default class SavedInteriorsDAO {
     }
 
     async delete(where: IFilterSavedInterior): Promise<number> {
-        console.log(where);
-
         return await KnexService('saved_interiors')
             .where(where)
             .delete()

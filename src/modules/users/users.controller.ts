@@ -2,7 +2,7 @@ import flat from 'flat';
 import { NextFunction, Request, Response } from 'express';
 import UsersService from './users.service';
 import { IGetUsersQuery, IUpdateUser, IUser } from './interface/users.interface';
-import { RequestWithUser } from '../shared/interface/routes.interface';
+import { CustomRequest } from '../shared/interface/routes.interface';
 import { isEmpty } from 'class-validator';
 import { defaults } from '../shared/defaults/defaults';
 import extractQuery from '../shared/utils/extractQuery';
@@ -13,13 +13,14 @@ import UserRoleService from './user_roles/user_roles.service';
 import supabase from '../../database/supabase/supabase';
 import buildPagination from '../shared/utils/paginationBuilder';
 import { authVariables } from '../auth/variables';
+import { reqT } from '../shared/utils/language';
 
 class UsersController {
   public usersService = new UsersService();
   public rolesService = new RoleService();
   public uRolesService = new UserRoleService();
 
-  public getAll = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public getAll = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { query } = req
       const filters = extractQuery(query).filters
@@ -38,7 +39,7 @@ class UsersController {
     }
   };
 
-  public getDesigners = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public getDesigners = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { query } = req
       const filters: IGetUsersQuery = extractQuery(query).filters
@@ -61,7 +62,7 @@ class UsersController {
     }
   };
 
-  public profile = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public profile = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { user } = req
 
@@ -95,7 +96,7 @@ class UsersController {
   };
 
 
-  public profileByUsername = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public profileByUsername = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { username } = req.params
 
@@ -127,7 +128,7 @@ class UsersController {
   };
 
 
-  public checkUsername = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public checkUsername = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
 
       const exists = await this.usersService.getByUsername(req.params.username)
@@ -143,38 +144,38 @@ class UsersController {
     }
   };
 
-  public update = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userData: IUpdateUser = req.body
       const { user } = req
       const data = await this.usersService.update(user.profile.id, userData)
 
-      res.status(200).json({ success: true, data: data, message: 'Changes saved successfully' });
+      res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
     } catch (error) {
       next(error)
     }
   }
 
-  public updateUserRole = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public updateUserRole = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { role_id }: ICreateUserRole = req.body
       const { id } = req.params
 
       const data = await this.uRolesService.updateByUser(id, { role_id })
 
-      res.status(200).json({ success: true, data: data, message: 'Changes saved successfully' });
+      res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
     } catch (error) {
       next(error)
     }
   }
 
-  public deleteUserRole = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public deleteUserRole = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { role_id } = req.body
       const { id } = req.params
       await this.rolesService.createUserRole({ user_id: id, role_id })
 
-      res.status(200).json({ success: true, message: 'Changes saved successfully' });
+      res.status(200).json({ success: true, message: reqT('saved_successfully') });
     } catch (error) {
       next(error)
     }

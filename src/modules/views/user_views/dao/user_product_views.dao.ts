@@ -72,8 +72,6 @@ export default class UserProductViewsDAO {
     }
 
     async getWithLimit(limit: number, filters: IGetUserProductViewFilters) {
-        console.log(filters, 'hfhgjkm,');
-
         return await KnexService('user_product_views')
             .select([
                 "user_product_views.user_id",

@@ -3,6 +3,7 @@ import AuthService from './auth.service';
 import { ConfirmOtpDTO, ResendOtpDTO, SigninDTO, SignupDTO } from './dto/auth.dto';
 import { IRefreshToken, ISignin } from './interface/auth.interface';
 import supabase from '../../database/supabase/supabase';
+import { reqT } from '../shared/utils/language';
 
 class AuthController {
   public authService = new AuthService();
@@ -13,7 +14,7 @@ class AuthController {
 
       await this.authService.signup(userData);
 
-      res.status(201).json({ success: true, message: `Signup successful. Please check your email for verification.` });
+      res.status(201).json({ success: true, message: reqT('signup_success_check_email') });
     } catch (error) {
       next(error);
     }
@@ -25,7 +26,7 @@ class AuthController {
 
       const data = await this.authService.resendOtp(otpData.email);
 
-      res.status(200).json({ success: true, message: `Please check your email for verification.` });
+      res.status(200).json({ success: true, message: reqT('check_email_to_verify') });
     } catch (error) {
       next(error);
     }
@@ -34,7 +35,7 @@ class AuthController {
     try {
       const data = await this.authService.signIn(req.body);
 
-      res.status(201).json({ success: true, data, message: 'Login success' });
+      res.status(201).json({ success: true, data, message: reqT('login_success') });
     } catch (error) {
       next(error);
     }

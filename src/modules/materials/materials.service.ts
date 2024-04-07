@@ -10,7 +10,7 @@ export default class MaterialService {
     async create({ name }: ICreateMaterial) {
         const foundMaterial: IMaterial = await this.materialsDao.getByName(name);
         if (foundMaterial) {
-            throw new ErrorResponse(400, "This material already exists");
+            throw new ErrorResponse(400, "Material already exists");
         }
         const material: IMaterial = await this.materialsDao.create({ name })
 
@@ -20,7 +20,7 @@ export default class MaterialService {
     async update(id: number, values: ICreateMaterial) {
         const foundMaterial: IMaterial = await this.materialsDao.getById(id);
         if (isEmpty(foundMaterial)) {
-            throw new ErrorResponse(400, "Material was not found");
+            throw new ErrorResponse(404, "Material was not found");
         }
         const material: IMaterial = await this.materialsDao.update(id, values)
 
@@ -35,7 +35,7 @@ export default class MaterialService {
     async findOne(id: number) {
         const material = await this.materialsDao.getById(id);
         if (!material) {
-            throw new ErrorResponse(400, "Material was not found");
+            throw new ErrorResponse(404, "Material was not found");
         }
 
         return material

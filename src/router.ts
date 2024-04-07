@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 
 import AuthRoute from './modules/auth/auth.route';
@@ -17,36 +18,23 @@ import CommentsRoute from './modules/comments/comments.route';
 
 const router = Router()
 
-const authRoute = new AuthRoute()
-const usersRoute = new UsersRoute()
-const categoriesRoute = new CategoriesRoute()
-const brandsRoute = new BrandsRoute()
-const modelsRoute = new ModelsRoute()
-const colorsRoute = new ColorsRoute()
-const materialsRoute = new MaterialsRoute()
-const costsRoute = new CostsRoute()
-const stylesRoute = new StylesRoute()
-const userProductViewsRoute = new UserProductViewsRoute()
-const interiorsRoute = new InteriorsRoute()
-const savedInteriorsRoute = new SavedInteriorsRoute()
-const savedModelsRoute = new SavedModelsRoute()
-const commentsRoute = new CommentsRoute()
+const routes = [
+    new AuthRoute(),
+    new UsersRoute(),
+    new CategoriesRoute(),
+    new BrandsRoute(),
+    new ModelsRoute(),
+    new ColorsRoute(),
+    new MaterialsRoute(),
+    new CostsRoute(),
+    new StylesRoute(),
+    new UserProductViewsRoute(),
+    new InteriorsRoute(),
+    new SavedInteriorsRoute(),
+    new SavedModelsRoute(),
+    new CommentsRoute()
+]
 
-
-router.use("/", authRoute.router)
-router.use("/", usersRoute.router)
-router.use("/", categoriesRoute.router)
-router.use("/", brandsRoute.router)
-router.use("/", modelsRoute.router)
-router.use("/", colorsRoute.router)
-router.use("/", materialsRoute.router)
-router.use("/", costsRoute.router)
-router.use("/", stylesRoute.router)
-router.use("/", userProductViewsRoute.router)
-router.use("/", interiorsRoute.router)
-router.use("/", savedInteriorsRoute.router)
-router.use("/", savedModelsRoute.router)
-router.use("/", commentsRoute.router)
-
+routes.forEach(route => router.use('/', route.router))
 
 export default router

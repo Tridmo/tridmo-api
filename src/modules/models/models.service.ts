@@ -20,6 +20,8 @@ import { IModelMaterial } from './model_materials/interface/model_materials.inte
 import DownloadsService from '../downloads/downloads.service';
 import InteractionService from '../interactions/interactions.service';
 import BrandsDAO from '../brands/dao/brands.dao';
+import SavedModelsService from '../saved_models/saved_models.service';
+import { IUser } from '../users/interface/users.interface';
 
 export default class ModelService {
     private modelsDao = new ModelsDAO()
@@ -30,6 +32,7 @@ export default class ModelService {
     private imageService = new ImageService()
     private downloadService = new DownloadsService()
     private interactionService = new InteractionService()
+    private savedModelsService = new SavedModelsService()
     private brandsDao = new BrandsDAO()
 
     async create(
@@ -136,12 +139,28 @@ export default class ModelService {
         return await this.modelsDao.count(filters);
     }
 
-    async findOne(identifier: string): Promise<IModel> {
-        const data = await this.modelsDao.getByIdOrSlug(identifier);
+    async findOne(identifier: string, currentUser?: IUser): Promise<IModel> {
+        const model = await this.modelsDao.getByIdOrSlug(identifier);
 
-        if (!data) throw new ErrorResponse(400, "Model was not found");
+        if (!model) throw new ErrorResponse(400, "Model was not found");
 
-        const model = flat.unflatten(data)
+        model.is_saved = false;
+
+        if (currentUser) {
+            const saved = await this.savedModelsService.findAll({
+                user_id: currentUser.id,
+                model_id: model.id
+            })
+
+            model.is_saved = saved.length > 0;
+        }
+
+        if (model.used_interiors?.length && !model.used_interiors[0]) {
+            model.used_interiors = [];
+        }
+        if (model.images?.length && !model.images[0]) {
+            model.images = [];
+        }
 
         const file = await this.fileService.findOne(model.file_id)
 
@@ -152,17 +171,17 @@ export default class ModelService {
             mimetype: file.mimetype,
         }
 
-        model['file'] = filePublicData
+        model.file = filePublicData
 
-        model['images'].sort((a, b) => new Date(a['created_at']).valueOf() - new Date(b['created_at']).valueOf())
+        model.images.sort((a, b) => new Date(a['created_at']).valueOf() - new Date(b['created_at']).valueOf())
 
-        return model
+        return flat.unflatten(model)
     }
 
     async findById(id: string): Promise<IModel> {
         const data = await this.modelsDao.getByIdMinimal(id);
 
-        if (!data) throw new ErrorResponse(400, "Model was not found");
+        if (!data) throw new ErrorResponse(404, "Model was not found");
 
         return data
     }

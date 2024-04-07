@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import SavedInteriorsService from './saved_interiors.service';
-import { RequestWithUser } from '../shared/interface/routes.interface';
+import { CustomRequest } from '../shared/interface/routes.interface';
+import { reqT } from '../shared/utils/language';
 
 export default class SavedInteriorsController {
     private service = new SavedInteriorsService()
 
-    public create = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
         try {
 
             const data = await this.service.create({
@@ -16,7 +17,7 @@ export default class SavedInteriorsController {
             res.status(201).json({
                 success: true,
                 data,
-                message: "Interior saved successfully"
+                message: reqT('saved_successfully')
             })
         } catch (error) {
             next(error)
@@ -37,7 +38,7 @@ export default class SavedInteriorsController {
         }
     }
 
-    public delete = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { interior_id } = req.params
             await this.service.delete({
@@ -47,7 +48,7 @@ export default class SavedInteriorsController {
 
             res.status(200).json({
                 success: true,
-                message: "Interior removed from saved list"
+                message: reqT('deleted_successfully')
             })
         } catch (error) {
             next(error)

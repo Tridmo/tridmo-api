@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { RequestWithUser } from '../shared/interface/routes.interface';
+import { CustomRequest } from '../shared/interface/routes.interface';
 import CommentsService from './comments.service';
 import extractQuery from '../shared/utils/extractQuery';
 
 export default class CommentsController {
     private service = new CommentsService()
 
-    public create = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
         try {
 
             const data = await this.service.create(req.body, req.user.profile)
@@ -23,7 +23,7 @@ export default class CommentsController {
         }
     }
 
-    public update = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    public update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
         try {
 
             const data = await this.service.update(req.params.id, req.body)
@@ -58,7 +58,7 @@ export default class CommentsController {
         }
     }
 
-    public delete = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { id } = req.params
             await this.service.delete({ id })

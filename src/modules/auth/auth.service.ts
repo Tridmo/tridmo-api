@@ -16,6 +16,7 @@ import UserRoleService from "../users/user_roles/user_roles.service";
 import supabase from "../../database/supabase/supabase";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { authVariables } from "./variables";
+import { reqT } from '../shared/utils/language';
 
 export default class AuthService {
   private OtpDigitsCount = 6;
@@ -31,14 +32,10 @@ export default class AuthService {
 
   async signup({ email, full_name, password, birth_date, username }: ISignup) {
 
-    // const language = await this.languagesService.getById(language_id);
-
-    // if (isEmpty(language) || !language_id) language_id = 2
-
     const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
 
     if (!user?.identities?.length)
-      throw new ErrorResponse(400, "User already registered");
+      throw new ErrorResponse(400, reqT('email_exist'));
     if (error)
       throw new Error(error.message);
 
@@ -59,7 +56,7 @@ export default class AuthService {
     })
 
     if (!user?.identities?.length)
-      throw new ErrorResponse(400, "User already registered");
+      throw new ErrorResponse(400, reqT('email_exist'));
     if (error)
       throw new Error(error.message);
 
@@ -76,7 +73,7 @@ export default class AuthService {
     const user = await this.usersService.getByEmail(email)
 
     if (!user) {
-      throw new ErrorResponse(400, 'Invalid user email');
+      throw new ErrorResponse(400, reqT('email_invalid'));
     }
 
     const { data, error } = await supabase.auth.resend({
@@ -89,18 +86,27 @@ export default class AuthService {
 
   async signIn({ email, username, password }: ISignin) {
 
-    if (!(email || username)) throw new ErrorResponse(400, 'Email or username must be provided');
+    if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
 
     const profile = email ? await this.usersService.getByEmail(email) : await this.usersService.getByUsername(username)
 
-    if (!profile) throw new ErrorResponse(400, 'User doesn\'t exist');
+    if (!profile) throw new ErrorResponse(400, reqT('user_404'));
 
     const { data: { user, session }, error } = await supabase.auth.signInWithPassword({
       email: profile.email,
       password: password
     })
 
-    if (error) throw new ErrorResponse(error.status, error.message);
+    if (error) {
+      let message = reqT('sth_went_wrong')
+      if (error.status == 400 && error.message == 'Invalid login credentials') {
+        message = reqT('invalid_login_credentials')
+      }
+      if (error.status == 404) {
+        message = reqT('user_404')
+      }
+      throw new ErrorResponse(error.status, message)
+    };
 
     if (session && user) {
       return {
@@ -120,14 +126,13 @@ export default class AuthService {
         }
       }
     } else {
-      throw new Error('Login failed')
+      throw new ErrorResponse(500, reqT('sth_went_wrong'))
     }
   }
 
   async authEvent(event: AuthChangeEvent, session: Session | null
   ): Promise<void> {
     if (event == 'SIGNED_IN') {
-      console.log("HANDLE NEW GOOGLE AUTH");
       await this.usersService.create(
         {
           user_id: session!.user.id,

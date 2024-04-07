@@ -20,6 +20,7 @@ import UsersService from '../users/users.service';
 import InteractionService from '../interactions/interactions.service';
 import { IUser } from '../users/interface/users.interface';
 import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
+import { reqT } from '../shared/utils/language';
 
 export default class InteriorService {
     private interiorsDao = new InteriorsDAO()
@@ -45,9 +46,6 @@ export default class InteriorService {
         let slug = generateSlug(data.name)
         const foundSlugs = await this.interiorsDao.getSimilarSlugs(slug)
         if (foundSlugs && !isEmpty(foundSlugs)) slug = indexSlug(slug, foundSlugs.map(model => model.slug))
-
-        console.log(slug)
-        console.log(foundSlugs)
 
         const interaction = await this.interactionService.create()
 
@@ -106,7 +104,7 @@ export default class InteriorService {
 
     async update(id: string, values: IUpdateInterior): Promise<IInterior> {
         const interior = await this.interiorsDao.getByIdMinimal(id)
-        if (!interior) throw new ErrorResponse(400, "Interior was not found");
+        if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
         return await this.interiorsDao.update(id, values)
     }
@@ -133,7 +131,7 @@ export default class InteriorService {
 
         const interior = await this.interiorsDao.getByIdOrSlug(identifier);
 
-        if (isEmpty(interior)) throw new ErrorResponse(400, "Interior was not found");
+        if (isEmpty(interior)) throw new ErrorResponse(404, reqT('interior_404'));
 
         interior.is_saved = false;
 
@@ -160,7 +158,7 @@ export default class InteriorService {
 
         const interior = await this.interiorsDao.getByIdMinimal(id);
 
-        if (!interior) throw new ErrorResponse(400, "Interior was not found");
+        if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
         return interior
     }
@@ -169,7 +167,7 @@ export default class InteriorService {
 
         const user = await this.usersService.getByUsername(username)
 
-        if (!user) throw new ErrorResponse(404, 'User was not found')
+        if (!user) throw new ErrorResponse(404, reqT('user_404'))
 
         const interiors = await this.interiorsDao.getByAuthor(user.id);
 
@@ -179,7 +177,7 @@ export default class InteriorService {
     async addImages(interior_id: string, cover: IRequestFile, images: IRequestFile[]): Promise<IAddImageResult> {
 
         const interior = await this.interiorsDao.getByIdMinimal(interior_id)
-        if (!interior) throw new ErrorResponse(400, "Interior was not found");
+        if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
         const result: IAddImageResult = {};
 
@@ -223,7 +221,7 @@ export default class InteriorService {
 
     async deleteImage(image_id: string): Promise<number> {
         const image = await this.imageService.findOne(image_id);
-        if (isEmpty(image)) throw new ErrorResponse(404, "Image was not found");
+        if (isEmpty(image)) throw new ErrorResponse(404, reqT('image_404'));
 
         await deleteFile(s3Vars.imagesBucket, image.src)
 
@@ -235,7 +233,7 @@ export default class InteriorService {
 
     async deleteById(id: string): Promise<number> {
         const interior = await this.interiorsDao.getByIdMinimal(id)
-        if (!interior) throw new ErrorResponse(404, "Interior was not found");
+        if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
 
         const interiorImages = await this.interiorImageService.findByInterior(id)
