@@ -6,12 +6,12 @@ export const reqLangData: {
     lang: CustomRequest['lang'],
     t: CustomRequest['t']
 } = {
-    lang: 'en',
-    t: L.en,
+    lang: 'ru',
+    t: L.ru,
 }
 
 const requestLang = (req: CustomRequest, res: Response, next: NextFunction): void => {
-    const lang = req.headers['accept-language'].split('-')[0] || 'en'
+    const lang = req?.headers['accept-language']?.split('-')[0] || 'ru'
     req.lang = reqLangData.lang = lang;
     req.t = reqLangData.t = L[lang]
     next()
