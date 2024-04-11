@@ -13,6 +13,8 @@ const ru = {
 	signup_success: 'Регистрация прошла успешно',
 	invalid_login_credentials: 'Неверные логин или пароль',
 
+	created_successfully: 'Успешно создано',
+	updated_successfully: 'Успешно обновлено',
 	saved_successfully: 'Успешно сохранено',
 	deleted_successfully: 'Успешно удалено',
 	sth_went_wrong: 'Что-то пошло не так. Пожалуйста, попробуйте еще раз',

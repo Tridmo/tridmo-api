@@ -59,6 +59,14 @@ type RootTranslation = {
 	 */
 	invalid_login_credentials: string
 	/**
+	 * C​r​e​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+	 */
+	created_successfully: string
+	/**
+	 * U​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+	 */
+	updated_successfully: string
+	/**
 	 * S​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
 	 */
 	saved_successfully: string
@@ -129,6 +137,14 @@ export type TranslationFunctions = {
 	 * Invalid login credentials
 	 */
 	invalid_login_credentials: () => LocalizedString
+	/**
+	 * Created successfully
+	 */
+	created_successfully: () => LocalizedString
+	/**
+	 * Updated successfully
+	 */
+	updated_successfully: () => LocalizedString
 	/**
 	 * Saved successfully
 	 */

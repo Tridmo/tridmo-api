@@ -13,6 +13,8 @@ const en = {
 	signup_success: 'Signed up successfully',
 	invalid_login_credentials: 'Invalid login credentials',
 
+	created_successfully: 'Created successfully',
+	updated_successfully: 'Updated successfully',
 	saved_successfully: 'Saved successfully',
 	deleted_successfully: 'Deleted successfully',
 	sth_went_wrong: 'Something went wrong. Please, try again',

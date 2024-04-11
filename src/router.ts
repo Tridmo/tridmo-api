@@ -15,6 +15,7 @@ import InteriorsRoute from './modules/interiors/interiors.route';
 import SavedInteriorsRoute from './modules/saved_interiors/saved_interiors.route';
 import SavedModelsRoute from './modules/saved_models/saved_models.route';
 import CommentsRoute from './modules/comments/comments.route';
+import PlatformsRoute from './modules/platforms/platforms.route';
 
 const router = Router()
 
@@ -32,7 +33,8 @@ const routes = [
     new InteriorsRoute(),
     new SavedInteriorsRoute(),
     new SavedModelsRoute(),
-    new CommentsRoute()
+    new CommentsRoute(),
+    new PlatformsRoute()
 ]
 
 routes.forEach(route => router.use('/', route.router))
