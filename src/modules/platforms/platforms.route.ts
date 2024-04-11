@@ -17,8 +17,8 @@ export default class PlatformsRoute implements Routes {
     }
 
     private initializeRoutes() {
-        this.router.get(`${this.path}/model`, (req, res) => { req.query.type = '1' }, this.controller.getAll);
-        this.router.get(`${this.path}/render`, (req, res) => { req.query.type = '2' }, this.controller.getAll);
+        this.router.get(`${this.path}/model`, (req, res, next) => { req.query.type = '1'; next() }, this.controller.getAll);
+        this.router.get(`${this.path}/render`, (req, res, next) => { req.query.type = '2'; next() }, this.controller.getAll);
         this.router.get(`${this.path}/:id`, validate(ValidateUuidDTO, "params"), this.controller.getOne);
         this.router.post(`${this.path}/`, protect, check_access("create_material"), validate(CreatePlatformDto, "body", true), this.controller.create);
         this.router.put(`${this.path}/:id`, protect, check_access("update_material"), validate(UpdatePlatformDto, "body", true), validate(ValidateUuidDTO, "params"), this.controller.update);
