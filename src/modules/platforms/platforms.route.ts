@@ -17,6 +17,7 @@ export default class PlatformsRoute implements Routes {
     }
 
     private initializeRoutes() {
+        this.router.get(`${this.path}/`, this.controller.getAll);
         this.router.get(`${this.path}/model`, (req, res, next) => { req.query.type = '1'; next() }, this.controller.getAll);
         this.router.get(`${this.path}/render`, (req, res, next) => { req.query.type = '2'; next() }, this.controller.getAll);
         this.router.get(`${this.path}/:id`, validate(ValidateUuidDTO, "params"), this.controller.getOne);

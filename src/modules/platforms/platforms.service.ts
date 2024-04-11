@@ -1,5 +1,5 @@
 import PlatformsDAO from './platforms.dao';
-import { ICreatePlatform, IPlatform, IUpdatePlatform } from './platforms.interface';
+import { ICreatePlatform, IFilterPlatforms, IPlatform, IUpdatePlatform } from './platforms.interface';
 
 
 export default class PlatformsService {
@@ -11,11 +11,14 @@ export default class PlatformsService {
     async update(id: string, values: IUpdatePlatform): Promise<IPlatform> {
         return await this.dao.update(id, values)
     }
-    async findAllModelType(keyword?: string): Promise<IPlatform> {
-        return await this.dao.getAllModelType(keyword)
+    async findAll(filters?: IFilterPlatforms): Promise<IPlatform[]> {
+        return await this.dao.getAll(filters)
     }
-    async findAllRenderType(keyword?: string): Promise<IPlatform> {
-        return await this.dao.getAllRenderType(keyword)
+    async findAllModelType(): Promise<IPlatform[]> {
+        return await this.dao.getAll({ type: 1 })
+    }
+    async findAllRenderType(): Promise<IPlatform[]> {
+        return await this.dao.getAll({ type: 2 })
     }
     async findOne(id: string): Promise<IPlatform> {
         return await this.dao.getById(id)

@@ -3,6 +3,7 @@ import { ISearchQuery } from "../shared/interface/query.interface";
 import PlatformsService from './platforms.service';
 import { CreatePlatformDto, UpdatePlatformDto } from './platforms.dto';
 import { reqT } from '../shared/utils/language';
+import extractQuery from '../shared/utils/extractQuery';
 
 export default class PlatformsController {
     private service = new PlatformsService()
@@ -45,14 +46,11 @@ export default class PlatformsController {
     public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { query } = req
-            const { keyword, type } = query
+            const { filters, sorts } = extractQuery(req.query)
 
-            const data =
-                type == '1'
-                    ? await this.service.findAllModelType(String(keyword))
-                    : type == '2'
-                        ? await this.service.findAllRenderType(String(keyword))
-                        : []
+            const data = await this.service.findAll(filters)
+
+            console.log(data);
 
             res.status(200).json({
                 success: true,

@@ -13,3 +13,6 @@ export interface IUpdatePlatform {
     name?: string;
     type?: number;
 }
+export interface IFilterPlatforms {
+    type?: number;
+}

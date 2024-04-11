@@ -1,6 +1,6 @@
 import KnexService from '../../database/connection';
 import { getFirst } from "../shared/utils/utils";
-import { ICreatePlatform, IUpdatePlatform } from './platforms.interface';
+import { ICreatePlatform, IFilterPlatforms, IUpdatePlatform } from './platforms.interface';
 
 export default class PlatformsDAO {
     async create({ name, type }: ICreatePlatform) {
@@ -25,21 +25,12 @@ export default class PlatformsDAO {
         )
     }
 
-    async getAllModelType(keyword?: string) {
+    async getAll(filters: IFilterPlatforms) {
         return await KnexService('platforms')
             .select('*')
-            .where({ type: 1 })
+            .orderBy('name', 'asc')
             .modify((q) => {
-                if (keyword) q.whereILike("name", `%${keyword}%`)
-            })
-    }
-
-    async getAllRenderType(keyword?: string) {
-        return await KnexService('platforms')
-            .select('*')
-            .where({ type: 2 })
-            .modify((q) => {
-                if (keyword) q.whereILike("name", `%${keyword}%`)
+                if (Object.keys(filters).length) q.where(filters)
             })
     }
 
