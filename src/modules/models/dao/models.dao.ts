@@ -79,12 +79,29 @@ export default class ModelsDAO {
                 'interactions.likes as likes',
                 'interactions.saves as saves',
 
+                'categories.id as category.id',
+                'categories.name as category.name',
+                'categories.parent_id as category.parent_id',
+                'parent_name as category.parent_name',
+
                 KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
 
             ])
             .leftJoin("brands", { 'models.brand_id': 'brands.id' })
             .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
             .leftJoin({ style: "styles" }, { "models.style_id": "style.id" })
+            .leftJoin(function () {
+                this.select([
+                    "categories.id",
+                    "categories.name",
+                    "categories.parent_id",
+                    "parent.name as parent_name"
+                ])
+                    .leftJoin({ parent: "categories" }, { "categories.parent_id": "parent.id" })
+                    .from("categories")
+                    .as("categories")
+                    .groupBy("categories.id", "parent.id")
+            }, { "models.category_id": "categories.id" })
             .leftJoin(function () {
                 this.select([
                     'model_images.id',
@@ -122,7 +139,11 @@ export default class ModelsDAO {
                 'models.id',
                 'brands.id',
                 'style.id',
-                'interactions.id'
+                'interactions.id',
+                'categories.id',
+                'categories.name',
+                'categories.parent_id',
+                'categories.parent_name'
             )
     }
 

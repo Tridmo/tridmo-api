@@ -62,7 +62,7 @@ export default class BrandsDAO {
                 "brands.site_link",
                 "brands.description",
                 "images.key as image_src",
-                KnexService.raw(`count("models"."id") as models_count`),
+                KnexService.raw(`count(distinct "models"."id") as models_count`),
                 KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`)
             ])
             .leftJoin('images', { 'brands.image_id': 'images.id' })
