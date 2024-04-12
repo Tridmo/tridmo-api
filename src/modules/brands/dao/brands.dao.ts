@@ -4,16 +4,10 @@ import { getFirst } from "../../shared/utils/utils";
 import { IBrand, IBrandAdmin, ICreateBrand, ICreateBrandAdmin, IUpdateBrand } from "../interface/brands.interface";
 
 export default class BrandsDAO {
-    async create({ name, slug, site_link, description, image_id }: ICreateBrand): Promise<IBrand> {
+    async create(values: ICreateBrand): Promise<IBrand> {
         return getFirst(
             await KnexService('brands')
-                .insert({
-                    name,
-                    slug,
-                    site_link,
-                    description,
-                    image_id
-                })
+                .insert(values)
                 .returning("*")
         )
     }

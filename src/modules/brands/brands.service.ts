@@ -35,7 +35,7 @@ export default class BrandService {
         const slug = generateSlug(name, { replacement: "", lower: false })
 
         const admin = await this.authService.createVerifiedUser({
-            email: `admin@${name.toLowerCase()}.com`,
+            email: `admin@${slug.toLowerCase()}.com`,
             full_name: `${name} admin`,
             birth_date: new Date(),
             username,
