@@ -73,6 +73,23 @@ export default class ModelsController {
     }
   }
 
+  public getCounts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { filters } = extractQuery(req.query)
+
+      const count = await this.modelsService.count(filters)
+
+      res.status(200).json({
+        success: true,
+        data: {
+          count: count,
+        },
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public getOne = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const model = await this.modelsService.findOne(req.params.identifier, req.user?.profile)

@@ -50,8 +50,6 @@ export default class PlatformsController {
 
             const data = await this.service.findAll(filters)
 
-            console.log(data);
-
             res.status(200).json({
                 success: true,
                 data: {
