@@ -1,3 +1,4 @@
+import { IStyle } from '../../styles/interface/styles.interface';
 import { IUser } from "../../users/interface/users.interface";
 
 export interface IBrand {
@@ -24,6 +25,7 @@ export interface ICreateBrand {
     site_link: string;
     image_id?: string;
     slug?: string;
+    styles?: string[];
 }
 
 export interface IGetBrandsQuery {
@@ -44,10 +46,24 @@ export interface IBrandAdmin {
     profile?: IUser;
     brand?: IBrand;
 }
+export interface IBrandStyle {
+    id: string;
+    style_id: string;
+    brand_id: string;
+    created_at: Date;
+    updated_at: Date;
+    style?: IStyle;
+    brand?: IBrand;
+}
 
 
 export interface ICreateBrandAdmin {
     profile_id: string;
+    brand_id: string;
+}
+
+export interface ICreateBrandStyle {
+    style_id: string;
     brand_id: string;
 }
 

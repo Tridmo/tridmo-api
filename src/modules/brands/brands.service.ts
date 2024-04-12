@@ -21,7 +21,7 @@ export default class BrandService {
     private usersService = new UsersService()
 
     async create(
-        { name, site_link, description, username, password, phone, email, address }: ICreateBrand & IBrandAuth,
+        { name, site_link, description, username, password, phone, email, address, styles }: ICreateBrand & IBrandAuth,
         brand_image: IRequestFile
     ): Promise<{
         brand: IBrand,
@@ -58,6 +58,13 @@ export default class BrandService {
             brand_id: brand.id,
             profile_id: admin.id
         })
+
+        if (styles && styles.length > 0) {
+            Promise.all(styles.map(async style_id => {
+                const exist = await this.brandsDao.getBrandStyleByNameAndBrand({ brand_id: brand.id, style_id })
+                if (!exist) await this.brandsDao.createBrandStyle({ brand_id: brand.id, style_id })
+            }))
+        }
 
         return {
             brand: imageUpdate,

@@ -1,7 +1,7 @@
 import { isUUID } from 'class-validator';
 import KnexService from '../../../database/connection';
 import { getFirst } from "../../shared/utils/utils";
-import { IBrand, IBrandAdmin, ICreateBrand, ICreateBrandAdmin, IUpdateBrand } from "../interface/brands.interface";
+import { IBrand, IBrandAdmin, IBrandStyle, ICreateBrand, ICreateBrandAdmin, ICreateBrandStyle, IUpdateBrand } from "../interface/brands.interface";
 
 export default class BrandsDAO {
     async create(values: ICreateBrand): Promise<IBrand> {
@@ -20,6 +20,29 @@ export default class BrandsDAO {
                     profile_id
                 })
                 .returning("*")
+        )
+    }
+
+
+    async createBrandStyle({ brand_id, style_id }: ICreateBrandStyle): Promise<IBrandStyle> {
+        return getFirst(
+            await KnexService('brand_styles')
+                .insert({
+                    brand_id,
+                    style_id
+                })
+                .returning("*")
+        )
+    }
+
+    async getBrandStyleByNameAndBrand({ brand_id, style_id }: ICreateBrandStyle): Promise<IBrandStyle> {
+        return getFirst(
+            await KnexService('brand_styles')
+                .select('*')
+                .where({
+                    brand_id,
+                    style_id
+                })
         )
     }
 
