@@ -24,7 +24,7 @@ export default class ModelsRoute implements Routes {
   private initializeRoutes() {
     // Get all
     this.router.get(`${this.path}/`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getAll);
-    this.router.get(`${this.path}/`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getCounts);
+    this.router.get(`${this.path}/count`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getCounts);
     // get by filters
     this.router.get(`${this.path}/filter`, checkUser, this.modelsController.getOneByFilters);
     // Create new
