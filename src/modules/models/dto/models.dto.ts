@@ -191,9 +191,19 @@ export class GetModelsQueryDTO extends DefaultQueryDTO implements IGetModelsQuer
 }
 
 export class GetCountsQueryDTO implements IGetCountsQuery {
+  @IsOptional()
+  @IsBooleanOrStringifiedBoolean()
   all?: boolean;
+  @IsOptional()
+  @IsBooleanOrStringifiedBoolean()
   top?: boolean;
+  @IsOptional()
+  @IsBooleanOrStringifiedBoolean()
   available?: boolean;
+  @IsOptional()
+  @IsBooleanOrStringifiedBoolean()
   not_available?: boolean;
+  @IsOptional()
+  @IsBooleanOrStringifiedBoolean()
   deleted?: boolean;
 }
