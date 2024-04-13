@@ -101,6 +101,21 @@ export interface IGetModelsQuery extends IDefaultQuery {
   is_deleted?: boolean;
 }
 
+export interface IGetCountsQuery {
+  all?: boolean;
+  top?: boolean;
+  available?: boolean;
+  not_available?: boolean;
+  deleted?: boolean;
+}
+export interface ICounts {
+  all?: number;
+  top?: number;
+  available?: number;
+  not_available?: number;
+  deleted?: number;
+}
+
 export interface IAddImageResult {
   cover?: IImage,
   images?: IImage[],

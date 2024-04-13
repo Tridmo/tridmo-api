@@ -3,7 +3,7 @@ import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import ModelsController from './models.controller';
-import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetModelsQueryDTO, UpdateModelDTO } from './dto/models.dto';
+import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetCountsQueryDTO, GetModelsQueryDTO, UpdateModelDTO } from './dto/models.dto';
 import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from "../shared/defaults/defaults"
 import protect from '../shared/middlewares/auth/protect';
@@ -24,7 +24,8 @@ export default class ModelsRoute implements Routes {
   private initializeRoutes() {
     // Get all
     this.router.get(`${this.path}/`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getAll);
-    this.router.get(`${this.path}/count`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getCounts);
+    this.router.get(`${this.path}/count`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getCount);
+    this.router.get(`${this.path}/counts`, validate(GetCountsQueryDTO, "query", true), this.modelsController.getCounts);
     // get by filters
     this.router.get(`${this.path}/filter`, checkUser, this.modelsController.getOneByFilters);
     // Create new

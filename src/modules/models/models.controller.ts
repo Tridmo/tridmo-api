@@ -2,7 +2,7 @@ import { isEmpty, isUUID } from "class-validator";
 import { NextFunction, Request, Response } from "express";
 import buildPagination from "../shared/utils/paginationBuilder";
 import extractQuery from "../shared/utils/extractQuery";
-import { IGetModelsQuery } from "./interface/models.interface";
+import { ICounts, IGetCountsQuery, IGetModelsQuery } from "./interface/models.interface";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import { defaults } from "../shared/defaults/defaults"
 import { CustomRequest } from "../shared/interface/routes.interface";
@@ -73,7 +73,7 @@ export default class ModelsController {
     }
   }
 
-  public getCounts = async (req: Request, res: Response, next: NextFunction) => {
+  public getCount = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { filters } = extractQuery(req.query)
 
@@ -83,6 +83,28 @@ export default class ModelsController {
         success: true,
         data: {
           count: count,
+        },
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getCounts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const filters: IGetCountsQuery = extractQuery(req.query).filters
+      const counts: ICounts = {}
+
+      if (filters.all) counts.all = await this.modelsService.count({})
+      if (filters.top) counts.top = await this.modelsService.count({top: true})
+      if (filters.available) counts.available = await this.modelsService.count({availability: true})
+      if (filters.not_available) counts.not_available = await this.modelsService.count({availability: false})
+      if (filters.deleted) counts.deleted = await this.modelsService.count({is_deleted: true})
+
+      res.status(200).json({
+        success: true,
+        data: {
+          counts,
         },
       })
     } catch (error) {
