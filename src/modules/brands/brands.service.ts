@@ -108,7 +108,15 @@ export default class BrandService {
 
     async findAll(filters: IGetBrandsQuery, sorts: IDefaultQuery): Promise<IBrand[]> {
         const brands = await this.brandsDao.getAll(filters, sorts);
-        return brands
+
+        const data = brands.map(e => {
+            return {
+                ...e,
+                styles: !e.styles[0] ? [] : e.styles,
+            }
+        })
+
+        return data
     }
 
     async count(filters): Promise<number> {

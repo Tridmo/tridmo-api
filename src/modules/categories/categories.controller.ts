@@ -61,10 +61,9 @@ export default class CategoriesController {
         try {
 
             const { query } = req;
-            const extractedQuery = extractQuery(query)
-            const filters = extractedQuery.filters
+            const { filters, sorts } = extractQuery(query)
 
-            const data = await this.categoriesService.findAllParents(filters)
+            const data = await this.categoriesService.findAllParents(filters, sorts)
 
             res.status(200).json({
                 success: true,
@@ -107,7 +106,7 @@ export default class CategoriesController {
         try {
             const { id } = req.params
             await this.categoriesService.delete(id)
-            
+
             res.status(200).json({
                 success: true,
                 message: "Category deleted successfully"

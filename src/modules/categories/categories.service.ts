@@ -3,14 +3,15 @@ import ErrorResponse from "../shared/utils/errorResponse";
 import CategoriesDAO from "./dao/categories.dao";
 import { UpdateCategoryDTO } from "./dto/categories.dto";
 import { ICategory, ICreateCategory, IGetCategoriesQuery } from "./interface/categories.interface";
+import { IDefaultQuery } from '../shared/interface/query.interface';
 
 export default class CategoryService {
     private categoriesDao = new CategoriesDAO()
 
-    async create({name, description, parent_id, type}: ICreateCategory) {
-        const foundCategory = await this.categoriesDao.getByNameAndParent(name, parent_id || null);        
+    async create({ name, description, parent_id, type }: ICreateCategory) {
+        const foundCategory = await this.categoriesDao.getByNameAndParent(name, parent_id || null);
         if (foundCategory) {
-          throw new ErrorResponse(400, "This category already exists");
+            throw new ErrorResponse(400, "This category already exists");
         }
 
         const category: ICategory = await this.categoriesDao.create({
@@ -19,17 +20,17 @@ export default class CategoryService {
             parent_id,
             type
         })
-        
+
         return category
     }
 
     async update(id: string | number, values: UpdateCategoryDTO) {
         const foundCategory = await this.categoriesDao.getById(id);
         if (isEmpty(foundCategory)) {
-          throw new ErrorResponse(400, "Category was not found");
+            throw new ErrorResponse(400, "Category was not found");
         }
         const category: ICategory = await this.categoriesDao.update(id, values)
-        
+
         return category
     }
 
@@ -38,8 +39,8 @@ export default class CategoryService {
         return categories
     }
 
-    async findAllParents(filters?) {
-        const categories = await this.categoriesDao.getParents(filters);
+    async findAllParents(filters?, sorts?: IDefaultQuery) {
+        const categories = await this.categoriesDao.getParents(filters, sorts);
         return categories
     }
 
