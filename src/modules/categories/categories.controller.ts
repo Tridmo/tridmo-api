@@ -4,6 +4,7 @@ import extractQuery from "../../modules/shared/utils/extractQuery";
 import CategoryService from "./categories.service";
 import { CreateCategoryDTO, UpdateCategoryDTO } from "./dto/categories.dto";
 import { IGetCategoriesQuery } from "./interface/categories.interface";
+import { reqT } from '../shared/utils/language';
 
 export default class CategoriesController {
     private categoriesService = new CategoryService()
@@ -16,7 +17,7 @@ export default class CategoriesController {
             res.status(201).json({
                 success: true,
                 data,
-                message: "Category created successfully"
+                message: reqT('created_successfully')
             })
         } catch (error) {
             next(error)
@@ -32,7 +33,7 @@ export default class CategoriesController {
             res.status(200).json({
                 success: true,
                 data,
-                message: "Category updated successfully"
+                message: reqT('saved_successfully')
             })
         } catch (error) {
             next(error)
@@ -105,11 +106,13 @@ export default class CategoriesController {
     public deleteOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { id } = req.params
-            await this.categoriesService.delete(id)
+            const { cascade } = req.query
+
+            await this.categoriesService.delete(id, cascade && cascade == 'true')
 
             res.status(200).json({
                 success: true,
-                message: "Category deleted successfully"
+                message: reqT('deleted_successfully')
             })
         } catch (error) {
             next(error)

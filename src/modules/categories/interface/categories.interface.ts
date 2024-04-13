@@ -14,9 +14,16 @@ export interface ICreateCategory {
     description: string;
     type: string;
     parent_id: number;
-} 
+}
+
+export interface IUpdateCategory {
+    name?: string;
+    description?: string;
+    type?: string;
+    parent_id?: number;
+}
 
 export interface IGetCategoriesQuery extends IDefaultQuery {
     name?: string;
-} 
+}
 

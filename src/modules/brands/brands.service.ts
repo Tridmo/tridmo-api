@@ -12,6 +12,7 @@ import AuthService from "../auth/auth.service";
 import { IUser } from "../users/interface/users.interface";
 import UsersService from "../users/users.service";
 import generateSlug from '../shared/utils/generateSlug';
+import { reqT } from '../shared/utils/language';
 
 export default class BrandService {
     private brandsDao = new BrandsDAO()
@@ -29,7 +30,7 @@ export default class BrandService {
     }> {
 
         const foundBrand: IBrand = await this.brandsDao.getByName(name);
-        if (foundBrand) throw new ErrorResponse(400, "This brand already exists");
+        if (foundBrand) throw new ErrorResponse(400, reqT('same_name_exists'));
 
         // generate unique slug
         const slug = generateSlug(name, { replacement: "", lower: false })
@@ -74,7 +75,7 @@ export default class BrandService {
 
     async update(brand_id: string, values: ICreateBrand, brand_image?: IRequestFile): Promise<IBrand> {
         const foundBrand: IBrand = await this.brandsDao.getById(brand_id);
-        if (isEmpty(foundBrand)) throw new ErrorResponse(400, "Brand was not found");
+        if (isEmpty(foundBrand)) throw new ErrorResponse(400, reqT('brand_404'));
 
         const brand: IBrand = Object.keys(values).length ? await this.brandsDao.update(brand_id, values) : foundBrand
 
@@ -88,7 +89,7 @@ export default class BrandService {
 
     async updateImage(brand_id: string, image: IRequestFile): Promise<IBrand> {
         const brand: IBrand = await this.brandsDao.getById(brand_id);
-        if (isEmpty(brand)) throw new ErrorResponse(400, "Brand was not found");
+        if (isEmpty(brand)) throw new ErrorResponse(400, reqT('brand_404'));
 
         if (brand.image_id) {
             const image_id = brand.image_id
@@ -125,7 +126,7 @@ export default class BrandService {
 
     async findOne(identifier: string): Promise<IBrand> {
         const brand = await this.brandsDao.getBySlugOrId(identifier);
-        if (!brand) throw new ErrorResponse(404, "Brand was not found");
+        if (!brand) throw new ErrorResponse(404, reqT('brand_404'));
 
         if (brand.styles && !brand.styles[0]) {
             brand.styles = []
@@ -136,7 +137,7 @@ export default class BrandService {
 
     async delete(brand_id: string): Promise<void> {
         const brand = await this.brandsDao.getById(brand_id);
-        if (!brand) throw new ErrorResponse(404, "Brand was not found")
+        if (!brand) throw new ErrorResponse(404, reqT('brand_404'))
 
         // disconnect models
         await this.modelsService.updateByBrand(brand_id, { brand_id: null })

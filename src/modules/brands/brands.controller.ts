@@ -11,6 +11,7 @@ import { defaults } from "../shared/defaults/defaults";
 import ImageService from "../shared/modules/images/images.service";
 import { uploadFile } from "../shared/utils/fileUpload";
 import { UploadedFile } from "express-fileupload";
+import { reqT } from '../shared/utils/language';
 
 export default class BrandsController {
   private brandsService = new BrandService()
@@ -29,7 +30,7 @@ export default class BrandsController {
         data: {
           ...data
         },
-        message: "Brand created successfully"
+        message: reqT('created_successfully')
       })
     } catch (error) {
       next(error)
@@ -48,7 +49,7 @@ export default class BrandsController {
         data: {
           brand: data
         },
-        message: "Brand updated successfully"
+        message: reqT('saved_successfully')
       })
     } catch (error) {
       next(error)
@@ -101,7 +102,7 @@ export default class BrandsController {
 
       res.status(200).json({
         success: true,
-        message: "Brand deleted successfully"
+        message: reqT('deleted_successfully')
       })
     } catch (error) {
       next(error)

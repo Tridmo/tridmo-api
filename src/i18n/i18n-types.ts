@@ -23,10 +23,6 @@ type RootTranslation = {
 	 */
 	login_to_access: string
 	/**
-	 * U​s​e​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
-	 */
-	user_404: string
-	/**
 	 * E​m​a​i​l​ ​w​a​s​ ​a​l​r​e​a​d​y​ ​r​e​g​i​s​t​e​r​e​d
 	 */
 	email_exist: string
@@ -79,17 +75,37 @@ type RootTranslation = {
 	 */
 	sth_went_wrong: string
 	/**
-	 * I​n​t​e​r​i​o​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
-	 */
-	interior_404: string
-	/**
 	 * I​n​t​e​r​i​o​r​ ​c​r​e​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
 	 */
 	interior_created: string
 	/**
+	 * R​e​c​o​r​d​ ​w​i​t​h​ ​t​h​e​ ​s​a​m​e​ ​n​a​m​e​ ​a​l​r​e​a​d​y​ ​e​x​i​s​t​s
+	 */
+	same_name_exists: string
+	/**
+	 * U​s​e​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	user_404: string
+	/**
+	 * I​n​t​e​r​i​o​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	interior_404: string
+	/**
 	 * I​m​a​g​e​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
 	image_404: string
+	/**
+	 * B​r​a​n​d​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	brand_404: string
+	/**
+	 * C​a​t​e​g​o​r​y​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	category_404: string
+	/**
+	 * M​o​d​e​l​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	model_404: string
 }
 
 export type TranslationFunctions = {
@@ -101,10 +117,6 @@ export type TranslationFunctions = {
 	 * Please login in to get access
 	 */
 	login_to_access: () => LocalizedString
-	/**
-	 * User was not found
-	 */
-	user_404: () => LocalizedString
 	/**
 	 * Email was already registered
 	 */
@@ -158,17 +170,37 @@ export type TranslationFunctions = {
 	 */
 	sth_went_wrong: () => LocalizedString
 	/**
-	 * Interior was not found
-	 */
-	interior_404: () => LocalizedString
-	/**
 	 * Interior created successfully
 	 */
 	interior_created: () => LocalizedString
 	/**
+	 * Record with the same name already exists
+	 */
+	same_name_exists: () => LocalizedString
+	/**
+	 * User was not found
+	 */
+	user_404: () => LocalizedString
+	/**
+	 * Interior was not found
+	 */
+	interior_404: () => LocalizedString
+	/**
 	 * Image was not found
 	 */
 	image_404: () => LocalizedString
+	/**
+	 * Brand was not found
+	 */
+	brand_404: () => LocalizedString
+	/**
+	 * Category was not found
+	 */
+	category_404: () => LocalizedString
+	/**
+	 * Model was not found
+	 */
+	model_404: () => LocalizedString
 }
 
 export type Formatters = {}

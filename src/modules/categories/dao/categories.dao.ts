@@ -1,7 +1,7 @@
 import KnexService from '../../../database/connection';
 import { IDefaultQuery } from '../../shared/interface/query.interface';
 import { getFirst } from "../../shared/utils/utils";
-import { ICreateCategory, IGetCategoriesQuery } from "../interface/categories.interface";
+import { ICreateCategory, IGetCategoriesQuery, IUpdateCategory } from "../interface/categories.interface";
 
 export default class CategoriesDAO {
     async create({ name, description, parent_id, type }: ICreateCategory) {
@@ -17,10 +17,21 @@ export default class CategoriesDAO {
         )
     }
 
-    async update(categoryId: string | number, values: ICreateCategory) {
+    async update(categoryId: string | number, values: IUpdateCategory) {
         return getFirst(
             await KnexService('categories')
                 .where({ id: categoryId })
+                .update({
+                    ...values
+                })
+                .returning("*")
+        )
+    }
+
+    async updateByParent(categoryId: string | number, values: IUpdateCategory) {
+        return getFirst(
+            await KnexService('categories')
+                .where({ parent_id: categoryId })
                 .update({
                     ...values
                 })
@@ -112,6 +123,12 @@ export default class CategoriesDAO {
     async deleteById(categoryId: string | number) {
         return await KnexService('categories')
             .where({ id: categoryId })
+            .delete()
+    }
+
+    async deleteByParent(categoryId: string | number) {
+        return await KnexService('categories')
+            .where({ parent_id: categoryId })
             .delete()
     }
 }
