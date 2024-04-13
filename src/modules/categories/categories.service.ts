@@ -65,12 +65,12 @@ export default class CategoryService {
         return category
     }
 
-    async delete(id: string | number, cascade: boolean = true) {
+    async delete(id: string | number, cascade?: boolean) {
 
         if (cascade) {
             await this.categoriesDao.deleteByParent(id)
         } else {
-            await this.categoriesDao.update(id, { parent_id: null })
+            await this.categoriesDao.updateByParent(id, { parent_id: null })
         }
 
         await this.categoriesDao.deleteById(id);

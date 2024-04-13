@@ -28,6 +28,14 @@ export default class CategoriesDAO {
         )
     }
 
+    async makeMainByParent(parent_id: string | number) {
+        return await KnexService.raw(`
+            UPDATE categories
+            SET parent_id = null
+            WHERE parent_id = ${parent_id};
+        `)
+    }
+
     async updateByParent(categoryId: string | number, values: IUpdateCategory) {
         return getFirst(
             await KnexService('categories')
