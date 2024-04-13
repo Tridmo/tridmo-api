@@ -90,7 +90,7 @@ export interface IGetModelsQuery extends IDefaultQuery {
   name?: string;
   top?: boolean;
   orderBy?: string;
-  availability?: boolean;
+  availability?: number;
   brand_id?: string;
   model_platforms?: string[];
   render_platforms?: string[];

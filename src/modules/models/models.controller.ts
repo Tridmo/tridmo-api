@@ -97,8 +97,8 @@ export default class ModelsController {
 
       if (filters.all) counts.all = await this.modelsService.count({})
       if (filters.top) counts.top = await this.modelsService.count({top: true})
-      if (filters.available) counts.available = await this.modelsService.count({availability: true})
-      if (filters.not_available) counts.not_available = await this.modelsService.count({availability: false})
+      if (filters.available) counts.available = await this.modelsService.count({availability: 1})
+      if (filters.not_available) counts.not_available = await this.modelsService.count({availability: 2})
       if (filters.deleted) counts.deleted = await this.modelsService.count({is_deleted: true})
 
       res.status(200).json({

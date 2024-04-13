@@ -175,8 +175,8 @@ export class GetModelsQueryDTO extends DefaultQueryDTO implements IGetModelsQuer
   @IsString()
   brand_id?: string;
 
-  @IsBooleanOrStringifiedBoolean()
-  availability?: boolean;
+  @IsNumberOrStringifiedNumber()
+  availability?: number;
 
   categories?: any[];
 
