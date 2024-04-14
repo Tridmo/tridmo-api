@@ -97,7 +97,7 @@ export default class BrandsDAO {
             }, { 'brand_styles.brand_id': 'brands.id' })
             .limit(limit)
             .offset(offset)
-            .orderBy(orderBy ? `brands.${orderBy}` : 'models_count', order)
+            .orderBy(orderBy == 'models_count' ? 'models_count' : `brands.${orderBy}`, order)
             .groupBy("brands.id", "images.key")
             .modify((q) => {
                 if (name) q.whereILike('brands.name', `%${name}%`)
