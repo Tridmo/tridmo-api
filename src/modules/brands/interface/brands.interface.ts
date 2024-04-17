@@ -76,4 +76,5 @@ export interface IUpdateBrand {
     description?: string;
     site_link?: string;
     image_id?: string;
+    styles?: string[];
 } 
