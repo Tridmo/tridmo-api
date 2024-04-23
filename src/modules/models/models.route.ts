@@ -11,11 +11,13 @@ import check_access from '../shared/middlewares/auth/check_access';
 import checkUser from '../../modules/shared/middlewares/auth/check_user';
 const { reqCoverName, reqFilesName, reqImagesName, reqFileName } = defaults
 import modelsFilterMiddleware from '../shared/middlewares/models/filter';
+import { ParserMiddleware } from '../shared/middlewares/parser';
 
 export default class ModelsRoute implements Routes {
   public path = '/models';
   public router = Router();
   public modelsController = new ModelsController();
+  public parser = new ParserMiddleware();
 
   constructor() {
     this.initializeRoutes();
@@ -35,6 +37,7 @@ export default class ModelsRoute implements Routes {
       check_access("create_product"),
       validate(CreateModelDTO, "body", true),
       validateFiles(reqCoverName, reqFileName, reqImagesName),
+      this.parser.parse(),
       this.modelsController.create
     );
     // Get cover
@@ -44,7 +47,7 @@ export default class ModelsRoute implements Routes {
     // Update file
     this.router.put(`${this.path}/file/:id`, protect, check_access("update_product"), validate(ValidateUuidDTO, "params"), validateFiles(reqFileName), this.modelsController.updateFile);
     // Update one
-    this.router.put(`${this.path}/:id`, protect, check_access("update_product"), validate(ValidateUuidDTO, "params"), validate(UpdateModelDTO, "body", true), validate(ValidateUuidDTO, "params"), this.modelsController.update);
+    this.router.put(`${this.path}/:id`, protect, check_access("update_product"), validate(ValidateUuidDTO, "params"), validate(UpdateModelDTO, "body", true), this.parser.parse(), this.modelsController.update);
     // Add materials
     this.router.post(`${this.path}/materials/:id`, protect, check_access("update_product"), validate(ValidateUuidDTO, "params"), validate(AddMaterialsDTO, "body", true), this.modelsController.addMaterials);
     // Add colors

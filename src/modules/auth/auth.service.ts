@@ -17,6 +17,7 @@ import supabase from "../../database/supabase/supabase";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { authVariables } from "./variables";
 import { reqT } from '../shared/utils/language';
+import RoleService from "../roles/roles.service";
 
 export default class AuthService {
   private OtpDigitsCount = 6;
@@ -24,6 +25,7 @@ export default class AuthService {
   private usersService = new UsersService();
   private languagesService = new LanguagesService();
   private userRolesService = new UserRoleService();
+  private rolesService = new RoleService();
 
   private otpsDao = new OtpsDAO();
   private sessionsDao = new SessionsDAO();
@@ -84,13 +86,20 @@ export default class AuthService {
     return data
   }
 
-  async signIn({ email, username, password }: ISignin) {
+  async signIn({ email, username, password, role }: ISignin) {
 
     if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
 
     const profile = email ? await this.usersService.getByEmail(email) : await this.usersService.getByUsername(username)
 
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));
+
+    if (role) {
+      const roles = await this.rolesService.findByName(role)
+      if (!roles) throw new ErrorResponse(404, 'Role was not found')
+      const userRole = await this.userRolesService.getByUserAndRole({ user_id: profile.id, role_id: roles.id })
+      if (!userRole) throw new ErrorResponse(404, reqT('user_404'))
+    }
 
     const { data: { user, session }, error } = await supabase.auth.signInWithPassword({
       email: profile.email,

@@ -10,11 +10,13 @@ import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from '../shared/defaults/defaults';
 const { reqImageName } = defaults
 import check_access from '../shared/middlewares/auth/check_access';
+import { ParserMiddleware } from '../shared/middlewares/parser';
 
 export default class BrandsRoute implements Routes {
   public path = '/brands';
   public router = Router();
   public brandsController = new BrandsController();
+  public parser = new ParserMiddleware();
 
   constructor() {
     this.initializeRoutes();
@@ -27,9 +29,9 @@ export default class BrandsRoute implements Routes {
     this.router.get(`${this.path}/:identifier`, this.brandsController.getOne);
 
     // Create new
-    this.router.post(`${this.path}/`, protect, check_access("create_brand"), validate(CreateBrandDTO, "body"), validateFiles(reqImageName), this.brandsController.create);
+    this.router.post(`${this.path}/`, protect, check_access("create_brand"), validate(CreateBrandDTO, "body"), this.parser.parse('body', { ignore: ['phone'] }), validateFiles(reqImageName), this.brandsController.create);
     // Update one
-    this.router.put(`${this.path}/:id`, protect, check_access("update_brand"), validate(UpdateBrandDTO, "body", true), this.brandsController.update);
+    this.router.put(`${this.path}/:id`, protect, check_access("update_brand"), validate(UpdateBrandDTO, "body", true), this.parser.parse('body', { ignore: ['phone'] }), this.brandsController.update);
     // Delete one
     this.router.delete(`${this.path}/:id`, protect, check_access("delete_brand"), this.brandsController.delete);
   }

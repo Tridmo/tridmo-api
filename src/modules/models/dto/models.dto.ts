@@ -1,7 +1,7 @@
 import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../../shared/custom/validators";
 import { DefaultQueryDTO } from "../../shared/dto/query.dto";
-import { ICreateModel, ICreateModelBody, IGetCountsQuery, IGetModelsQuery } from "../interface/models.interface";
+import { ICreateModel, ICreateModelBody, IGetCountsQuery, IGetModelsQuery, IUpdateModel } from "../interface/models.interface";
 
 export class CreateModelDTO implements ICreateModelBody {
   @IsString()
@@ -82,7 +82,7 @@ export class CreateModelDTO implements ICreateModelBody {
   colors: number[];
 }
 
-export class UpdateModelDTO {
+export class UpdateModelDTO implements IUpdateModel {
   @IsString()
   @IsOptional()
   brand_id: string;
@@ -142,7 +142,28 @@ export class UpdateModelDTO {
 
   @IsOptional()
   @IsNumberOrStringifiedNumber()
-  width: string | number;
+  width: number;
+
+  @IsOptional()
+  @IsArrayOrStringifiedArray({
+    allowEmptyArray: false,
+    typeOfArrayItems: ['number', 'string']
+  })
+  materials: string[];
+
+  @IsOptional()
+  @IsArrayOrStringifiedArray({
+    allowEmptyArray: false,
+    typeOfArrayItems: ['number', 'string']
+  })
+  colors: string[];
+
+  @IsOptional()
+  @IsArrayOrStringifiedArray({
+    allowEmptyArray: true,
+    typeOfArrayItems: ['string']
+  })
+  removed_images: string[];
 }
 
 export class AddMaterialsDTO {

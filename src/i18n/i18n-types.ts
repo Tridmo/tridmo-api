@@ -95,6 +95,10 @@ type RootTranslation = {
 	 */
 	image_404: string
 	/**
+	 * F​i​l​e​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	file_404: string
+	/**
 	 * B​r​a​n​d​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
 	brand_404: string
@@ -189,6 +193,10 @@ export type TranslationFunctions = {
 	 * Image was not found
 	 */
 	image_404: () => LocalizedString
+	/**
+	 * File was not found
+	 */
+	file_404: () => LocalizedString
 	/**
 	 * Brand was not found
 	 */

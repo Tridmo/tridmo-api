@@ -9,6 +9,7 @@ import { CustomRequest } from "../shared/interface/routes.interface";
 import ModelService from "./models.service";
 import { UploadedFile } from "express-fileupload";
 import ModelImageService from "./model_images/model_images.service";
+import { reqT } from "../shared/utils/language";
 
 
 export default class ModelsController {
@@ -29,7 +30,7 @@ export default class ModelsController {
         data: {
           model
         },
-        message: "Model created successfully"
+        message: reqT('created_successfully')
       })
     } catch (error) {
       next(error)
@@ -40,14 +41,20 @@ export default class ModelsController {
     try {
       const { id } = req.params
 
-      const model = await this.modelsService.update(id, req.body)
+      const model = await this.modelsService.update(
+        id,
+        req.body,
+        req.files && req.files[defaults.reqCoverName] ? req.files[defaults.reqCoverName] as UploadedFile : null,
+        req.files && req.files[defaults.reqImagesName] ? req.files[defaults.reqImagesName] as UploadedFile[] : null,
+        req.files && req.files[defaults.reqFileName] ? req.files[defaults.reqFileName] as UploadedFile : null,
+      )
 
       res.status(200).json({
         success: true,
         data: {
           model
         },
-        message: "Successfully updated"
+        message: reqT('saved_successfully')
       })
     } catch (error) {
       next(error)
@@ -96,10 +103,10 @@ export default class ModelsController {
       const counts: ICounts = {}
 
       if (filters.all) counts.all = await this.modelsService.count({})
-      if (filters.top) counts.top = await this.modelsService.count({top: true})
-      if (filters.available) counts.available = await this.modelsService.count({availability: 1})
-      if (filters.not_available) counts.not_available = await this.modelsService.count({availability: 2})
-      if (filters.deleted) counts.deleted = await this.modelsService.count({is_deleted: true})
+      if (filters.top) counts.top = await this.modelsService.count({ top: true })
+      if (filters.available) counts.available = await this.modelsService.count({ availability: 1 })
+      if (filters.not_available) counts.not_available = await this.modelsService.count({ availability: 2 })
+      if (filters.deleted) counts.deleted = await this.modelsService.count({ is_deleted: true })
 
       res.status(200).json({
         success: true,
@@ -278,7 +285,7 @@ export default class ModelsController {
 
       res.status(deleted ? 200 : 500).json({
         success: Boolean(deleted),
-        message: deleted ? "Model deleted successfully" : "Something went wrong"
+        message: deleted ? reqT('deleted_successfully') : reqT('sth_went_wrong')
       })
     } catch (error) {
       next(error)

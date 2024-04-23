@@ -1,7 +1,7 @@
 import UserRolesDAO from './dao/user_roles.dao';
 import { ICreateUserRole } from './interface/user_roles.interface';
 
-export default class UserRoleService{
+export default class UserRoleService {
   private userRolesDao = new UserRolesDAO();
 
   create({ user_id, role_id }: ICreateUserRole) {
@@ -10,12 +10,15 @@ export default class UserRoleService{
       role_id
     });
   }
-  async updateByUser(user_id: string, {role_id}: ICreateUserRole ) {
-    return await this.userRolesDao.updateByUser(user_id, {role_id});
+  async updateByUser(user_id: string, { role_id }: ICreateUserRole) {
+    return await this.userRolesDao.updateByUser(user_id, { role_id });
   }
 
   getByUserId(id: string) {
     return this.userRolesDao.getByUserId(id);
+  }
+  getByUserAndRole({ user_id, role_id }: { user_id: string; role_id: number }) {
+    return this.userRolesDao.getByUserAdnRole(user_id, role_id);
   }
 
   deleteById(id: number) {

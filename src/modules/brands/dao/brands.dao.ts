@@ -189,8 +189,13 @@ export default class BrandsDAO {
       .delete()
   }
   async deleteBrandStyle({ brand_id, style_id }: ICreateBrandStyle): Promise<number> {
-    return await KnexService('brands')
+    return await KnexService('brand_styles')
       .where({ brand_id, style_id })
+      .delete()
+  }
+  async deleteBrandStyles(brand_id: string): Promise<number> {
+    return await KnexService('brand_styles')
+      .where({ brand_id })
       .delete()
   }
 }

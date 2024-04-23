@@ -1,5 +1,5 @@
 import { IInterior } from '../../interiors/interface/interiors.interface';
-import { IImage } from "../../shared/interface/files.interface";
+import { IFile, IFilePublic, IImage } from "../../shared/interface/files.interface";
 import { IDefaultQuery } from "../../shared/interface/query.interface";
 
 export interface IModel {
@@ -22,7 +22,7 @@ export interface IModel {
   width: number;
   is_saved?: boolean;
   images?: any;
-  file?: any;
+  file?: IFile | IFilePublic;
   used_interiors?: IInterior[];
   is_deleted: boolean;
   created_at: Date;
@@ -84,6 +84,9 @@ export interface IUpdateModel {
   length?: number;
   height?: number;
   width?: number;
+  colors?: string[];
+  materials?: string[];
+  removed_images?: string[];
 }
 
 export interface IGetModelsQuery extends IDefaultQuery {

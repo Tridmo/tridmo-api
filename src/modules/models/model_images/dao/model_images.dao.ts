@@ -3,64 +3,69 @@ import KnexService from '../../../../database/connection';
 import { ICreateModelImage } from "../interface/model_images.interface";
 
 export default class ModelImagesDAO {
-    async create({ model_id, image_id, is_main }: ICreateModelImage) {
-        return getFirst(
-            await KnexService("model_images")
-                .insert({
-                    model_id,
-                    image_id,
-                    is_main
-                })
-                .returning("*")
-        )
-    }
+  async create({ model_id, image_id, is_main }: ICreateModelImage) {
+    return getFirst(
+      await KnexService("model_images")
+        .insert({
+          model_id,
+          image_id,
+          is_main
+        })
+        .returning("*")
+    )
+  }
 
-    async deleteById(id: string) {
-        return await KnexService('model_images')
-            .where({ id: id })
-            .delete()
-    }
+  async deleteById(id: string) {
+    return await KnexService('model_images')
+      .where({ id: id })
+      .delete()
+  }
 
-    async getById(id: string) {
-        return getFirst(
-            await KnexService('model_images')
-                .where({ id: id })
-        )
-    }
+  async getById(id: string) {
+    return getFirst(
+      await KnexService('model_images')
+        .where({ id: id })
+    )
+  }
 
-    async getByModel(model_id: string) {
-        return await KnexService('model_images')
-            .where({ model_id })
-    }
+  async getByModel(model_id: string) {
+    return await KnexService('model_images')
+      .where({ model_id })
+  }
 
-    async getModelCover(model_id: string) {
-        return getFirst(
-            await KnexService('model_images')
-                .where({
-                    model_id,
-                    is_main: true
-                })
-        )
-    }
+  async getNonCoverByModel(model_id: string) {
+    return await KnexService('model_images')
+      .where({ model_id, is_main: false })
+  }
 
-    async deleteByModelId(id: string) {
-        return await KnexService('model_images')
-            .where({ model_id: id })
-            .delete()
-    }
+  async getModelCover(model_id: string) {
+    return getFirst(
+      await KnexService('model_images')
+        .where({
+          model_id,
+          is_main: true
+        })
+    )
+  }
 
-    async deleteByImageId(image_id: string) {
-        return await KnexService('model_images')
-            .where({ image_id })
-            .delete()
-    }
+  async deleteByModelId(id: string) {
+    return await KnexService('model_images')
+      .where({ model_id: id })
+      .delete()
+  }
 
-    async deleteCoverImageByModelId(model_id: string) {
-        return await KnexService('model_images')
-            .where({
-                model_id,
-                is_main: true
-            })
-            .delete()
-    }
+  async deleteByImageId(image_id: string) {
+    return await KnexService('model_images')
+      .where({ image_id })
+      .delete()
+  }
+
+  async deleteCoverImageByModelId(model_id: string) {
+    return await KnexService('model_images')
+      .where({
+        model_id,
+        is_main: true
+      })
+      .delete()
+  }
 }

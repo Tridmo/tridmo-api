@@ -63,10 +63,9 @@ export default class BrandService {
 
     if (styles && styles.length > 0) {
       if (!Array.isArray(styles)) styles = [styles]
-      Promise.all(styles.map(async style_id => {
-        const exist = await this.brandsDao.getBrandStyleByNameAndBrand({ brand_id: brand.id, style_id })
-        if (!exist) await this.brandsDao.createBrandStyle({ brand_id: brand.id, style_id })
-      }))
+      for await (const style_id of styles) {
+        await this.brandsDao.createBrandStyle({ brand_id: brand.id, style_id: Number(style_id) })
+      }
     }
 
     return {
@@ -79,7 +78,7 @@ export default class BrandService {
     const foundBrand: IBrand = await this.brandsDao.getById(brand_id);
     if (isEmpty(foundBrand)) throw new ErrorResponse(400, reqT('brand_404'));
 
-    let { styles, username, password } = values;
+    const { styles, username, password, ...otherValues } = values;
 
     if (username || password) {
       let brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
@@ -93,18 +92,17 @@ export default class BrandService {
       }
     }
 
-    let brand: IBrand = Object.keys(values).length ? await this.brandsDao.update(brand_id, values) : foundBrand
+    let brand: IBrand = Object.keys(otherValues).length ? await this.brandsDao.update(brand_id, otherValues) : foundBrand
 
     if (brand_image) {
-      brand = await this.updateImage(brand.id, brand_image);
+      brand = await this.updateImage(brand_id, brand_image);
     }
 
     if (styles && styles.length > 0) {
-      if (!Array.isArray(styles)) styles = [styles]
-      Promise.all(styles.map(async style_id => {
-        await this.brandsDao.deleteBrandStyle({ brand_id: brand.id, style_id })
-        await this.brandsDao.createBrandStyle({ brand_id: brand.id, style_id })
-      }))
+      await this.brandsDao.deleteBrandStyles(brand_id)
+      for await (const style_id of styles) {
+        await this.brandsDao.createBrandStyle({ brand_id, style_id: Number(style_id) })
+      }
     }
 
     return brand

@@ -27,7 +27,7 @@ export default class UserRolesDAO {
         .update({
           ...values
         })
-        .where({user_id})
+        .where({ user_id })
         .returning('*'),
     );
   }
@@ -36,6 +36,12 @@ export default class UserRolesDAO {
     return KnexService('user_roles')
       .select("*")
       .where("user_id", id)
+  }
+
+  getByUserAdnRole(user_id: string, role_id: number) {
+    return KnexService('user_roles')
+      .select("*")
+      .where({ user_id, role_id })
   }
 
   deleteById(id: number) {

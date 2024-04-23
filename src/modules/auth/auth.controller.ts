@@ -33,7 +33,7 @@ class AuthController {
   };
   public signIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.authService.signIn(req.body);
+      const data = await this.authService.signIn({ ...req.body, role: req.params.role });
 
       res.status(201).json({ success: true, data, message: reqT('login_success') });
     } catch (error) {
