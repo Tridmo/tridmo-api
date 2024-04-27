@@ -15,8 +15,8 @@ export default class InteriorModelsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/`, protect, this.controller.getAll);
-    this.router.get(`${this.path}/:id`, protect, this.controller.getByInterior);
+    this.router.get(`${this.path}/`, this.controller.getAll);
+    this.router.get(`${this.path}/:id`, this.controller.getByInterior);
     this.router.post(`${this.path}/`, protect, validate(CreateInteriorModelDTO, "body", true), this.controller.create);
     this.router.delete(`${this.path}/:id`, protect, this.controller.delete);
     this.router.delete(`${this.path}/interior/:interior_id`, protect, this.controller.deleteByInterior);
