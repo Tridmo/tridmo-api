@@ -16,6 +16,7 @@ export default class AuthRoute implements Routes {
   private initializeRoutes() {
     this.router.post(`${this.path}signup`, validate(SignupDTO, "body"), this.authController.signUp);
     this.router.post(`${this.path}signin/:role`, validate(SigninDTO, "body"), this.authController.signIn);
+    this.router.post(`${this.path}signin`, validate(SigninDTO, "body"), this.authController.signIn);
     this.router.get(`${this.path}verify`, (req, res) => { res.send('Confirm success') });
     this.router.post(`${this.path}resendcode`, validate(ResendOtpDTO, "body"), this.authController.resendOtp);
     this.router.post(`${this.path}refreshToken`, this.authController.refreshToken);

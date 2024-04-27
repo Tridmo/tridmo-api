@@ -23,6 +23,7 @@ import BrandsDAO from '../brands/dao/brands.dao';
 import SavedModelsService from '../saved_models/saved_models.service';
 import { IUser } from '../users/interface/users.interface';
 import { reqT } from '../shared/utils/language';
+import NotificationsService from '../notifications/notifications.service';
 
 export default class ModelService {
   private modelsDao = new ModelsDAO()
@@ -34,6 +35,7 @@ export default class ModelService {
   private downloadService = new DownloadsService()
   private interactionService = new InteractionService()
   private savedModelsService = new SavedModelsService()
+  private notificationsService = new NotificationsService()
   private brandsDao = new BrandsDAO()
 
   async create(
@@ -439,6 +441,17 @@ export default class ModelService {
       model_id: model.id,
       user_id: profile_id
     })
+
+    const brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id: model.brand_id })
+
+    if (brandAdmin) {
+      await this.notificationsService.create({
+        model_id: model_id,
+        action_id: 'new_model_download',
+        notifier_id: profile_id,
+        recipient_id: brandAdmin.profile.id,
+      })
+    }
 
     return presignedUrl
   }

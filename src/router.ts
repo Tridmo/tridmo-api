@@ -16,25 +16,29 @@ import SavedInteriorsRoute from './modules/saved_interiors/saved_interiors.route
 import SavedModelsRoute from './modules/saved_models/saved_models.route';
 import CommentsRoute from './modules/comments/comments.route';
 import PlatformsRoute from './modules/platforms/platforms.route';
+import NotificationsRoute from './modules/notifications/notifications.route';
+import InteriorModelsRoute from './modules/interior_models/interior_models.route';
 
 const router = Router()
 
 const routes = [
-    new AuthRoute(),
-    new UsersRoute(),
-    new CategoriesRoute(),
-    new BrandsRoute(),
-    new ModelsRoute(),
-    new ColorsRoute(),
-    new MaterialsRoute(),
-    new CostsRoute(),
-    new StylesRoute(),
-    new UserProductViewsRoute(),
-    new InteriorsRoute(),
-    new SavedInteriorsRoute(),
-    new SavedModelsRoute(),
-    new CommentsRoute(),
-    new PlatformsRoute()
+  new AuthRoute(),
+  new UsersRoute(),
+  new CategoriesRoute(),
+  new BrandsRoute(),
+  new ModelsRoute(),
+  new ColorsRoute(),
+  new MaterialsRoute(),
+  new CostsRoute(),
+  new StylesRoute(),
+  new UserProductViewsRoute(),
+  new InteriorsRoute(),
+  new SavedInteriorsRoute(),
+  new SavedModelsRoute(),
+  new CommentsRoute(),
+  new PlatformsRoute(),
+  new NotificationsRoute(),
+  new InteriorModelsRoute()
 ]
 
 routes.forEach(route => router.use('/', route.router))
