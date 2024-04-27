@@ -1,5 +1,4 @@
 import { IDefaultQuery } from "../../shared/interface/query.interface";
-import { IImageTagBody } from "../../interior_models/interface/image_tags.interface";
 import { IImage } from '../../shared/interface/files.interface';
 import { IModel } from '../../models/interface/models.interface';
 
@@ -29,7 +28,7 @@ export interface ICreateInterior {
   interaction_id: string;
   slug: string;
   name: string;
-  tags?: IImageTagBody[];
+  tags?: any[];
 }
 
 export interface ICreateInteriorBody {
@@ -38,7 +37,7 @@ export interface ICreateInteriorBody {
   category_id: number;
   name: string;
   description: string;
-  tags?: IImageTagBody[];
+  tags?: any[];
 }
 
 export interface IUpdateInterior {

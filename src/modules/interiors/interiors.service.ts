@@ -75,29 +75,6 @@ export default class InteriorService {
       })
     }))
 
-    if (tags && tags.length) {
-      tags.map(async tag => {
-        const modelUrl = tag.text.split('/')
-        let identifier = modelUrl[modelUrl.length - 1]
-
-        if (!isUUID(identifier)) {
-          const model = await this.modelService.findOne(identifier);
-          identifier = model.id
-        }
-
-        const newTag = await this.imageTagService.create({
-          image_id: '',
-          ...tag
-        })
-
-        await this.interiorModelService.create({
-          model_id: identifier,
-          interior_id: interior.id,
-          tag_id: newTag.id
-        })
-      })
-    }
-
     return interior
   }
 
