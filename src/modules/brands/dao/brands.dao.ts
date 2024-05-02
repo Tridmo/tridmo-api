@@ -32,6 +32,7 @@ export default class BrandsDAO {
 
           'profiles.* as profile.*'
         ])
+        .innerJoin('profiles', { 'profiles.id': 'brand_admins.profile_id' })
         .where({
           brand_id
         })
