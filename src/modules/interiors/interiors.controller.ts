@@ -144,10 +144,12 @@ export default class InteriorsController {
 
       const data = await this.interiorsService.update(
         req.params.id,
-        req.body
+        req.body,
+        req.files && req.files[defaults.reqCoverName] ? req.files[defaults.reqCoverName] as UploadedFile : null,
+        req.files && req.files[defaults.reqImagesName] ? req.files[defaults.reqImagesName] as UploadedFile[] : null,
       );
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         message: reqT('saved_successfully'),
         data: {

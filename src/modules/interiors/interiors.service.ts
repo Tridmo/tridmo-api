@@ -78,11 +78,50 @@ export default class InteriorService {
     return interior
   }
 
-  async update(id: string, values: IUpdateInterior): Promise<IInterior> {
+  async update(
+    id: string,
+    values: IUpdateInterior,
+    cover?: IRequestFile,
+    images?: IRequestFile[],
+  ): Promise<IInterior> {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
-    return await this.interiorsDao.update(id, values)
+    const { removed_images, ...otherValues } = values
+
+    const updated = await this.interiorsDao.update(id, otherValues)
+
+    if (cover) {
+      const modelCover = await this.interiorImageService.findInteriorCover(id)
+      await this.deleteImage(modelCover.image_id)
+      // upload and create cover image
+      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+      const cover_image = await this.imageService.create({ ...uploadedCover[0] })
+      await this.interiorImageService.create({
+        interior_id: interior.id,
+        image_id: cover_image.id,
+        is_main: true
+      })
+    }
+    if (removed_images && removed_images?.length) {
+      for await (const i of removed_images) {
+        await this.deleteImage(i)
+      }
+    }
+    if (images) {
+      // upload and create other images
+      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, /*fileDefaults.interior*/)
+      Promise.all(uploadedImages.map(async (i, ind) => {
+        const image = await this.imageService.create(i)
+        await this.interiorImageService.create({
+          interior_id: interior.id,
+          image_id: image.id,
+          is_main: false
+        })
+      }))
+    }
+
+    return updated
   }
 
   async findAll(

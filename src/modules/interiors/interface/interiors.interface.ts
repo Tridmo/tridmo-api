@@ -48,6 +48,7 @@ export interface IUpdateInterior {
   slug?: string;
   name?: string;
   is_deleted?: boolean;
+  removed_images?: string[];
 }
 
 export interface IGetInteriorsQuery extends IDefaultQuery {

@@ -1,6 +1,6 @@
-import { IsDefined, IsNotEmpty, IsString } from "class-validator";
+import { IsDefined, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../../shared/custom/validators";
-import { ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery } from "../interface/interiors.interface";
+import { ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery, IUpdateInterior } from "../interface/interiors.interface";
 
 export class CreateInteriorDTO implements ICreateInteriorBody {
   @IsDefined()
@@ -25,42 +25,53 @@ export class CreateInteriorDTO implements ICreateInteriorBody {
   @IsNotEmpty()
   @IsString()
   description: string;
-
-  @IsArrayOrStringifiedArray()
-  tags: any[];
 }
 
-export class UpdateInteriorDTO {
+export class UpdateInteriorDTO implements IUpdateInterior {
+  @IsOptional()
   @IsNumberOrStringifiedNumber()
   style_id: number;
 
+  @IsOptional()
   @IsNumberOrStringifiedNumber()
   category_id: number;
 
+  @IsOptional()
   @IsString()
   render_platform_id: string;
 
+  @IsOptional()
   @IsString()
   name: string;
 
-  @IsArrayOrStringifiedArray()
-  tags: any[];
+  @IsOptional()
+  @IsArrayOrStringifiedArray({
+    allowEmptyArray: true,
+    typeOfArrayItems: ['string']
+  })
+  removed_images: string[];
 }
 
 export class GetInteriorsQueryDTO implements IGetInteriorsQuery {
+  @IsOptional()
   styles?: string[];
 
+  @IsOptional()
   categories?: string[];
 
+  @IsOptional()
   @IsString()
   paltforms?: string[];
 
+  @IsOptional()
   @IsString()
   name?: string;
 
+  @IsOptional()
   @IsString()
   author?: string;
 
+  @IsOptional()
   @IsBooleanOrStringifiedBoolean()
   is_deleted?: boolean;
 }
