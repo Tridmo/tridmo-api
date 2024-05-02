@@ -83,12 +83,14 @@ export default class BrandService {
     if (username || password) {
       let brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
 
-      if (username) {
-        await this.usersService.update(brandAdmin?.id, { username })
-      }
-      if (password) {
-        const { data, error } = await supabase.auth.admin.updateUserById(brandAdmin?.profile?.id, { password })
-        if (error) throw new Error(error.message);
+      if (brandAdmin) {
+        if (username) {
+          await this.usersService.update(brandAdmin?.id, { username })
+        }
+        if (password) {
+          const { data, error } = await supabase.auth.admin.updateUserById(brandAdmin?.profile_id, { password })
+          if (error) throw new ErrorResponse(400, error.message);
+        }
       }
     }
 
