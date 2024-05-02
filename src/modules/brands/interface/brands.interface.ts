@@ -43,7 +43,7 @@ export interface IBrandAdmin {
   brand_id: string;
   created_at: Date;
   updated_at: Date;
-  profile?: IUser;
+  profiles?: IUser;
   brand?: IBrand;
 }
 export interface IBrandStyle {
