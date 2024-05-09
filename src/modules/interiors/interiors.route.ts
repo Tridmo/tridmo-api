@@ -32,7 +32,7 @@ export default class InteriorsRoute implements Routes {
       this.interiorsController.getAll
     );
     this.router.get(
-      `myinteriors/`,
+      `/myinteriors`,
       protect,
       validate(GetInteriorsQueryDTO, "query", true),
       this.interiorsController.getByAuthor
