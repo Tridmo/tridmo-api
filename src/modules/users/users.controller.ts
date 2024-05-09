@@ -14,6 +14,7 @@ import supabase from '../../database/supabase/supabase';
 import buildPagination from '../shared/utils/paginationBuilder';
 import { authVariables } from '../auth/variables';
 import { reqT } from '../shared/utils/language';
+import { UploadedFile } from 'express-fileupload';
 
 class UsersController {
   public usersService = new UsersService();
@@ -148,7 +149,12 @@ class UsersController {
     try {
       const userData: IUpdateUser = req.body
       const { user } = req
-      const data = await this.usersService.update(user.profile.id, userData)
+      const data = await this.usersService.update(
+        user.profile.id,
+        userData,
+        req.files && req.files[defaults.reqImageName] ? req.files[defaults.reqImageName] as UploadedFile : null,
+
+      )
 
       res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
     } catch (error) {

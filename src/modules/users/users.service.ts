@@ -1,5 +1,8 @@
+import { s3Vars } from '../../config/conf';
 import { authVariables } from '../auth/variables';
+import { IRequestFile } from '../shared/interface/files.interface';
 import ErrorResponse from '../shared/utils/errorResponse';
+import { uploadFile } from '../shared/utils/fileUpload';
 import UsersDAO from './dao/users.dao';
 import { ICreateUser, IUpdateUser, IUser } from './interface/users.interface';
 import flat from 'flat';
@@ -18,10 +21,23 @@ export default class UsersService {
     });
   }
 
-  async update(id: string, values: IUpdateUser): Promise<IUser> {
+  async update(id: string, values: IUpdateUser, image?: IRequestFile): Promise<IUser> {
     const user = this.usersDao.getById(id)
     if (!user) throw new ErrorResponse(404, 'User was not found');
-    return Object.keys(values).length ? await this.usersDao.update(id, values) : user;
+
+    let updatedUser = null;
+
+    if (Object.keys(values).length)
+      updatedUser = await this.usersDao.update(id, values);
+
+    if (image) {
+      const uploadedCover = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+      updatedUser = await this.usersDao.update(id, {
+        image_src: uploadedCover[0].src
+      })
+    }
+
+    return updatedUser || user;
   }
 
   async getAll(filters, sorts): Promise<IUser> {

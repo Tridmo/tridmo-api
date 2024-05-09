@@ -12,7 +12,7 @@ export interface ICreateUser {
 
 export interface IUpdateUser {
   full_name?: string;
-  language_id?: number;
+  image_src?: string;
   username?: string;
   birth_date?: Date;
   address?: string;
