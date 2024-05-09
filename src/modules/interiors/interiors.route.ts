@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ValidateUuidDTO } from '../shared/dto/params.dto';
-import { Routes } from '../shared/interface/routes.interface';
+import { CustomRequest, Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import InteriorsController from './interiors.controller';
 import { CreateInteriorDTO, GetInteriorsQueryDTO, UpdateInteriorDTO } from './dto/interiors.dto';
@@ -25,7 +25,18 @@ export default class InteriorsRoute implements Routes {
     this.router.post(`${this.path}/images/:id`, protect, check_access("update_interior"), validate(ValidateUuidDTO, "params"), this.interiorsController.addImages);
 
     // Get all
-    this.router.get(`${this.path}/`, validate(GetInteriorsQueryDTO, "query", true), this.interiorsController.getAll);
+    this.router.get(
+      `${this.path}/`,
+      checkUser,
+      validate(GetInteriorsQueryDTO, "query", true),
+      this.interiorsController.getAll
+    );
+    this.router.get(
+      `myinteriors/`,
+      protect,
+      validate(GetInteriorsQueryDTO, "query", true),
+      this.interiorsController.getByAuthor
+    );
     // Get one
     this.router.get(`${this.path}/:identifier`, checkUser, this.interiorsController.getOne);
 

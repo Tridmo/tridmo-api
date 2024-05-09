@@ -17,6 +17,9 @@ import ErrorResponse from '../shared/utils/errorResponse';
 import UsersService from '../users/users.service';
 import InteriorImageService from './interior_images/interior_images.service';
 import { reqT } from '../shared/utils/language';
+import { processValue } from '../shared/utils/processObject';
+import UserRoleService from '../users/user_roles/user_roles.service';
+import { authVariables } from '../auth/variables';
 
 export default class InteriorsController {
   private interiorsService = new InteriorService()
@@ -47,13 +50,23 @@ export default class InteriorsController {
     }
   }
 
-  public getAll = async (req: Request, res: Response, next: NextFunction) => {
+  public getAll = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const { query } = req
-      const { keyword }: ISearchQuery = query
       const extractedQuery = extractQuery(query)
       const sorts: IDefaultQuery = extractedQuery.sorts
       const filters: IGetInteriorsQuery = extractedQuery.filters
+
+      if (query.status) {
+        const s = processValue(query.status)
+        console.log(s);
+
+        if (s == '0' || s.includes('0')) {
+          if (!req.user) throw new ErrorResponse(401, reqT('unauthorized'))
+          const roles = await new UserRoleService().getByUserAndRole({ user_id: req.user.profile.id, role_id: authVariables.roles.admin })
+          if (!roles || !roles.length) throw new ErrorResponse(401, reqT('unauthorized'))
+        }
+      }
 
       if (filters.author) {
         const user = await this.usersService.getByUsername(filters.author)
@@ -78,24 +91,25 @@ export default class InteriorsController {
     }
   }
 
-  public getByAuthor = async (req: Request, res: Response, next: NextFunction) => {
+  public getByAuthor = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      const { query } = req
+      const { query, user } = req
       const extractedQuery = extractQuery(query)
       const sorts: IDefaultQuery = extractedQuery.sorts
+      const filters: IGetInteriorsQuery = extractedQuery.filters
 
-      const data = await this.interiorsService.findByAuthorUsername(
-        req.params.username,
-        sorts
-      )
-      const interiorCount =
-        data.length > 0 ?
-          await this.interiorsService.count(
-            data.length && data[0] ? {
-              author: data[0].user_id
-            } : {}
-          )
-          : 0
+      if (query.status) {
+        const s = processValue(query.status)
+        if (s == '0' || s.includes('0')) {
+          const roles = await new UserRoleService().getByUserId(user.profile.id)
+          if (!roles || !roles.length || !roles.includes(authVariables.roles.designer) || !roles.includes(authVariables.roles.admin)) throw new ErrorResponse(401, reqT('unauthorized'))
+        }
+      }
+
+      filters.author = user.profile.id
+
+      const data = await this.interiorsService.findAll(filters, sorts)
+      const interiorCount = await this.interiorsService.count(filters)
 
       const pagination = buildPagination(Number(interiorCount), sorts)
 

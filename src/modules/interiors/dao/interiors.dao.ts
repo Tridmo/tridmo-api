@@ -26,13 +26,14 @@ export default class InteriorsDAO {
   async count(
     filters: IGetInteriorsQuery,
   ): Promise<number> {
-    const { styles, categories, platforms, name, author, ...otherFilters } = filters
+    const { styles, status, categories, platforms, name, author, ...otherFilters } = filters
 
     return (
       await KnexService('interiors')
         .countDistinct("id")
         .where({ is_deleted: otherFilters.is_deleted || false })
         .modify((q) => {
+          if (status) q.whereIn("status", Array.isArray(status) ? status : [status])
           if (categories && categories.length > 0) q.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
           if (styles && styles.length > 0) q.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
           if (platforms && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
@@ -49,7 +50,7 @@ export default class InteriorsDAO {
   ): Promise<IInterior[]> {
 
     const { limit, offset, order, orderBy } = sorts
-    const { styles, categories, platforms, author, name, ...otherFilters } = filters
+    const { status, styles, categories, platforms, author, name, ...otherFilters } = filters
 
     return await KnexService("interiors")
       .select([
@@ -113,6 +114,7 @@ export default class InteriorsDAO {
           }
           else q.orderBy(`interiors.${orderBy}`, order)
         }
+        if (status) q.whereIn("status", Array.isArray(status) ? status : [status])
         if (categories && categories.length > 0) q.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
         if (styles && styles.length > 0) q.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
         if (platforms && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
