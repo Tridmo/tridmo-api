@@ -40,6 +40,15 @@ export default class InteriorsRoute implements Routes {
     );
 
     this.router.put(
+      `${this.path}/status/:id`,
+      protect,
+      check_access("get_users"),
+      validate(ValidateUuidDTO, "params"),
+      validate(UpdateInteriorDTO, "body", true),
+      this.interiorsController.updateStatus
+    );
+
+    this.router.put(
       `${this.path}/:id`,
       protect,
       check_access("update_interior"),

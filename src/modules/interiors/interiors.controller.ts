@@ -161,6 +161,28 @@ export default class InteriorsController {
     }
   }
 
+  public updateStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+
+      const data = await this.interiorsService.update(
+        req.params.id,
+        req.body,
+        null,
+        null
+      );
+
+      res.status(200).json({
+        success: true,
+        message: reqT('saved_successfully'),
+        data: {
+          interior: data
+        },
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public addImages = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const added = await this.interiorsService.addImages(

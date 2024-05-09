@@ -6,6 +6,7 @@ export interface IInterior {
   user_id: string;
   id: string;
   name: string;
+  status: number;
   category_id: number;
   render_platform_id: string;
   style_id: number;
@@ -22,6 +23,7 @@ export interface IInterior {
 
 export interface ICreateInterior {
   user_id: string;
+  status?: number;
   render_platform_id: string;
   style_id: number;
   category_id: number;
@@ -34,6 +36,7 @@ export interface ICreateInterior {
 export interface ICreateInteriorBody {
   render_platform_id: string;
   style_id: number;
+  status?: number;
   category_id: number;
   name: string;
   description: string;
@@ -53,6 +56,7 @@ export interface IUpdateInterior {
 
 export interface IGetInteriorsQuery extends IDefaultQuery {
   name?: string;
+  status?: number | number[];
   styles?: string[];
   categories?: string[];
   platforms?: string[];

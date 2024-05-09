@@ -52,9 +52,18 @@ export class UpdateInteriorDTO implements IUpdateInterior {
   removed_images: string[];
 }
 
+export class UpdateInteriorStatusDTO {
+  @IsOptional()
+  @IsNumberOrStringifiedNumber()
+  status: number;
+}
+
 export class GetInteriorsQueryDTO implements IGetInteriorsQuery {
   @IsOptional()
   styles?: string[];
+
+  @IsOptional()
+  status?: number | number[];
 
   @IsOptional()
   categories?: string[];
