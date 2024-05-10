@@ -449,7 +449,7 @@ export default class ModelService {
         model_id: model_id,
         action_id: 'new_model_download',
         notifier_id: profile_id,
-        recipient_id: brandAdmin.profiles.id,
+        recipient_id: brandAdmin.profile_id,
       })
     }
 
