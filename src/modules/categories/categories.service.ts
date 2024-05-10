@@ -70,6 +70,11 @@ export default class CategoryService {
     return category
   }
 
+  async findByBrand(brand_id: string): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByBrand(brand_id);
+    return categories
+  }
+
   async delete(id: string | number, cascade?: boolean) {
 
     if (cascade) {

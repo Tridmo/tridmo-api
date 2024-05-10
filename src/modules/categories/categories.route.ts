@@ -20,13 +20,15 @@ export default class CategoriesRoute implements Routes {
   private initializeRoutes() {
     // Get all
     this.router.get(`${this.path}/`, this.categoriesController.getAll);
+    // Get brands
+    this.router.get(`${this.path}/brand/:brand_id`, this.categoriesController.getByBrand);
     // Get main parent categories
     this.router.get(`${this.path}/main`, this.categoriesController.getAllParents);
     // Get children of one category
     this.router.get(`${this.path}/in/:id`, this.categoriesController.getChildrenOfCategory);
     // Get one
     this.router.get(`${this.path}/:id`, this.categoriesController.getOne);
-    
+
     // Create new
     this.router.post(`${this.path}/`, protect, check_access("create_category"), validate(CreateCategoryDTO, "body", true), this.categoriesController.create);
     // Update one

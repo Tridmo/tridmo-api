@@ -136,6 +136,21 @@ export default class CategoriesDAO {
     )
   }
 
+  async getByBrand(brand_id: string) {
+    return await KnexService('categories')
+      .select([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id"])
+      .distinct()
+      .from('categories')
+      .innerJoin('models', 'categories.id', 'models.category_id')
+      .innerJoin('brands', 'models.brand_id', 'brands.id')
+      .where('brands.id', brand_id)
+  }
+
   async deleteById(categoryId: string | number) {
     return await KnexService('categories')
       .where({ id: categoryId })
