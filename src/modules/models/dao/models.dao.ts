@@ -271,12 +271,56 @@ export default class ModelsDAO {
           this.select([
             'interior_models.id',
             'interior_models.model_id',
-            'interior_models.interior_id'
+            'interior_models.interior_id',
+            'interiors.id as interior.id',
+            'interiors.slug as interior.slug',
+            'interiors.name as interior.name',
+            'interior_cover as interior.cover',
+            'author_full_name as interior.author.full_name',
+            'author_username as interior.author.username',
+            'author_image_src as interior.author.image_src',
           ])
             .from('interior_models')
             .as('interior_models')
-            .leftJoin("interiors", { 'interior_models.interior_id': 'interiors.id' })
-            .groupBy('interior_models.id')
+            .leftJoin(function () {
+              this.select([
+                'interiors.*',
+                'author.id as author_id',
+                'author.full_name as author_full_name',
+                'author.username as author_username',
+                'author.image_src as author_image_src',
+                KnexService.raw('jsonb_agg(distinct "interior_images") as interior_cover'),
+              ])
+                .from('interiors')
+                .as('interiors')
+                .leftJoin({ author: 'profiles' }, { 'author.id': 'interiors.user_id' })
+                .leftJoin(function () {
+                  this.select([
+                    'interior_images.id',
+                    'interior_images.is_main',
+                    'interior_images.image_id',
+                    'interior_images.interior_id',
+                    'images.src as image_src'
+                  ])
+                    .from('interior_images')
+                    .as('interior_images')
+                    .where('interior_images.is_main', '=', true)
+                    .leftJoin("images", { 'interior_images.image_id': 'images.id' })
+                    .groupBy('interior_images.id', 'images.id')
+                }, { 'interiors.id': 'interior_images.interior_id' })
+                .groupBy('interiors.id', 'author.id', 'interior_images.id')
+            }, { 'interior_models.interior_id': 'interiors.id' })
+
+            .groupBy(
+              'interior_models.id',
+              'interiors.id',
+              'interiors.name',
+              'interiors.slug',
+              'interior_cover',
+              'author_full_name',
+              'author_username',
+              'author_image_src',
+            )
         }, { 'models.id': 'interior_models.model_id' })
         .groupBy(
           'models.id',
