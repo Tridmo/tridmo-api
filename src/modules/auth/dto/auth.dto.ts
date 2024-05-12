@@ -31,7 +31,7 @@ export class SignupDTO implements ISignup {
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  username: string;
+  company_name: string;
 
   @IsDefined()
   @IsNotEmpty()

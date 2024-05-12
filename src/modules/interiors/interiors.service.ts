@@ -22,12 +22,12 @@ import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
 import { reqT } from '../shared/utils/language';
 
 export default class InteriorService {
+  // private modelService = new ModelService()
+  // private imageTagService = new ImageTagsService()
+  // private interiorModelService = new InteriorModelsService()
   private interiorsDao = new InteriorsDAO()
   private interiorImageService = new InteriorImageService()
-  private interiorModelService = new InteriorModelsService()
   private imageService = new ImageService()
-  private modelService = new ModelService()
-  private imageTagService = new ImageTagsService()
   private usersService = new UsersService()
   private interactionService = new InteractionService()
   private savedInteriorsService = new SavedInteriorsService()

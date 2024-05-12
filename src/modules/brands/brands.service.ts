@@ -14,6 +14,7 @@ import UsersService from "../users/users.service";
 import generateSlug from '../shared/utils/generateSlug';
 import { reqT } from '../shared/utils/language';
 import supabase from "../../database/supabase/supabase";
+import { generateUsername } from "unique-username-generator";
 
 export default class BrandService {
   private brandsDao = new BrandsDAO()
@@ -35,12 +36,14 @@ export default class BrandService {
 
     // generate unique slug
     const slug = generateSlug(name, { replacement: "", lower: false })
+    username = username || generateUsername('_', 4, 60, `admin ${name}`)
 
     const admin = await this.authService.createVerifiedUser({
       email: `admin@${slug.toLowerCase()}.com`,
       full_name: `${name} admin`,
       birth_date: new Date(),
-      username,
+      username: username,
+      company_name: name,
       password
     })
 

@@ -3,6 +3,7 @@ export interface ICreateUser {
   full_name: string;
   email: string;
   username: string;
+  company_name: string;
   birth_date?: Date;
   address?: string;
   phone?: string;
@@ -14,6 +15,7 @@ export interface IUpdateUser {
   full_name?: string;
   image_src?: string;
   username?: string;
+  company_name?: string;
   birth_date?: Date;
   address?: string;
   phone?: string;
@@ -39,6 +41,7 @@ export interface IUser {
   full_name: string;
   email: string;
   username: string;
+  company_name: string;
   birth_date: Date;
   address: string;
   phone: string;

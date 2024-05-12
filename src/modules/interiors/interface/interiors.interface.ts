@@ -25,7 +25,7 @@ export interface ICreateInterior {
   user_id: string;
   status?: number;
   render_platform_id: string;
-  style_id: number;
+  style_id?: number;
   category_id: number;
   interaction_id: string;
   slug: string;
@@ -35,7 +35,7 @@ export interface ICreateInterior {
 
 export interface ICreateInteriorBody {
   render_platform_id: string;
-  style_id: number;
+  style_id?: number;
   status?: number;
   category_id: number;
   name: string;

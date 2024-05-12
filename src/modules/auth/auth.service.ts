@@ -18,6 +18,8 @@ import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { authVariables } from "./variables";
 import { reqT } from '../shared/utils/language';
 import RoleService from "../roles/roles.service";
+import generateSlug from "../shared/utils/generateSlug";
+import { generateFromEmail } from "unique-username-generator";
 
 export default class AuthService {
   private OtpDigitsCount = 6;
@@ -32,24 +34,27 @@ export default class AuthService {
 
   private jwtService = new TokenService()
 
-  async signup({ email, full_name, password, birth_date, username }: ISignup) {
+  async signup({ email, full_name, password, birth_date, company_name }: ISignup) {
 
     const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
 
     if (!user?.identities?.length)
       throw new ErrorResponse(400, reqT('email_exist'));
     if (error)
-      throw new Error(error.message);
+      throw new ErrorResponse(error.status, error.message);
+
+    const username = generateFromEmail(email, 6)
 
     const profile = await this.usersService.create({
-      user_id: user.id, full_name, email, birth_date, username
+      user_id: user.id, full_name, email, birth_date, company_name, username
     })
+
     await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.designer })
 
     return { otpEmail: email };
   }
 
-  async createVerifiedUser({ email, full_name, password, birth_date, username }: ISignup) {
+  async createVerifiedUser({ email, full_name, password, birth_date, company_name, username }: ISignup) {
 
     const { data: { user }, error } = await supabase.auth.admin.createUser({
       email,
@@ -62,8 +67,10 @@ export default class AuthService {
     if (error)
       throw new Error(error.message);
 
+    username = username || generateFromEmail(email, 6)
+
     const profile = await this.usersService.create({
-      user_id: user.id, full_name, email, birth_date, username
+      user_id: user.id, full_name, email, birth_date, username, company_name
     })
     await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.brand })
 
@@ -147,6 +154,7 @@ export default class AuthService {
           user_id: session!.user.id,
           email: session!.user.email!,
           full_name: session!.user.user_metadata.full_name,
+          company_name: session!.user.user_metadata.full_name,
           username: session!.user.user_metadata.username,
           birth_date: session!.user.user_metadata.birth_date,
         }

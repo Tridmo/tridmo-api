@@ -4,6 +4,7 @@ export interface ICreateUser {
   full_name: string;
   email: string;
   username: string;
+  company_name: string;
   password: string;
   birth_date: Date;
 }
@@ -18,7 +19,8 @@ export interface ISignin {
 export interface ISignup {
   full_name: string;
   email: string;
-  username: string;
+  username?: string;
+  company_name: string;
   password: string;
   birth_date?: Date;
 }

@@ -62,6 +62,7 @@ export default class InteriorsDAO {
         'author.id as author.id',
         'author.full_name as author.full_name',
         'author.username as author.username',
+        'author.company_name as author.company_name',
         'author.image_src as author.image_src',
 
         'interactions.views as views',
@@ -149,6 +150,7 @@ export default class InteriorsDAO {
           'author.id as author.id',
           'author.full_name as author.full_name',
           'author.username as author.username',
+          'author.company_name as author.company_name',
           'author.image_src as author.image_src',
 
           'interactions.views as views',
@@ -226,6 +228,7 @@ export default class InteriorsDAO {
         'author.id as author.id',
         'author.full_name as author.full_name',
         'author.username as author.username',
+        'author.company_name as author.company_name',
         'author.image_src as author.image_src',
 
         KnexService.raw('jsonb_agg(distinct "interior_images") as cover'),

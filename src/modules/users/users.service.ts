@@ -10,12 +10,13 @@ import flat from 'flat';
 export default class UsersService {
   private usersDao = new UsersDAO();
 
-  async create({ full_name, email, user_id, birth_date, username }: ICreateUser): Promise<IUser> {
+  async create({ full_name, email, user_id, birth_date, username, company_name }: ICreateUser): Promise<IUser> {
 
     return await this.usersDao.create({
       full_name,
       birth_date,
       username,
+      company_name,
       email,
       user_id,
     });

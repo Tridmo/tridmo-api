@@ -3,8 +3,7 @@ import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStr
 import { ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery, IUpdateInterior } from "../interface/interiors.interface";
 
 export class CreateInteriorDTO implements ICreateInteriorBody {
-  @IsDefined()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumberOrStringifiedNumber()
   style_id: number;
 
