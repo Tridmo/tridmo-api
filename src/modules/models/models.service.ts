@@ -207,10 +207,10 @@ export default class ModelService {
     model.is_saved = false;
 
     if (currentUser) {
-      const saved = await this.savedModelsService.findAll({
+      const saved = await this.savedModelsService.findAllMin({
         user_id: currentUser.id,
         model_id: model.id
-      })
+      }, {})
 
       model.is_saved = saved.length > 0;
     }

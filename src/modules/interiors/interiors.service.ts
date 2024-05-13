@@ -151,10 +151,10 @@ export default class InteriorService {
     interior.is_saved = false;
 
     if (currentUser) {
-      const saved = await this.savedInteriorsService.findAll({
+      const saved = await this.savedInteriorsService.findAllMin({
         user_id: currentUser.id,
         interior_id: interior.id
-      })
+      }, {})
 
       interior.is_saved = saved.length > 0;
     }
