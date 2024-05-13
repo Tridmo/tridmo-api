@@ -10,11 +10,13 @@ import ModelService from "./models.service";
 import { UploadedFile } from "express-fileupload";
 import ModelImageService from "./model_images/model_images.service";
 import { reqT } from "../shared/utils/language";
+import InteractionService from "../interactions/interactions.service";
 
 
 export default class ModelsController {
   private modelsService = new ModelService()
   private modelImageService = new ModelImageService()
+  private interactionsService = new InteractionService()
 
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -122,6 +124,9 @@ export default class ModelsController {
   public getOne = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const model = await this.modelsService.findOne(req.params.identifier, req.user?.profile)
+
+      // update views
+      await this.interactionsService.increment(model?.interaction_id, 'views')
 
       res.status(200).json({
         success: true,

@@ -4,9 +4,14 @@ import ErrorResponse from "../shared/utils/errorResponse";
 import { ISavedInterior, ICreateSavedInterior, IFilterSavedInterior } from "./interface/saved_interiors.interface";
 import SavedInteriorsDAO from './dao/saved_interiors.dao';
 import flat from 'flat'
+import InteriorService from "../interiors/interiors.service";
+import InteractionService from "../interactions/interactions.service";
+import InteriorsDAO from "../interiors/dao/interiors.dao";
 
 export default class SavedInteriorsService {
   private dao = new SavedInteriorsDAO()
+  private interiorsDao = new InteriorsDAO()
+  private interactionsService = new InteractionService()
 
   async create(
     values: ICreateSavedInterior
@@ -14,6 +19,8 @@ export default class SavedInteriorsService {
     const exist = await this.dao.getAll({ user_id: values.user_id, interior_id: values.interior_id }, {});
 
     if (exist.length == 0) {
+      const interior = await this.interiorsDao.getByIdMinimal(values.interior_id)
+      await this.interactionsService.increment(interior?.interaction_id, 'saves')
       return await this.dao.create(values)
     }
 
@@ -36,6 +43,12 @@ export default class SavedInteriorsService {
   }
 
   async delete(where: IFilterSavedInterior): Promise<number> {
+    if (where?.interior_id) {
+      const interior = await this.interiorsDao.getByIdMinimal(where.interior_id)
+      await this.interactionsService.decrement(interior?.interaction_id, 'saves')
+    } else if (where?.id) {
+      await this.interactionsService.decrement(where.id, 'saves')
+    }
     return await this.dao.delete(where);
   }
 }

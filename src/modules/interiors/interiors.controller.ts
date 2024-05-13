@@ -20,11 +20,12 @@ import { reqT } from '../shared/utils/language';
 import { processValue } from '../shared/utils/processObject';
 import UserRoleService from '../users/user_roles/user_roles.service';
 import { authVariables } from '../auth/variables';
+import InteractionService from '../interactions/interactions.service';
 
 export default class InteriorsController {
   private interiorsService = new InteriorService()
   private interiorImagesService = new InteriorImageService()
-  private imagesService = new ImageService()
+  private interactionsService = new InteractionService()
   private usersService = new UsersService()
   private interiorModelsService = new InteriorModelsService()
 
@@ -141,6 +142,9 @@ export default class InteriorsController {
   public getOne = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const data = await this.interiorsService.findOne(req.params.identifier, req.user?.profile)
+
+      // update views
+      await this.interactionsService.increment(data?.interaction_id, 'views')
 
       res.status(200).json({
         success: true,
