@@ -1,6 +1,6 @@
 import { IDefaultQuery } from './../../modules/shared/interface/query.interface';
-import InteriorsDAO from "./dao/interiors.dao";
-import { IAddImageResult, ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery, IInterior, IUpdateInterior } from "./interface/interiors.interface";
+import InteriorsDAO from "./interiors.dao";
+import { IAddImageResult, ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery, IInterior, IUpdateInterior } from "./interiors.interface";
 import { IRequestFile } from '../shared/interface/files.interface';
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
@@ -17,7 +17,7 @@ import ErrorResponse from '../shared/utils/errorResponse';
 import flat from 'flat';
 import UsersService from '../users/users.service';
 import InteractionService from '../interactions/interactions.service';
-import { IUser } from '../users/interface/users.interface';
+import { IUser } from '../users/users.interface';
 import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
 import { reqT } from '../shared/utils/language';
 

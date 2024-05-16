@@ -1,12 +1,12 @@
 import { isEmpty } from "class-validator";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import ErrorResponse from "../shared/utils/errorResponse";
-import { ICreateSavedModel, IFilterSavedModel } from "./interface/saved_models.interface";
-import SavedModelsDAO from './dao/saved_models.dao';
+import { ICreateSavedModel, IFilterSavedModel } from "./saved_models.interface";
+import SavedModelsDAO from './saved_models.dao';
 import flat from 'flat'
 import ModelService from "../models/models.service";
 import InteractionService from "../interactions/interactions.service";
-import ModelsDAO from "../models/dao/models.dao";
+import ModelsDAO from "../models/models.dao";
 
 export default class SavedModelsService {
   private dao = new SavedModelsDAO()

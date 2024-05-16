@@ -1,9 +1,9 @@
-import { IGetModelsQuery } from './../models/interface/models.interface';
+import { IGetModelsQuery } from '../models/models.interface';
 import { NextFunction, Request, Response } from "express";
 import extractQuery from "../../modules/shared/utils/extractQuery";
 import CategoryService from "./categories.service";
-import { CreateCategoryDTO, UpdateCategoryDTO } from "./dto/categories.dto";
-import { IGetCategoriesQuery } from "./interface/categories.interface";
+import { CreateCategoryDTO, UpdateCategoryDTO } from "./categories.dto";
+import { IGetCategoriesQuery } from "./categories.interface";
 import { reqT } from '../shared/utils/language';
 
 export default class CategoriesController {

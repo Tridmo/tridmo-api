@@ -2,8 +2,8 @@ import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
 import ErrorResponse from '../shared/utils/errorResponse';
 import { defaults, fileDefaults } from '../shared/defaults/defaults';
 import { IDefaultQuery } from './../shared/interface/query.interface';
-import ModelsDAO from "./dao/models.dao";
-import { IAddImageResult, ICreateModel, ICreateModelBody, IGetModelsQuery, IModel, IUpdateModel } from "./interface/models.interface";
+import ModelsDAO from "./models.dao";
+import { IAddImageResult, ICreateModel, ICreateModelBody, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import FileService from '../shared/modules/files/files.service';
 import { isEmpty } from 'lodash';
@@ -19,9 +19,9 @@ import { checkObject, generatePresignedUrl } from '../shared/utils/s3';
 import { IModelMaterial } from './model_materials/interface/model_materials.interface';
 import DownloadsService from '../downloads/downloads.service';
 import InteractionService from '../interactions/interactions.service';
-import BrandsDAO from '../brands/dao/brands.dao';
+import BrandsDAO from '../brands/brands.dao';
 import SavedModelsService from '../saved_models/saved_models.service';
-import { IUser } from '../users/interface/users.interface';
+import { IUser } from '../users/users.interface';
 import { reqT } from '../shared/utils/language';
 import NotificationsService from '../notifications/notifications.service';
 
@@ -172,6 +172,14 @@ export default class ModelService {
           is_main: false
         })
       }))
+    }
+
+    // remove top tag if not available
+    if (otherValues.availability == 2 && foundModel?.top == true) {
+      return await this.modelsDao.update(id, {
+        availability: otherValues.availability,
+        top: false
+      })
     }
 
     return model

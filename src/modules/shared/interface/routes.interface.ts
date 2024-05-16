@@ -1,6 +1,6 @@
 import { Router, Request } from 'express';
 import { User } from "@supabase/supabase-js";
-import { IUser } from '../../users/interface/users.interface';
+import { IUser } from '../../users/users.interface';
 import L from '../../../i18n/i18n-node';
 import { TranslationFunctions } from '../../../i18n/i18n-types';
 

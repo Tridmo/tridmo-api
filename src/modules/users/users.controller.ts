@@ -1,14 +1,14 @@
 import flat from 'flat';
 import { NextFunction, Request, Response } from 'express';
 import UsersService from './users.service';
-import { IGetUsersQuery, IUpdateUser, IUser } from './interface/users.interface';
+import { IGetUsersQuery, IUpdateUser, IUser } from './users.interface';
 import { CustomRequest } from '../shared/interface/routes.interface';
 import { isEmpty } from 'class-validator';
 import { defaults } from '../shared/defaults/defaults';
 import extractQuery from '../shared/utils/extractQuery';
 import RoleService from '../auth/roles/roles.service';
 import { ISearchQuery } from '../shared/interface/query.interface';
-import { ICreateUserRole } from './user_roles/interface/user_roles.interface';
+import { ICreateUserRole } from './user_roles/user_roles.interface';
 import UserRoleService from './user_roles/user_roles.service';
 import supabase from '../../database/supabase/supabase';
 import buildPagination from '../shared/utils/paginationBuilder';

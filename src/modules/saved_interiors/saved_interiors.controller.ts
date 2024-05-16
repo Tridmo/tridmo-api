@@ -26,12 +26,22 @@ export default class SavedInteriorsController {
     }
   }
 
-  public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getAll = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { filters, sorts } = extractQuery(req.query)
-
-      const data = await this.service.findAll(filters, sorts)
-      const count = await this.service.count(filters)
+      const data = await this.service.findAll(
+        {
+          ...filters,
+          user_id: req.user.profile.id
+        },
+        sorts
+      )
+      const count = await this.service.count(
+        {
+          ...filters,
+          user_id: req.user.profile.id
+        }
+      )
 
       res.status(200).json({
         success: true,

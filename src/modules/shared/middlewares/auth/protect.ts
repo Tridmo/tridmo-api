@@ -1,5 +1,5 @@
 import { CustomRequest, RequestWithUser } from "../../interface/routes.interface";
-import UsersDAO from "../../../users/dao/users.dao";
+import UsersDAO from "../../../users/users.dao";
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { server } from "../../../../config/conf";

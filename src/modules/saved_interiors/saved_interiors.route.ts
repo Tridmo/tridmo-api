@@ -6,7 +6,7 @@ import protect from '../shared/middlewares/auth/protect';
 import check_access from '../shared/middlewares/auth/check_access';
 import checkUser from '../shared/middlewares/auth/check_user';
 import SavedInteriorsController from './saved_interiors.controller';
-import { CreateSavedInteriotDTO } from './dto/saved_interiors.dto';
+import { CreateSavedInteriotDTO } from './saved_interiors.dto';
 
 export default class SavedInteriorsRoute implements Routes {
   public path = '/saved/interiors';

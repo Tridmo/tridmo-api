@@ -1,4 +1,4 @@
-import { IUserMetadata } from "../../users/interface/users.interface";
+import { IUserMetadata } from "../../users/users.interface";
 
 interface IDecodedAccessToken {
   aud: string;

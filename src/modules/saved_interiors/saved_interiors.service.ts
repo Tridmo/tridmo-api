@@ -1,12 +1,12 @@
 import { isEmpty } from "class-validator";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import ErrorResponse from "../shared/utils/errorResponse";
-import { ISavedInterior, ICreateSavedInterior, IFilterSavedInterior } from "./interface/saved_interiors.interface";
-import SavedInteriorsDAO from './dao/saved_interiors.dao';
+import { ISavedInterior, ICreateSavedInterior, IFilterSavedInterior } from "./saved_interiors.interface";
+import SavedInteriorsDAO from './saved_interiors.dao';
 import flat from 'flat'
 import InteriorService from "../interiors/interiors.service";
 import InteractionService from "../interactions/interactions.service";
-import InteriorsDAO from "../interiors/dao/interiors.dao";
+import InteriorsDAO from "../interiors/interiors.dao";
 
 export default class SavedInteriorsService {
   private dao = new SavedInteriorsDAO()

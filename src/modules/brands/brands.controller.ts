@@ -4,7 +4,7 @@ import extractQuery from "../shared/utils/extractQuery";
 import buildPagination from "../shared/utils/paginationBuilder";
 
 import BrandService from "./brands.service";
-import { CreateBrandDTO, UpdateBrandDTO } from "./dto/brands.dto";
+import { CreateBrandDTO, UpdateBrandDTO } from "./brands.dto";
 import { ISearchQuery } from "../shared/interface/query.interface";
 import { IDefaultQuery } from "../shared/interface/query.interface";
 import { defaults } from "../shared/defaults/defaults";

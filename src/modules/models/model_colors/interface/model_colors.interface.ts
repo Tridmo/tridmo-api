@@ -1,5 +1,5 @@
-import { IModel } from "../../interface/models.interface";
-import { IColor } from "../../../colors/interface/colors.interface";
+import { IModel } from "../../models.interface";
+import { IColor } from "../../../colors/colors.interface";
 
 export interface IModelColor {
   id: string;

@@ -4,7 +4,7 @@ import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import CategoriesController from './categories.controller';
-import { CreateCategoryDTO, UpdateCategoryDTO } from './dto/categories.dto';
+import { CreateCategoryDTO, UpdateCategoryDTO } from './categories.dto';
 import check_access from '../shared/middlewares/auth/check_access';
 import checkUser from '../shared/middlewares/auth/check_user';
 

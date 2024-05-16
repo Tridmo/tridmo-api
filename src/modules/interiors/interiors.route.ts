@@ -3,7 +3,7 @@ import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { CustomRequest, Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import InteriorsController from './interiors.controller';
-import { CreateInteriorDTO, GetInteriorsQueryDTO, UpdateInteriorDTO } from './dto/interiors.dto';
+import { CreateInteriorDTO, GetInteriorsQueryDTO, UpdateInteriorDTO } from './interiors.dto';
 import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from "../shared/defaults/defaults"
 import protect from '../shared/middlewares/auth/protect';

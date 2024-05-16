@@ -4,8 +4,8 @@ import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import UsersController from './users.controller';
 import check_access from '../shared/middlewares/auth/check_access';
-import { UpdateUserDTO } from './dto/users.dto';
-import { CreateUserRoleDTO } from '../auth/roles/dto/roles.dto';
+import { UpdateUserDTO } from './users.dto';
+import { CreateUserRoleDTO } from '../auth/roles/roles.dto';
 
 export default class AuthRoute implements Routes {
   public path = '/users';

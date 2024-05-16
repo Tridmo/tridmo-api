@@ -5,7 +5,7 @@ import { DefaultQueryDTO, SearchQueryDTO } from '../shared/dto/query.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import ColorsCcontroller from './colors.controller';
-import { CreateColorDTO, UpdateColorDTO } from './dto/colors.dto';
+import { CreateColorDTO, UpdateColorDTO } from './colors.dto';
 import check_access from '../shared/middlewares/auth/check_access';
 import checkUser from '../shared/middlewares/auth/check_user';
 
@@ -23,7 +23,7 @@ export default class ColorsRoute implements Routes {
     this.router.get(`${this.path}/`, this.colorsController.getAll);
     // Get one
     this.router.get(`${this.path}/:id`, this.colorsController.getOne);
-    
+
     // Create new
     this.router.post(`${this.path}/`, protect, check_access("create_color"), validate(CreateColorDTO, "body", true), this.colorsController.create);
     // Update one

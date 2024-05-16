@@ -5,7 +5,7 @@ import { DefaultQueryDTO, SearchQueryDTO } from '../shared/dto/query.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import BrandsController from './brands.controller';
-import { CreateBrandDTO, UpdateBrandDTO } from './dto/brands.dto';
+import { CreateBrandDTO, UpdateBrandDTO } from './brands.dto';
 import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from '../shared/defaults/defaults';
 const { reqImageName } = defaults

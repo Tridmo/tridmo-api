@@ -3,7 +3,7 @@ import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import ModelsController from './models.controller';
-import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetCountsQueryDTO, GetModelsQueryDTO, UpdateModelDTO } from './dto/models.dto';
+import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetCountsQueryDTO, GetModelsQueryDTO, UpdateModelDTO } from './models.dto';
 import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from "../shared/defaults/defaults"
 import protect from '../shared/middlewares/auth/protect';

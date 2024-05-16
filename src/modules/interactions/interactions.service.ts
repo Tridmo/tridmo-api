@@ -1,7 +1,7 @@
 import { isEmpty } from "class-validator";
 import ErrorResponse from "../shared/utils/errorResponse";
-import { IInteraction, IUpdateInteraction } from "./interface/interactions.interface";
-import InteractionsDAO from './dao/interactions.dao';
+import { IInteraction, IUpdateInteraction } from "./interactions.interface";
+import InteractionsDAO from './interactions.dao';
 
 export default class InteractionService {
   private interactionsDao = new InteractionsDAO()

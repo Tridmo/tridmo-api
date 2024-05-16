@@ -1,15 +1,15 @@
 import { isEmpty } from "class-validator";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import ErrorResponse from "../shared/utils/errorResponse";
-import BrandsDAO from "./dao/brands.dao";
-import { IBrand, IBrandAuth, ICreateBrand, IGetBrandsQuery, IUpdateBrand } from "./interface/brands.interface";
+import BrandsDAO from "./brands.dao";
+import { IBrand, IBrandAuth, ICreateBrand, IGetBrandsQuery, IUpdateBrand } from "./brands.interface";
 import ModelService from "../models/models.service";
 import { uploadFile } from "../shared/utils/fileUpload";
 import { IImage, IRequestFile } from "../shared/interface/files.interface";
 import { s3Vars } from "../../config/conf";
 import ImageService from "../shared/modules/images/images.service";
 import AuthService from "../auth/auth.service";
-import { IUser } from "../users/interface/users.interface";
+import { IUser } from "../users/users.interface";
 import UsersService from "../users/users.service";
 import generateSlug from '../shared/utils/generateSlug';
 import { reqT } from '../shared/utils/language';

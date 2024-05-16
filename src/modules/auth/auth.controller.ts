@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import AuthService from './auth.service';
-import { ConfirmOtpDTO, ResendOtpDTO, SigninDTO, SignupDTO } from './dto/auth.dto';
+import { ConfirmOtpDTO, ResendOtpDTO, SigninDTO, SignupDTO } from './auth.dto';
 import { IRefreshToken, ISignin } from './interface/auth.interface';
 import supabase from '../../database/supabase/supabase';
 import { reqT } from '../shared/utils/language';

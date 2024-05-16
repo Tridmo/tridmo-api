@@ -2,7 +2,7 @@ import { isEmpty, isUUID } from "class-validator";
 import { NextFunction, Request, Response } from "express";
 import buildPagination from "../shared/utils/paginationBuilder";
 import extractQuery from "../shared/utils/extractQuery";
-import { ICounts, IGetCountsQuery, IGetModelsQuery } from "./interface/models.interface";
+import { ICounts, IGetCountsQuery, IGetModelsQuery } from "./models.interface";
 import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
 import { defaults } from "../shared/defaults/defaults"
 import { CustomRequest } from "../shared/interface/routes.interface";

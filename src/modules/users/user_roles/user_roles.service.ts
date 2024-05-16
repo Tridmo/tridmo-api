@@ -1,5 +1,5 @@
-import UserRolesDAO from './dao/user_roles.dao';
-import { ICreateUserRole } from './interface/user_roles.interface';
+import UserRolesDAO from './user_roles.dao';
+import { ICreateUserRole } from './user_roles.interface';
 
 export default class UserRoleService {
   private userRolesDao = new UserRolesDAO();

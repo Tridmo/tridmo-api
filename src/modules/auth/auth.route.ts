@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import AuthController from './auth.controller';
-import { ConfirmOtpDTO, ResendOtpDTO, SigninDTO, SignupDTO } from './dto/auth.dto';
+import { ConfirmOtpDTO, ResendOtpDTO, SigninDTO, SignupDTO } from './auth.dto';
 
 export default class AuthRoute implements Routes {
   public path = '/auth/';

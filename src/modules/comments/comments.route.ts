@@ -6,7 +6,7 @@ import protect from '../shared/middlewares/auth/protect';
 import check_access from '../shared/middlewares/auth/check_access';
 import checkUser from '../shared/middlewares/auth/check_user';
 import CommentsController from './comments.controller';
-import { CreateCommentDTO, UpdateCommentDTO } from './dto/comments.dto';
+import { CreateCommentDTO, UpdateCommentDTO } from './comments.dto';
 
 export default class CommentsRoute implements Routes {
   public path = '/comments';

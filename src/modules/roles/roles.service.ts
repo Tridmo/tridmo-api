@@ -1,7 +1,7 @@
 import { isEmpty } from "class-validator";
 import ErrorResponse from "../shared/utils/errorResponse";
-import RolesDAO from "./dao/roles.dao";
-import { ICreateRole, IRole, IUpdateRole } from "./interface/roles.interface";
+import RolesDAO from "./roles.dao";
+import { ICreateRole, IRole, IUpdateRole } from "./roles.interface";
 
 export default class RoleService {
     private rolesDao = new RolesDAO()

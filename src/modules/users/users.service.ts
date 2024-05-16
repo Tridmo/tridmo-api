@@ -3,8 +3,8 @@ import { authVariables } from '../auth/variables';
 import { IRequestFile } from '../shared/interface/files.interface';
 import ErrorResponse from '../shared/utils/errorResponse';
 import { uploadFile } from '../shared/utils/fileUpload';
-import UsersDAO from './dao/users.dao';
-import { ICreateUser, IUpdateUser, IUser } from './interface/users.interface';
+import UsersDAO from './users.dao';
+import { ICreateUser, IUpdateUser, IUser } from './users.interface';
 import flat from 'flat';
 
 export default class UsersService {

@@ -1,8 +1,8 @@
 import { isEmpty } from "lodash";
 import ErrorResponse from "../shared/utils/errorResponse";
-import CategoriesDAO from "./dao/categories.dao";
-import { UpdateCategoryDTO } from "./dto/categories.dto";
-import { ICategory, ICreateCategory, IGetCategoriesQuery } from "./interface/categories.interface";
+import CategoriesDAO from "./categories.dao";
+import { UpdateCategoryDTO } from "./categories.dto";
+import { ICategory, ICreateCategory, IGetCategoriesQuery } from "./categories.interface";
 import { IDefaultQuery } from '../shared/interface/query.interface';
 
 export default class CategoryService {

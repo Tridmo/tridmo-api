@@ -3,7 +3,7 @@ import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import MaterialsCcontroller from './materials.controller';
-import { CreateMaterialDTO, UpdateMaterialDTO } from './dto/materials.dto';
+import { CreateMaterialDTO, UpdateMaterialDTO } from './materials.dto';
 import protect from '../shared/middlewares/auth/protect';
 import check_access from '../shared/middlewares/auth/check_access';
 import checkUser from '../shared/middlewares/auth/check_user';
@@ -22,7 +22,7 @@ export default class MaterialsRoute implements Routes {
     this.router.get(`${this.path}/`, this.materialsController.getAll);
     // Get one
     this.router.get(`${this.path}/:id`, validate(ValidateUuidDTO, "params"), this.materialsController.getOne);
-    
+
     // Create new
     this.router.post(`${this.path}/`, protect, check_access("create_material"), validate(CreateMaterialDTO, "body", true), this.materialsController.create);
     // Update one

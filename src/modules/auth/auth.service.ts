@@ -1,7 +1,7 @@
 import { isEmpty, isUndefined } from "lodash";
 import ErrorResponse from "../shared/utils/errorResponse";
 
-import { IUser } from "../users/interface/users.interface";
+import { IUser } from "../users/users.interface";
 
 import UsersService from "../users/users.service";
 import LanguagesService from "../shared/modules/languages/languages.service";
