@@ -40,7 +40,11 @@ export default class InteriorsRoute implements Routes {
     // Get one
     this.router.get(`${this.path}/:identifier`, checkUser, this.interiorsController.getOne);
 
-    // Create new
+    // Like
+    this.router.post(`${this.path}/lk/:id`, protect, this.interiorsController.addLike);
+    this.router.delete(`${this.path}/lk/:id`, protect, this.interiorsController.removeLike);
+
+    // Create
     this.router.post(
       `${this.path}/`,
       protect,

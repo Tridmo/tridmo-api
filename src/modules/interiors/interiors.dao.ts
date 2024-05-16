@@ -1,6 +1,6 @@
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import { getFirst } from "../shared/utils/utils";
-import { ICreateInterior, IGetInteriorsQuery, IInterior, IUpdateInterior } from "./interiors.interface";
+import { ICreateInterior, ICreateInteriorLike, IFilterInteriorLike, IGetInteriorsQuery, IInterior, IInteriorLike, IUpdateInterior } from "./interiors.interface";
 import KnexService from "../../database/connection";
 import { isUUID } from 'class-validator';
 
@@ -21,6 +21,25 @@ export default class InteriorsDAO {
         .where({ id })
         .returning("*")
     )
+  }
+
+  async createLike(interaction_id: string, values: ICreateInteriorLike) {
+    const insert = getFirst(
+      await KnexService('interior_likes')
+        .insert(values)
+        .returning("*")
+    )
+    await KnexService('interactions').increment('likes').where({ id: interaction_id })
+    return insert
+  }
+
+  async removeLike(interaction_id: string, values: ICreateInteriorLike) {
+    await KnexService('interior_likes').where(values).delete()
+    await KnexService('interactions').decrement('likes').where({ id: interaction_id })
+  }
+
+  async findLike(filters: IFilterInteriorLike) {
+    return await KnexService('interior_likes').where(filters)
   }
 
   async count(

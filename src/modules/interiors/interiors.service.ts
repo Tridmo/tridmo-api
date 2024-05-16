@@ -1,6 +1,6 @@
 import { IDefaultQuery } from './../../modules/shared/interface/query.interface';
 import InteriorsDAO from "./interiors.dao";
-import { IAddImageResult, ICreateInterior, ICreateInteriorBody, IGetInteriorsQuery, IInterior, IUpdateInterior } from "./interiors.interface";
+import { IAddImageResult, ICreateInterior, ICreateInteriorBody, ICreateInteriorLike, IFilterInteriorLike, IGetInteriorsQuery, IInterior, IInteriorLike, IUpdateInterior } from "./interiors.interface";
 import { IRequestFile } from '../shared/interface/files.interface';
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
@@ -140,6 +140,17 @@ export default class InteriorService {
 
   async count(filters: IGetInteriorsQuery): Promise<number> {
     return await this.interiorsDao.count(filters);
+  }
+
+  async addLike({ interior_id, user_id }: ICreateInteriorLike): Promise<void> {
+    const interior = await this.findById(interior_id)
+    const existing = (await this.interiorsDao.findLike({ interior_id, user_id })).length > 0;
+    if (existing) return;
+    await this.interiorsDao.createLike(interior.interaction_id, { interior_id, user_id });
+  }
+  async removeLike({ interior_id, user_id }: IFilterInteriorLike): Promise<void> {
+    const interior = await this.findById(interior_id)
+    await this.interiorsDao.removeLike(interior.interaction_id, { interior_id, user_id });
   }
 
   async findOne(identifier: string, currentUser?: IUser): Promise<IInterior> {

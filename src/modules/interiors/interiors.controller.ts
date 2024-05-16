@@ -157,6 +157,24 @@ export default class InteriorsController {
     }
   }
 
+  public addLike = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      await this.interiorsService.addLike({ interior_id: req.params.id, user_id: req.user?.profile?.id })
+      res.status(200).json({ success: true })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public removeLike = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      await this.interiorsService.removeLike({ interior_id: req.params.id, user_id: req.user?.profile?.id })
+      res.status(200).json({ success: true })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
 

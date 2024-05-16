@@ -68,3 +68,21 @@ export interface IAddImageResult {
   cover?: IImage,
   images?: IImage[],
 }
+
+export interface IInteriorLike {
+  id: string;
+  interior_id: string;
+  user_id: string;
+  created_at: Date;
+}
+
+export interface ICreateInteriorLike {
+  interior_id: string,
+  user_id: string,
+}
+
+export interface IFilterInteriorLike {
+  interior_id?: string,
+  user_id?: string,
+}
+
