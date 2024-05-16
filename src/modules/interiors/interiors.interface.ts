@@ -13,6 +13,7 @@ export interface IInterior {
   interaction_id: string;
   slug: string;
   is_saved?: boolean;
+  is_liked?: boolean;
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;

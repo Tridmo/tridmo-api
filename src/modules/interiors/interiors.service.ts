@@ -166,8 +166,13 @@ export default class InteriorService {
         user_id: currentUser.id,
         interior_id: interior.id
       }, {})
+      const liked = await this.interiorsDao.findLike({
+        user_id: currentUser.id,
+        interior_id: interior.id
+      })
 
       interior.is_saved = saved.length > 0;
+      interior.is_liked = liked.length > 0;
     }
 
     if (interior.used_models?.length && !interior.used_models[0]) {
