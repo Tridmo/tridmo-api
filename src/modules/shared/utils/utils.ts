@@ -28,7 +28,22 @@ export function getCurrentDate() {
   return Date.now();
 }
 
-export function generateRangesArray(value: string) {
-  const splitted = value.split(defaults.rangeSplitter)
-  return [Number(splitted[0]), Number(splitted[1])];
+export function monthDiff(d1: Date, d2: Date) {
+  let months;
+  months = (d2.getFullYear() - d1.getFullYear()) * 12;
+  months -= d1.getMonth() + 1;
+  months += d2.getMonth();
+  return months <= 0 ? 0 : months;
+}
+
+export function daysDiff(d1: Date, d2: Date) {
+  return Math.ceil((Math.abs(d1.getTime() - d2.getTime())) / (1000 * 3600 * 24));
+}
+
+export function minutesDiff(d1: Date, d2: Date) {
+  return Math.round(((d2.valueOf() - d1.valueOf()) / 1000) / 60);
+}
+
+export function secondsDiff(d1: Date, d2: Date) {
+  return Math.round((((d2.valueOf() - d1.valueOf()) / 1000) / 60) / 60);
 }

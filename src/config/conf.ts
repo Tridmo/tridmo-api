@@ -46,16 +46,23 @@ export const PAYMENT = {
   TEST_TRANSACTION_API_URL: env.TRANSACTION_API_URL
 };
 
+export const chatApi = {
+  key: env.CHAT_API_KEY,
+  url: env.CHAT_API_URL,
+  expiresIn: Number(env.CHAT_EXPIRES_IN)
+};
+
 export const s3Vars = {
-  accountId: env.S3_ACCOUNT_ID || 'cfd8d75b2205161fcfe63d07fd422e88',
+  accountId: env.S3_ACCOUNT_ID,
   region: `auto`,
   accessKeyId: env.S3_ACCESS_ID,
   secretAccessKey: env.S3_SECRET_KEY,
-  provateEndpoint: `https://${env.S3_ACCOUNT_ID || 'cfd8d75b2205161fcfe63d07fd422e88'}.r2.cloudflarestorage.com`,
-  publicEndpoint: `https://pub-5ae581681d8842d3920213d40f223944.r2.dev`,
-  imagesBucket: env.S3_IMAGES_BUCKET_NAME || 'demod-images',
-  filesBucket: env.S3_FILES_BUCKET_NAME || 'demod-files',
-};
+  privateEndpoint: `https://${env.S3_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  publicImagesEndpoint: env.BASE_IMG_URL,
+  publicFilesEndpoint: env.BASE_FILES_URL,
+  imagesBucket: env.S3_IMAGES_BUCKET_NAME,
+  filesBucket: env.S3_FILES_BUCKET_NAME,
+}
 
 export const supabaseConfig = {
   appUrl: env.SUPABASE_APP_URL,

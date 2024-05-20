@@ -5,12 +5,12 @@ import { s3Vars } from "../../../config/conf";
 function getS3() {
   return new S3({
     region: s3Vars.region,
-    endpoint: s3Vars.provateEndpoint,
+    endpoint: s3Vars.privateEndpoint,
     signatureVersion: 'v4',
     credentials: {
       accessKeyId: s3Vars.accessKeyId,
       secretAccessKey: s3Vars.secretAccessKey
-  }
+    }
   });
 }
 

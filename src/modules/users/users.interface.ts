@@ -5,6 +5,7 @@ export interface ICreateUser {
   username: string;
   company_name: string;
   birth_date?: Date;
+  image_src?: Date;
   address?: string;
   phone?: string;
   telegram?: string;

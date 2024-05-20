@@ -142,11 +142,12 @@ export default class InteriorService {
     return await this.interiorsDao.count(filters);
   }
 
-  async addLike({ interior_id, user_id }: ICreateInteriorLike): Promise<void> {
+  async addLike({ interior_id, user_id }: ICreateInteriorLike): Promise<boolean> {
     const interior = await this.findById(interior_id)
     const existing = (await this.interiorsDao.findLike({ interior_id, user_id })).length > 0;
-    if (existing) return;
+    if (existing || interior.user_id == user_id) return false;
     await this.interiorsDao.createLike(interior.interaction_id, { interior_id, user_id });
+    return true;
   }
   async removeLike({ interior_id, user_id }: IFilterInteriorLike): Promise<void> {
     const interior = await this.findById(interior_id)

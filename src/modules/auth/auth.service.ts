@@ -20,6 +20,10 @@ import { reqT } from '../shared/utils/language';
 import RoleService from "../roles/roles.service";
 import generateSlug from "../shared/utils/generateSlug";
 import { generateFromEmail } from "unique-username-generator";
+import { IRequestFile } from "../shared/interface/files.interface";
+import { deleteFile, uploadFile } from "../shared/utils/fileUpload";
+import { s3Vars } from "../../config/conf";
+import { ChatUtils } from "../chat/utils";
 
 export default class AuthService {
   private OtpDigitsCount = 6;
@@ -28,6 +32,7 @@ export default class AuthService {
   private languagesService = new LanguagesService();
   private userRolesService = new UserRoleService();
   private rolesService = new RoleService();
+  private chat = new ChatUtils();
 
   private otpsDao = new OtpsDAO();
   private sessionsDao = new SessionsDAO();
@@ -54,7 +59,12 @@ export default class AuthService {
     return { otpEmail: email };
   }
 
-  async createVerifiedUser({ email, full_name, password, birth_date, company_name, username }: ISignup) {
+  async syncToChat(user: IUser) {
+    await this.chat.syncUser(user)
+    await this.chat.addMember(user)
+  }
+
+  async createVerifiedUser({ email, full_name, password, birth_date, company_name, username }: ISignup, image?: IRequestFile) {
 
     const { data: { user }, error } = await supabase.auth.admin.createUser({
       email,
@@ -69,8 +79,12 @@ export default class AuthService {
 
     username = username || generateFromEmail(email, 6)
 
+    let uploadedImage;
+    if (image) uploadedImage = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, username, /*fileDefaults.model_cover*/);
+
     const profile = await this.usersService.create({
-      user_id: user.id, full_name, email, birth_date, username, company_name
+      user_id: user.id, full_name, email, birth_date, username, company_name,
+      image_src: uploadedImage ? uploadedImage[0].src : null
     })
     await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.brand })
 
@@ -175,6 +189,14 @@ export default class AuthService {
 
     return accessToken
 
+  }
+
+  async deleteAccount(user_id: string) {
+    const user = await this.usersService.getById(user_id)
+    if (!user) throw new ErrorResponse(404, reqT('user_404'))
+    await this.chat.deleteUser(user)
+    await deleteFile(s3Vars.imagesBucket, user.image_src)
+    await supabase.auth.admin.deleteUser(user.user_id)
   }
 
 

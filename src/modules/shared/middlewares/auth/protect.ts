@@ -33,9 +33,6 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
 
     const { data: { user }, error } = await supabase.auth.getUser(authToken)
 
-    console.log(user);
-    console.log(error);
-
     if (!user) throw new ErrorResponse(404, req.t.user_404())
     if (error) throw new ErrorResponse(error.status, error.message)
 

@@ -159,8 +159,8 @@ export default class InteriorsController {
 
   public addLike = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      await this.interiorsService.addLike({ interior_id: req.params.id, user_id: req.user?.profile?.id })
-      res.status(200).json({ success: true })
+      const liked = await this.interiorsService.addLike({ interior_id: req.params.id, user_id: req.user?.profile?.id })
+      res.status(200).json({ success: liked })
     } catch (error) {
       next(error)
     }

@@ -10,7 +10,7 @@ import flat from 'flat';
 export default class UsersService {
   private usersDao = new UsersDAO();
 
-  async create({ full_name, email, user_id, birth_date, username, company_name }: ICreateUser): Promise<IUser> {
+  async create({ full_name, email, user_id, birth_date, username, company_name, image_src }: ICreateUser): Promise<IUser> {
 
     return await this.usersDao.create({
       full_name,
@@ -19,11 +19,12 @@ export default class UsersService {
       company_name,
       email,
       user_id,
+      image_src,
     });
   }
 
   async update(id: string, values: IUpdateUser, image?: IRequestFile): Promise<IUser> {
-    const user = this.usersDao.getById(id)
+    const user = await this.usersDao.getById(id)
     if (!user) throw new ErrorResponse(404, 'User was not found');
 
     let updatedUser = null;
@@ -32,7 +33,7 @@ export default class UsersService {
       updatedUser = await this.usersDao.update(id, values);
 
     if (image) {
-      const uploadedCover = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+      const uploadedCover = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, user.username/*fileDefaults.model_cover*/)
       updatedUser = await this.usersDao.update(id, {
         image_src: uploadedCover[0].src
       })

@@ -5,15 +5,15 @@ import processImage from "./compressFile";
 import { s3Vars } from "../../../config/conf";
 import { IFile, IImage } from "../interface/files.interface";
 
-export const uploadFile = async (files, folder: string, bucketName: string, dimensions?): Promise<Array<IImage | IFile>> => {
+export const uploadFile = async (files, folder: string, bucketName: string, fileName?: string, dimensions?): Promise<Array<IImage | IFile>> => {
   const arr = []
   let bucketUrl: string;
 
   if (bucketName == s3Vars.imagesBucket) {
-    bucketUrl = `${s3Vars.publicEndpoint}`
+    bucketUrl = `${s3Vars.publicImagesEndpoint}`
   }
   else if (bucketName == s3Vars.filesBucket) {
-    bucketUrl = `${s3Vars.provateEndpoint}/${s3Vars.filesBucket}`
+    bucketUrl = `${s3Vars.privateEndpoint}/${s3Vars.filesBucket}`
   }
 
   if (Array.isArray(files)) {
@@ -24,7 +24,7 @@ export const uploadFile = async (files, folder: string, bucketName: string, dime
 
       const ext = getExtension(file.name)
 
-      const filename = `${folder}/${uuidv4() + ext}`
+      const filename = `${folder}/${(fileName || uuidv4()) + ext}`
 
       await s3upload(file.data, { bucket_name: bucketName, filename })
       const f = {

@@ -4,6 +4,7 @@ import { ConfirmOtpDTO, ResendOtpDTO, SigninDTO, SignupDTO } from './auth.dto';
 import { IRefreshToken, ISignin } from './interface/auth.interface';
 import supabase from '../../database/supabase/supabase';
 import { reqT } from '../shared/utils/language';
+import { CustomRequest } from '../shared/interface/routes.interface';
 
 class AuthController {
   public authService = new AuthService();
@@ -31,15 +32,25 @@ class AuthController {
       next(error);
     }
   };
+
+  public verified = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await this.authService.syncToChat(req.user.profile);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public signIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const data = await this.authService.signIn({ ...req.body, role: req.params.role });
-
       res.status(201).json({ success: true, data, message: reqT('login_success') });
     } catch (error) {
       next(error);
     }
   };
+
   public refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const data: IRefreshToken = req.body;
@@ -48,6 +59,15 @@ class AuthController {
         .refreshToken(data.token);
 
       res.status(201).json({ success: true, data: { accessToken }, message: 'Access token generated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteAccount = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await this.authService.deleteAccount(req.user.profile.id);
+      res.status(200).json({ success: true, message: reqT('deleted_successfully') });
     } catch (error) {
       next(error);
     }

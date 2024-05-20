@@ -18,6 +18,7 @@ import CommentsRoute from './modules/comments/comments.route';
 import PlatformsRoute from './modules/platforms/platforms.route';
 import NotificationsRoute from './modules/notifications/notifications.route';
 import InteriorModelsRoute from './modules/interior_models/interior_models.route';
+import ChatRoute from './modules/chat/chat.route';
 
 const router = Router()
 
@@ -38,7 +39,8 @@ const routes = [
   new CommentsRoute(),
   new PlatformsRoute(),
   new NotificationsRoute(),
-  new InteriorModelsRoute()
+  new InteriorModelsRoute(),
+  new ChatRoute(),
 ]
 
 routes.forEach(route => router.use('/', route.router))
