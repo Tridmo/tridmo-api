@@ -45,5 +45,5 @@ export function minutesDiff(d1: Date, d2: Date) {
 }
 
 export function secondsDiff(d1: Date, d2: Date) {
-  return Math.round((((d2.valueOf() - d1.valueOf()) / 1000) / 60) / 60);
+  return Math.round((d2.valueOf() - d1.valueOf()) / 1000);
 }

@@ -445,10 +445,8 @@ export default class ModelService {
 
     const presignedUrl = generatePresignedUrl(file.key)
 
-    await this.downloadService.create({
-      model_id: model.id,
-      user_id: profile_id
-    })
+    const downloads = await this.downloadService.findBy({ model_id: model.id, user_id: profile_id });
+    if (!downloads.length) await this.downloadService.create({ model_id: model.id, user_id: profile_id });
 
     const brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id: model.brand_id })
 

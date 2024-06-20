@@ -42,10 +42,10 @@ export class CreateBrandDTO implements ICreateBrand {
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  @MinLength(6)
+  @MinLength(4)
   password: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsArrayOrStringifiedArray()
   styles?: string[];
 }

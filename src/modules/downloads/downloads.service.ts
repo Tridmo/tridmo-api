@@ -1,4 +1,4 @@
-import { ICreateDownload } from './downloads.interface';
+import { ICreateDownload, IFilterDownload } from './downloads.interface';
 import { IDefaultQuery } from "../shared/interface/query.interface";
 import DownloadsDao from "./downloads.dao";
 
@@ -7,6 +7,11 @@ export default class DownloadsService {
 
   async create({ user_id, model_id }: ICreateDownload): Promise<any> {
     const product = await this.downloadsDao.create({ user_id, model_id })
+    return product
+  }
+
+  async findBy(filters: IFilterDownload): Promise<any[]> {
+    const product = await this.downloadsDao.getAll(filters)
     return product
   }
 

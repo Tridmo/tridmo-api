@@ -175,12 +175,13 @@ export default class InteriorsController {
     }
   }
 
-  public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
 
       const data = await this.interiorsService.update(
         req.params.id,
         req.body,
+        req.user.profile,
         req.files && req.files[defaults.reqCoverName] ? req.files[defaults.reqCoverName] as UploadedFile : null,
         req.files && req.files[defaults.reqImagesName] ? req.files[defaults.reqImagesName] as UploadedFile[] : null,
       );
@@ -236,11 +237,11 @@ export default class InteriorsController {
     }
   }
 
-  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id: string = req.params.id
 
-      await this.interiorsService.deleteById(id)
+      await this.interiorsService.deleteById(id, req.user.profile)
 
       res.status(200).json({
         success: true,

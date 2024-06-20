@@ -81,11 +81,14 @@ export default class InteriorService {
   async update(
     id: string,
     values: IUpdateInterior,
+    user: IUser,
     cover?: IRequestFile,
     images?: IRequestFile[],
   ): Promise<IInterior> {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
+
+    if (interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
 
     const { removed_images, ...otherValues } = values
 
@@ -145,7 +148,7 @@ export default class InteriorService {
   async addLike({ interior_id, user_id }: ICreateInteriorLike): Promise<boolean> {
     const interior = await this.findById(interior_id)
     const existing = (await this.interiorsDao.findLike({ interior_id, user_id })).length > 0;
-    if (existing || interior.user_id == user_id) return false;
+    if (existing) return false;
     await this.interiorsDao.createLike(interior.interaction_id, { interior_id, user_id });
     return true;
   }
@@ -263,10 +266,11 @@ export default class InteriorService {
     return deleted
   }
 
-  async deleteById(id: string): Promise<number> {
+  async deleteById(id: string, user: IUser): Promise<number> {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
+    if (interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
 
     const interiorImages = await this.interiorImageService.findByInterior(id)
 

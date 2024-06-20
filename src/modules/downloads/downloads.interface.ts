@@ -1,5 +1,11 @@
 
 export interface ICreateDownload {
-    model_id: string;
-    user_id: string;
+  model_id: string;
+  user_id: string;
+}
+
+export interface IFilterDownload {
+  id?: string;
+  model_id?: string;
+  user_id?: string;
 }

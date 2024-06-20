@@ -19,6 +19,7 @@ import PlatformsRoute from './modules/platforms/platforms.route';
 import NotificationsRoute from './modules/notifications/notifications.route';
 import InteriorModelsRoute from './modules/interior_models/interior_models.route';
 import ChatRoute from './modules/chat/chat.route';
+import ProjectsRoute from './modules/projects/projects.route';
 
 const router = Router()
 
@@ -41,6 +42,7 @@ const routes = [
   new NotificationsRoute(),
   new InteriorModelsRoute(),
   new ChatRoute(),
+  new ProjectsRoute(),
 ]
 
 routes.forEach(route => router.use('/', route.router))

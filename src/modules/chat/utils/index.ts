@@ -2,45 +2,32 @@ import axios from "axios";
 import { chatApi, s3Vars } from "../../../config/conf";
 import { IUser } from "../../users/users.interface";
 import { IRequestFile } from "../../shared/interface/files.interface";
-
-const app = 'demod-chat'
+import ErrorResponse from "../../shared/utils/errorResponse";
 
 export class ChatUtils {
-  public async createChatApp() {
-    try {
-      const res = await axios.get(
-        `${chatApi.url}/api/apps/${app}`,
+
+  public async initApp({ uid, name, type, user_id }) {
+    if (type !== "messenger") {
+      const app = { uid: uid, name: name, type: type };
+      const user = { uid: `${user_id}` };
+
+      const response = await axios.post(`${chatApi.url}/api/apps/init`,
+        { app: app, user: user },
         {
           headers: {
-            'Authorization': `Bearer ${chatApi.key}`
+            "content-type": "application/json",
+            Authorization: `Bearer ${chatApi.key}`,
           }
-        }
-      )
+        });
 
-      if (res?.status == 200) res?.data;
-
-    } catch (error) {
-      if (error?.response?.status == 404) {
-        const res = await axios.post(
-          `${chatApi.url}/api/apps`,
-          {
-            uid: app,
-            type: 'chat',
-            access: 'none',
-            directory: 'demod',
-
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${chatApi.key}`
-            }
-          }
-        )
-        console.info('Chat app created!');
-        return res?.data;
+      if (![200, 201].includes(response?.status)) {
+        console.log(response?.data);
+        throw new ErrorResponse(response?.status, `Error fetching app. Cause: ${response?.statusText}`);
       }
+
+      return response?.data;
     }
-  }
+  };
 
   public async getChatToken(user_id) {
     try {
@@ -61,18 +48,20 @@ export class ChatUtils {
     }
   }
 
-  public async syncUser(user: IUser) {
+  public async syncUser(user: IUser, role?) {
     try {
       const res = await axios.put(
         `${chatApi.url}/api/users/${user.id}`,
         {
           uid: user.id,
           name: user.full_name,
+          email: user.email,
           nickname: user.username,
-          directory: 'demod',
           picture: `${s3Vars.publicImagesEndpoint}/${user.image_src}`,
+          directory: 'DEMOD',
           metadata: {
-            company_name: user.company_name
+            company_name: user.company_name,
+            role: role
           }
         },
         {
@@ -87,36 +76,17 @@ export class ChatUtils {
     }
   }
 
-  public async addMember(user: IUser) {
-    try {
-      const res = await axios.put(
-        `${chatApi.url}/api/apps/${app}/users/${user.id}`,
-        {
-          app: app,
-          user: user.id,
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${chatApi.key}`
-          }
-        }
-      )
-      return res?.data;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  public async deleteUser(user: IUser) {
+  public async deleteUser(user_id: string) {
     try {
       const res = await axios.post(
-        `${chatApi.url}/api/users/${user.id}/trash`,
+        `${chatApi.url}/api/users/${user_id}/trash`, {},
         {
           headers: {
             'Authorization': `Bearer ${chatApi.key}`
           }
         }
       )
+
       return res?.data;
     } catch (error) {
       console.log(error);

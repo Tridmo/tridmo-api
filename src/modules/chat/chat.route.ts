@@ -14,5 +14,6 @@ export default class ChatRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/token`, protect, this.controller.getToken);
+    this.router.get(`${this.path}/contextual/:id`, protect, this.controller.initApp);
   }
 }

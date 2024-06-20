@@ -12,7 +12,8 @@ export default class UsersDAO {
     email,
     username,
     company_name,
-    birth_date
+    birth_date,
+    image_src
   }: ICreateUser): Promise<IUser> {
     return getFirst(
       await KnexService('profiles')
@@ -22,7 +23,8 @@ export default class UsersDAO {
           email,
           username,
           company_name,
-          birth_date
+          birth_date,
+          image_src
         })
         .returning('*'),
     );

@@ -148,10 +148,12 @@ export default class BrandsDAO {
           "brands.phone",
           "brands.description",
           "images.key as image_src",
+          "brand_admins.profile_id as admin_user_id",
 
           KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`)
         ])
         .leftJoin('images', { 'brands.image_id': 'images.id' })
+        .leftJoin('brand_admins', { 'brand_admins.brand_id': 'brands.id' })
         .leftJoin(function () {
           this.distinct([
             'brand_id',
@@ -163,7 +165,7 @@ export default class BrandsDAO {
             .leftJoin('styles', { 'brand_styles.style_id': 'styles.id' })
             .groupBy('brand_styles.id', 'styles.id')
         }, { 'brand_styles.brand_id': 'brands.id' })
-        .groupBy("brands.id", "images.key")
+        .groupBy("brands.id", "images.key", "brand_admins.profile_id")
         .where({
           [`brands.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
         })
@@ -181,6 +183,13 @@ export default class BrandsDAO {
     return getFirst(
       await KnexService('brands')
         .where({ name: name })
+    )
+  }
+
+  async getBySlug(slug: string): Promise<IBrand> {
+    return getFirst(
+      await KnexService('brands')
+        .where({ slug: slug })
     )
   }
 

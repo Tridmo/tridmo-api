@@ -2,6 +2,7 @@ import type { BaseTranslation } from '../i18n-types'
 
 const en = {
   unauthorized: 'Unauthorized',
+  access_denied: 'Access denied',
   login_to_access: 'Please login in to get access',
   email_exist: 'Email was already registered',
   email_invalid: 'Invalid email',
@@ -13,6 +14,7 @@ const en = {
   invalid_login_credentials: 'Invalid login credentials',
 
   created_successfully: 'Created successfully',
+  added_successfully: 'Added successfully',
   updated_successfully: 'Updated successfully',
   saved_successfully: 'Saved successfully',
   deleted_successfully: 'Deleted successfully',
@@ -20,6 +22,7 @@ const en = {
 
   interior_created: 'Interior created successfully',
   same_name_exists: 'Record with the same name already exists',
+  model_in_project: 'This model was already added to project',
 
   user_404: "User was not found",
   interior_404: 'Interior was not found',
@@ -28,6 +31,7 @@ const en = {
   brand_404: 'Brand was not found',
   category_404: 'Category was not found',
   model_404: 'Model was not found',
+  project_404: 'Project was not found',
 } satisfies BaseTranslation
 
 export default en

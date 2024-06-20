@@ -19,11 +19,12 @@ import { authVariables } from "./variables";
 import { reqT } from '../shared/utils/language';
 import RoleService from "../roles/roles.service";
 import generateSlug from "../shared/utils/generateSlug";
-import { generateFromEmail } from "unique-username-generator";
+import { generateFromEmail, generateUsername } from "unique-username-generator";
 import { IRequestFile } from "../shared/interface/files.interface";
 import { deleteFile, uploadFile } from "../shared/utils/fileUpload";
 import { s3Vars } from "../../config/conf";
 import { ChatUtils } from "../chat/utils";
+
 
 export default class AuthService {
   private OtpDigitsCount = 6;
@@ -48,7 +49,7 @@ export default class AuthService {
     if (error)
       throw new ErrorResponse(error.status, error.message);
 
-    const username = generateFromEmail(email, 6)
+    const username = generateUsername('', 4, 32, full_name.toLocaleLowerCase())
 
     const profile = await this.usersService.create({
       user_id: user.id, full_name, email, birth_date, company_name, username
@@ -60,11 +61,11 @@ export default class AuthService {
   }
 
   async syncToChat(user: IUser) {
-    await this.chat.syncUser(user)
-    await this.chat.addMember(user)
+    const role = await this.userRolesService.getByUserId(user.id)
+    await this.chat.syncUser(user, role[0].role_id)
   }
 
-  async createVerifiedUser({ email, full_name, password, birth_date, company_name, username }: ISignup, image?: IRequestFile) {
+  async createVerifiedUser({ email, full_name, password, birth_date, company_name, username, image_src }, image?: IRequestFile) {
 
     const { data: { user }, error } = await supabase.auth.admin.createUser({
       email,
@@ -72,19 +73,21 @@ export default class AuthService {
       email_confirm: true
     })
 
-    if (!user?.identities?.length)
-      throw new ErrorResponse(400, reqT('email_exist'));
     if (error)
       throw new Error(error.message);
+    if (!user?.identities?.length)
+      throw new ErrorResponse(400, reqT('email_exist'));
 
-    username = username || generateFromEmail(email, 6)
+    username = username || generateUsername('', 4, 32, full_name.toLocaleLowerCase())
 
     let uploadedImage;
     if (image) uploadedImage = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, username, /*fileDefaults.model_cover*/);
 
+    const user_image = uploadedImage ? uploadedImage[0].src : image_src ? image_src : null
+
     const profile = await this.usersService.create({
       user_id: user.id, full_name, email, birth_date, username, company_name,
-      image_src: uploadedImage ? uploadedImage[0].src : null
+      image_src: user_image
     })
     await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.brand })
 
@@ -139,6 +142,7 @@ export default class AuthService {
     };
 
     if (session && user) {
+      await this.chat.syncUser(profile, role || authVariables.roles.designer)
       return {
         user: {
           id: user.id,
@@ -194,7 +198,7 @@ export default class AuthService {
   async deleteAccount(user_id: string) {
     const user = await this.usersService.getById(user_id)
     if (!user) throw new ErrorResponse(404, reqT('user_404'))
-    await this.chat.deleteUser(user)
+    await this.chat.deleteUser(user.id)
     await deleteFile(s3Vars.imagesBucket, user.image_src)
     await supabase.auth.admin.deleteUser(user.user_id)
   }

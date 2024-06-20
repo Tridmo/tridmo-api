@@ -1,4 +1,4 @@
-import { ICreateDownload } from './downloads.interface'
+import { ICreateDownload, IFilterDownload } from './downloads.interface'
 import KnexService from '../../database/connection';
 import { getFirst } from "../shared/utils/utils";
 
@@ -12,6 +12,12 @@ export default class DownloadsDao {
         })
         .returning("*")
     )
+  }
+
+  async getAll(filters: IFilterDownload) {
+    return await KnexService('downloads')
+      .select('*')
+      .where(filters)
   }
 
   async deleteByModel(model_id: string) {

@@ -7,29 +7,27 @@ import { reqT } from "../../shared/utils/language";
 import { secondsDiff } from "../../shared/utils/utils";
 import { chatApi } from "../../../config/conf";
 
-export default class ChatService {
+export default class ChatTokenService {
   private dao = new ChatDao()
   private userService = new UsersService()
   private chat = new ChatUtils()
 
   async create(user_id: string): Promise<IChatToken> {
-    const user = await this.userService.getById(user_id)
-    if (!user) throw new ErrorResponse(404, reqT('user_404'))
-
-    const tokens = await this.dao.getBy({ user_id });
-    const exist = tokens.length ? tokens[0] : null
+    const exist = await this.dao.getByUser(user_id); // this will fetch from database
 
     if (!!exist) {
-      const diff = secondsDiff(exist.created_at, new Date())
+      const diff = secondsDiff(new Date(exist.created_at), new Date())
+      console.log(diff);
+
       if (diff >= chatApi.expiresIn) {
         const token = await this.chat.getChatToken(user_id);
-        return await this.update(exist.id, { user_id, token })
+        return await this.dao.update(exist.id, { token })
       } else {
         return exist;
       }
     }
 
-    const token = await this.chat.getChatToken(user_id);
+    const token = await this.chat.getChatToken(user_id); // request token from weavy
     return await this.dao.create({ user_id, token, created_at: new Date() });
   }
 

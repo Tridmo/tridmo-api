@@ -15,6 +15,8 @@ import generateSlug from '../shared/utils/generateSlug';
 import { reqT } from '../shared/utils/language';
 import supabase from "../../database/supabase/supabase";
 import { generateUsername } from "unique-username-generator";
+import { generateHash } from "../shared/utils/bcrypt";
+import { ChatUtils } from "../chat/utils";
 
 export default class BrandService {
   private brandsDao = new BrandsDAO()
@@ -30,24 +32,17 @@ export default class BrandService {
     brand: IBrand,
     admin: IUser
   }> {
+    const slug = generateSlug(name, { replacement: "", lower: false })
 
-    const foundBrand: IBrand = await this.brandsDao.getByName(name);
+    const foundBrand: IBrand = await this.brandsDao.getBySlug(slug);
     if (foundBrand) throw new ErrorResponse(400, reqT('same_name_exists'));
 
-    // generate unique slug
-    const slug = generateSlug(name, { replacement: "", lower: false })
-    username = username || generateUsername('_', 4, 60, `admin ${name}`)
+    username = username || generateUsername('', 0, 32, `${name.toLocaleLowerCase()}admin`)
 
-    const admin = await this.authService.createVerifiedUser({
-      email: `admin@${slug.toLowerCase()}.com`,
-      full_name: name,
-      birth_date: new Date(),
-      username: username,
-      company_name: name,
-      password
-    })
+    const foundUser = await this.usersService.getByUsername(username);
+    if (foundUser) throw new ErrorResponse(400, `${reqT('same_name_exists')} (${username})`);
 
-    const brand: IBrand = await this.brandsDao.create({
+    let brand = await this.brandsDao.create({
       name,
       slug,
       phone,
@@ -57,12 +52,35 @@ export default class BrandService {
       description
     })
 
-    const imageUpdate = await this.updateImage(brand.id, brand_image)
+    let image_src = null;
+    if (!!brand) {
+      const upload = await uploadFile(brand_image, "images/brands", s3Vars.imagesBucket)
+      const newImage = await this.imagesService.create(upload[0])
+      await this.brandsDao.update(brand.id, {
+        image_id: newImage.id
+      })
+      image_src = newImage.src
+    }
+
+    const admin = await this.authService.createVerifiedUser({
+      email: `${username}@${username}.mail`,
+      full_name: name,
+      birth_date: new Date(),
+      username: username,
+      company_name: name,
+      image_src,
+      password
+    })
+    console.log("Admin:   ", admin);
 
     const brandAdmin = await this.brandsDao.createBrandAdmin({
       brand_id: brand.id,
       profile_id: admin.id
     })
+
+    if (!!admin && !!brandAdmin) {
+      await this.authService.syncToChat(admin)
+    }
 
     if (styles && styles.length > 0) {
       if (!Array.isArray(styles)) styles = [styles]
@@ -71,10 +89,7 @@ export default class BrandService {
       }
     }
 
-    return {
-      brand: imageUpdate,
-      admin: admin
-    }
+    return { brand, admin }
   }
 
   async update(brand_id: string, values: IUpdateBrand & IBrandAuth, brand_image?: IRequestFile): Promise<IBrand> {
@@ -120,7 +135,6 @@ export default class BrandService {
     if (isEmpty(brand)) throw new ErrorResponse(400, reqT('brand_404'));
 
     if (brand.image_id) {
-      const image_id = brand.image_id
       await this.brandsDao.update(brand_id, { image_id: null })
       await this.imagesService.delete(brand.image_id);
     }
@@ -172,7 +186,11 @@ export default class BrandService {
 
     // find brand admins and delete them
     const admins = await this.brandsDao.getBrandAdminsByBrand(brand_id)
-    Promise.all(admins.map(async a => await this.usersService.deleteByUserId(a['user_id'])))
+    Promise.all(
+      admins.map(async a => {
+        await this.authService.deleteAccount(a['profile_id'])
+      })
+    )
 
     // delete brand
     await this.brandsDao.deleteById(brand_id);

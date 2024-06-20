@@ -14,7 +14,16 @@ export class ChatDao {
     return getFirst(
       await knexInstance('chat_tokens')
         .update(values)
+        .where({ id })
         .returning('*')
+    )
+  }
+  public async getByUser(user_id: string): Promise<IChatToken> {
+    return (
+      await knexInstance('chat_tokens')
+        .select('*')
+        .where({ user_id })
+        .first()
     )
   }
   public async getBy(filters: IFilterChatToken): Promise<IChatToken[]> {

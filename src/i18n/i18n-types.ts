@@ -19,6 +19,10 @@ type RootTranslation = {
 	 */
 	unauthorized: string
 	/**
+	 * A​c​c​e​s​s​ ​d​e​n​i​e​d
+	 */
+	access_denied: string
+	/**
 	 * P​l​e​a​s​e​ ​l​o​g​i​n​ ​i​n​ ​t​o​ ​g​e​t​ ​a​c​c​e​s​s
 	 */
 	login_to_access: string
@@ -59,6 +63,10 @@ type RootTranslation = {
 	 */
 	created_successfully: string
 	/**
+	 * A​d​d​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+	 */
+	added_successfully: string
+	/**
 	 * U​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
 	 */
 	updated_successfully: string
@@ -82,6 +90,10 @@ type RootTranslation = {
 	 * R​e​c​o​r​d​ ​w​i​t​h​ ​t​h​e​ ​s​a​m​e​ ​n​a​m​e​ ​a​l​r​e​a​d​y​ ​e​x​i​s​t​s
 	 */
 	same_name_exists: string
+	/**
+	 * T​h​i​s​ ​m​o​d​e​l​ ​w​a​s​ ​a​l​r​e​a​d​y​ ​a​d​d​e​d​ ​t​o​ ​p​r​o​j​e​c​t
+	 */
+	model_in_project: string
 	/**
 	 * U​s​e​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
@@ -110,6 +122,10 @@ type RootTranslation = {
 	 * M​o​d​e​l​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
 	model_404: string
+	/**
+	 * P​r​o​j​e​c​t​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	project_404: string
 }
 
 export type TranslationFunctions = {
@@ -117,6 +133,10 @@ export type TranslationFunctions = {
 	 * Unauthorized
 	 */
 	unauthorized: () => LocalizedString
+	/**
+	 * Access denied
+	 */
+	access_denied: () => LocalizedString
 	/**
 	 * Please login in to get access
 	 */
@@ -158,6 +178,10 @@ export type TranslationFunctions = {
 	 */
 	created_successfully: () => LocalizedString
 	/**
+	 * Added successfully
+	 */
+	added_successfully: () => LocalizedString
+	/**
 	 * Updated successfully
 	 */
 	updated_successfully: () => LocalizedString
@@ -181,6 +205,10 @@ export type TranslationFunctions = {
 	 * Record with the same name already exists
 	 */
 	same_name_exists: () => LocalizedString
+	/**
+	 * This model was already added to project
+	 */
+	model_in_project: () => LocalizedString
 	/**
 	 * User was not found
 	 */
@@ -209,6 +237,10 @@ export type TranslationFunctions = {
 	 * Model was not found
 	 */
 	model_404: () => LocalizedString
+	/**
+	 * Project was not found
+	 */
+	project_404: () => LocalizedString
 }
 
 export type Formatters = {}
