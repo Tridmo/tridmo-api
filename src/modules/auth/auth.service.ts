@@ -69,7 +69,7 @@ export default class AuthService {
 
     const { data: { user }, error } = await supabase.auth.admin.createUser({
       email,
-      password,
+      password: `${password}`,
       email_confirm: true
     })
 

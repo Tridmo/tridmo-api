@@ -160,7 +160,7 @@ export default class ProjectsDAO {
     return await KnexService('projects')
       .select([
         'projects.*',
-        KnexService.raw(`jsonb_agg(distinct project_models) as project_models`)
+        KnexService.raw(`jsonb_agg(distinct project_models) as project_models`),
       ])
       .leftJoin(function () {
         this.select([
@@ -171,7 +171,6 @@ export default class ProjectsDAO {
           'models.brand_id as model.brand.id',
           'models.brand_name as model.brand.name',
           'models.cover as model.cover',
-          KnexService.raw('ROW_NUMBER() OVER (PARTITION BY project_models.project_id ORDER BY project_models.created_at) as rownum')
         ])
           .from('project_models')
           .as('project_models')
@@ -217,7 +216,9 @@ export default class ProjectsDAO {
             'models.cover',
           )
       }, { 'project_models.project_id': 'projects.id' })
-      .groupBy('projects.id')
+      .groupBy(
+        'projects.id',
+      )
       .offset(offset)
       .limit(limit)
       .orderBy(`projects.${orderBy}`, order)

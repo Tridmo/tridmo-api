@@ -4,6 +4,7 @@ import { getExtension } from "./getExtension";
 import processImage from "./compressFile";
 import { s3Vars } from "../../../config/conf";
 import { IFile, IImage } from "../interface/files.interface";
+import mimeTypes from 'mime-types';
 
 export const uploadFile = async (files, folder: string, bucketName: string, fileName?: string, dimensions?): Promise<Array<IImage | IFile>> => {
   const arr = []
@@ -22,9 +23,9 @@ export const uploadFile = async (files, folder: string, bucketName: string, file
 
       if (dimensions) file = await processImage(file, dimensions)
 
-      const ext = getExtension(file.name)
+      const ext = mimeTypes.extension(file.mimetype)
 
-      const filename = `${folder}/${(fileName || uuidv4()) + ext}`
+      const filename = `${folder}/${(fileName || uuidv4()) + '.' + ext}`
 
       await s3upload(file.data, { bucket_name: bucketName, filename })
       const f = {
@@ -40,12 +41,10 @@ export const uploadFile = async (files, folder: string, bucketName: string, file
   } else {
     let file = files
 
-    if (dimensions) {
-      file = await processImage(file, dimensions)
-    }
+    if (dimensions) file = await processImage(file, dimensions)
 
-    const ext = getExtension(file['name'])
-    const filename = `${folder}/${uuidv4() + ext}`
+    const ext = mimeTypes.extension(file.mimetype)
+    const filename = `${folder}/${(fileName || uuidv4()) + '.' + ext}`
 
     await s3upload(file.data, { bucket_name: bucketName, filename })
     const f = {

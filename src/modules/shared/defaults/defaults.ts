@@ -1,7 +1,7 @@
 import { IDefaultQuery } from "../interface/query.interface";
 
 export const defaultQueryValues: IDefaultQuery = {
-  limit: 24,
+  limit: 2,
   offset: 0,
   page: 0,
   order: "DESC",

@@ -1,5 +1,6 @@
 import { s3Vars } from '../../config/conf';
 import { authVariables } from '../auth/variables';
+import { ChatUtils } from '../chat/utils';
 import { IRequestFile } from '../shared/interface/files.interface';
 import ErrorResponse from '../shared/utils/errorResponse';
 import { uploadFile } from '../shared/utils/fileUpload';
@@ -37,6 +38,7 @@ export default class UsersService {
       updatedUser = await this.usersDao.update(id, {
         image_src: uploadedCover[0].src
       })
+      await new ChatUtils().syncUser(updatedUser)
     }
 
     return updatedUser || user;

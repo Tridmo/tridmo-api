@@ -24,6 +24,7 @@
     "@supabase/supabase-js": "^2.26.0",
     "@types/bcrypt": "^5.0.0",
     "@types/lodash": "^4.14.182",
+    "@types/mime-types": "^2.1.4",
     "aws-sdk": "^2.1243.0",
     "axios": "^1.2.2",
     "bcrypt": "^5.1.0",

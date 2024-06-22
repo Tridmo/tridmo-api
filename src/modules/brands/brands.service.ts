@@ -63,7 +63,7 @@ export default class BrandService {
     }
 
     const admin = await this.authService.createVerifiedUser({
-      email: `${username}@${username}.mail`,
+      email: email || `${username}@${username}.mail`,
       full_name: name,
       birth_date: new Date(),
       username: username,
@@ -71,7 +71,6 @@ export default class BrandService {
       image_src,
       password
     })
-    console.log("Admin:   ", admin);
 
     const brandAdmin = await this.brandsDao.createBrandAdmin({
       brand_id: brand.id,
