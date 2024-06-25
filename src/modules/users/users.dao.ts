@@ -111,6 +111,19 @@ export default class UsersDAO {
       .first();
   }
 
+  async getByUserIdAndRole(user_id: string, role: number): Promise<IUser> {
+    return await KnexService('profiles')
+      .select('profiles.*')
+      .innerJoin(function () {
+        this.select('user_roles.*')
+          .from('user_roles')
+          .as('user_roles')
+          .where('user_roles.role_id', '=', role)
+      }, { 'user_roles.user_id': 'profiles.id' })
+      .where({ 'profiles.user_id': user_id })
+      .first();
+  }
+
   getByEmail(email: string): Promise<IUser> {
     return KnexService('profiles')
       .where({ email })

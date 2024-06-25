@@ -5,26 +5,26 @@ import RolesService from "../../../auth/roles/roles.service";
 
 
 const check_access = (module_name: string) => {
-    return async (req: CustomRequest, res: Response, next: NextFunction) => {
-        try {
-            const {
-                user
-            } = req
+  return async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      const {
+        user
+      } = req
 
-            const rolesservice = new RolesService()
+      const rolesservice = new RolesService()
 
-            let all_modules = await rolesservice.getUserRolesAndModels(user.profile.id)
+      let all_modules = await rolesservice.getUserRolesAndModels(user.profile.id)
 
-            const existance = all_modules.find(e => e["access_module_name"] == module_name);
+      const existance = all_modules.find(e => e["access_module_name"] == module_name);
 
-            if (!existance) throw new ErrorResponse(400, "Access denied!")
+      if (!existance) throw new ErrorResponse(403, "Access denied!")
 
-            next()
+      next()
 
-        } catch (error) {
-            next(error)
-        }
+    } catch (error) {
+      next(error)
     }
+  }
 }
 
 export default check_access;

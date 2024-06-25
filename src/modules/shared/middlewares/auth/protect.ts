@@ -9,6 +9,7 @@ import supabase from "../../../../database/supabase/supabase";
 import { getFirst } from "../../../shared/utils/utils";
 import knexInstance from "../../../../database/connection";
 import L from '../../../../i18n/i18n-node';
+import { authVariables } from "../../../auth/variables";
 
 const accessToken = server.accessToken
 
@@ -36,7 +37,9 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
     if (!user) throw new ErrorResponse(404, req.t.user_404())
     if (error) throw new ErrorResponse(error.status, error.message)
 
-    const profile = await usersDao.getByUserId(user.id)
+    const profile = await usersDao.getByUserIdAndRole(user.id, authVariables.roles.admin)
+
+    if (!profile) throw new ErrorResponse(403, req.t.access_denied())
 
     req.user = { ...user, profile }
 

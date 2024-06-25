@@ -446,17 +446,17 @@ export default class ModelService {
     const presignedUrl = generatePresignedUrl(file.key)
 
     const downloads = await this.downloadService.findBy({ model_id: model.id, user_id: profile_id });
-    if (!downloads.length) await this.downloadService.create({ model_id: model.id, user_id: profile_id });
-
-    const brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id: model.brand_id })
-
-    if (brandAdmin) {
-      await this.notificationsService.create({
-        model_id: model_id,
-        action_id: 'new_model_download',
-        notifier_id: profile_id,
-        recipient_id: brandAdmin.profile_id,
-      })
+    if (!downloads.length) {
+      await this.downloadService.create({ model_id: model.id, user_id: profile_id })
+      const brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id: model.brand_id })
+      if (brandAdmin) {
+        await this.notificationsService.create({
+          model_id: model_id,
+          action_id: 'new_model_download',
+          notifier_id: profile_id,
+          recipient_id: brandAdmin.profile_id,
+        })
+      }
     }
 
     return presignedUrl

@@ -7,6 +7,8 @@ config({
 
 const { env } = process;
 
+export const adminUsername = env.ADMIN_USERNAME;
+
 export const pg = {
   connectionString: env.DB_URL,
   host: env.PG_HOST,

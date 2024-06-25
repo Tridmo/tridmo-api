@@ -118,12 +118,10 @@ export default class AuthService {
 
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));
 
-    if (role) {
-      const roles = await this.rolesService.findByName(role)
-      if (!roles) throw new ErrorResponse(404, 'Role was not found')
-      const userRole = await this.userRolesService.getByUserAndRole({ user_id: profile.id, role_id: roles.id })
-      if (!userRole) throw new ErrorResponse(404, reqT('user_404'))
-    }
+    const roles = await this.rolesService.findByName(role)
+    if (!roles) throw new ErrorResponse(404, 'Role was not found')
+    const userRoles = await this.userRolesService.getByUserAndRole({ user_id: profile.id, role_id: roles.id })
+    if (!userRoles.length) throw new ErrorResponse(404, reqT('user_404'))
 
     const { data: { user, session }, error } = await supabase.auth.signInWithPassword({
       email: profile.email,

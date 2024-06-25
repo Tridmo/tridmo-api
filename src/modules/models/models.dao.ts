@@ -402,14 +402,14 @@ export default class ModelsDAO {
 
   async deleteById(model_id: string): Promise<number> {
     return await KnexService('models')
+      .update({ availability: false })
       .where({ id: model_id })
-      .delete()
   }
 
   async deleteByBrandId(brand_id: string): Promise<number> {
     return await KnexService('models')
+      .update({ availability: false })
       .where({ brand_id })
-      .delete()
   }
 
 }

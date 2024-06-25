@@ -53,6 +53,15 @@ export default class CategoriesDAO {
       .where(filters)
   }
 
+  async count(filters?) {
+    return (
+      await KnexService('categories')
+        .count("id")
+        .where(filters)
+        .whereNotNull('parent_id')
+    )[0]?.count
+  }
+
   async getByName(name: string) {
     return getFirst(
       await KnexService('categories')
