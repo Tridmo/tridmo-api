@@ -37,7 +37,7 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
     if (!user) throw new ErrorResponse(404, req.t.user_404())
     if (error) throw new ErrorResponse(error.status, error.message)
 
-    const profile = await usersDao.getByUserIdAndRole(user.id, authVariables.roles.admin)
+    const profile = await usersDao.getByUserId(user.id)
 
     if (!profile) throw new ErrorResponse(403, req.t.access_denied())
 
