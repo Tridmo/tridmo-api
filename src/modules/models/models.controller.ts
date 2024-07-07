@@ -104,11 +104,14 @@ export default class ModelsController {
       const filters: IGetCountsQuery = extractQuery(req.query).filters
       const counts: ICounts = {}
 
-      if (filters.all) counts.all = await this.modelsService.count({})
-      if (filters.top) counts.top = await this.modelsService.count({ top: true })
-      if (filters.available) counts.available = await this.modelsService.count({ availability: 1 })
-      if (filters.not_available) counts.not_available = await this.modelsService.count({ availability: 2 })
-      if (filters.deleted) counts.deleted = await this.modelsService.count({ is_deleted: true })
+      const { all, top, available, not_available, deleted, ...others } = filters
+
+      if (all) counts.all = await this.modelsService.count({})
+      if (top) counts.top = await this.modelsService.count({ ...others, top: true })
+      if (available) counts.available = await this.modelsService.count({ ...others, availability: 1 })
+      if (not_available) counts.not_available = await this.modelsService.count({ ...others, availability: 2 })
+      if (deleted) counts.deleted = await this.modelsService.count({ ...others, is_deleted: true })
+      else counts.count = await this.modelsService.count({ ...others })
 
       res.status(200).json({
         success: true,

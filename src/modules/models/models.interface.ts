@@ -112,6 +112,7 @@ export interface IGetCountsQuery {
   deleted?: boolean;
 }
 export interface ICounts {
+  count?: number;
   all?: number;
   top?: number;
   available?: number;
