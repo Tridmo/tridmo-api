@@ -161,6 +161,11 @@ export default class BrandService {
     return data
   }
 
+  async findAllByUserDownloads(user_id): Promise<IBrand[]> {
+    const brands = await this.brandsDao.getAllByUserDownloads(user_id);
+    return brands
+  }
+
   async count(filters): Promise<number> {
     return await this.brandsDao.count(filters);
   }

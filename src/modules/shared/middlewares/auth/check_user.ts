@@ -4,10 +4,7 @@ import UsersDAO from "../../../users/users.dao";
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { server } from "../../../../config/conf";
-import ErrorResponse from "../../utils/errorResponse";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
-import knexInstance from "../../../../database/connection";
-import { getFirst } from "../../../shared/utils/utils";
 import supabase from "../../../../database/supabase/supabase";
 
 const accessToken = server.accessToken

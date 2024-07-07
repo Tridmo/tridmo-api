@@ -121,6 +121,24 @@ export default class BrandsDAO {
         if (Object.entries(otherFilters)) q.andWhere(otherFilters)
       })
   }
+  async getAllByUserDownloads(user_id): Promise<IBrand[]> {
+
+    return await KnexService('brands')
+      .select([
+        "brands.id",
+        "brands.name",
+        "brands.slug",
+        KnexService.raw('COUNT(downloads.id) as downloads_count')
+      ])
+      .innerJoin('models', 'brands.id', 'models.brand_id')
+      .innerJoin('downloads', 'downloads.model_id', 'models.id')
+      .where('downloads.user_id', user_id)
+      .groupBy(
+        "brands.id",
+        "brands.name",
+        "brands.slug",
+      )
+  }
 
   async count(filters) {
     const { name, ...otherFilters } = filters

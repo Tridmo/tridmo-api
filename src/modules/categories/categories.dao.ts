@@ -157,8 +157,55 @@ export default class CategoriesDAO {
       .from('categories')
       .innerJoin('models', 'categories.id', 'models.category_id')
       .innerJoin('brands', 'models.brand_id', 'brands.id')
-      .where('brands.id', brand_id)
+      .where('brands.id', '=', brand_id)
   }
+
+  async getByUserDownloads(user_id: string) {
+    return await KnexService('categories')
+      .select([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id",
+        KnexService.raw('COUNT(downloads.id) as downloads_count')
+      ])
+      .distinct()
+      .from('categories')
+      .innerJoin('models', 'categories.id', 'models.category_id')
+      .innerJoin('downloads', 'downloads.model_id', 'models.id')
+      .where('downloads.user_id', user_id)
+      .groupBy([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id"
+      ]);
+  }
+
+  async getByUserInteriors(user_id: string) {
+    return await KnexService('categories')
+      .select([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id",
+      ])
+      .distinct()
+      .from('categories')
+      .innerJoin('interiors', 'categories.id', 'interiors.category_id')
+      .where('interiors.user_id', '=', user_id)
+      .groupBy([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id"
+      ]);
+  }
+
 
   async deleteById(categoryId: string | number) {
     return await KnexService('categories')

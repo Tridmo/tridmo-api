@@ -6,10 +6,6 @@ import { server } from "../../../../config/conf";
 import ErrorResponse from "../../utils/errorResponse";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
 import supabase from "../../../../database/supabase/supabase";
-import { getFirst } from "../../../shared/utils/utils";
-import knexInstance from "../../../../database/connection";
-import L from '../../../../i18n/i18n-node';
-import { authVariables } from "../../../auth/variables";
 
 const accessToken = server.accessToken
 

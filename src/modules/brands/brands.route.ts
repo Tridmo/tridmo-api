@@ -25,6 +25,10 @@ export default class BrandsRoute implements Routes {
   private initializeRoutes() {
     // Get all
     this.router.get(`${this.path}/`, validate(DefaultQueryDTO, "query", true), this.brandsController.getAll);
+
+    //Get by user downloads
+    this.router.get(`${this.path}/user/:username`, this.brandsController.getAllByUserDownloads);
+
     // Get one
     this.router.get(`${this.path}/:identifier`, this.brandsController.getOne);
 

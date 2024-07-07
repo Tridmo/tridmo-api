@@ -75,6 +75,16 @@ export default class CategoryService {
     return categories
   }
 
+  async findByUserDownloads(user_id: string): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByUserDownloads(user_id);
+    return categories
+  }
+
+  async findByUserInteriors(user_id: string): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByUserInteriors(user_id);
+    return categories
+  }
+
   async delete(id: string | number, cascade?: boolean) {
 
     if (cascade) {

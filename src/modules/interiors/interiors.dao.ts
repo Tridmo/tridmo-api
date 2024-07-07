@@ -78,6 +78,9 @@ export default class InteriorsDAO {
         'style.id as style.id',
         'style.name as style.name',
 
+        'category.id as category.id',
+        'category.name as category.name',
+
         'author.id as author.id',
         'author.full_name as author.full_name',
         'author.username as author.username',
@@ -89,21 +92,18 @@ export default class InteriorsDAO {
         'interactions.saves as saves',
 
         KnexService.raw('jsonb_agg(distinct "interior_images") as cover'),
+        KnexService.raw(`sum("tags_count".count) as tags_count`),
       ])
       .leftJoin({ author: 'profiles' }, { 'author.id': 'interiors.user_id' })
       .leftJoin({ style: "styles" }, { "interiors.style_id": "style.id" })
+      .leftJoin({ category: "categories" }, { "interiors.category_id": "category.id" })
       .leftJoin("interactions", { 'interiors.interaction_id': 'interactions.id' })
       .leftJoin(function () {
-        this.select([
-          'interior_models.id',
-          'interior_models.model_id',
-          'interior_models.interior_id'
-        ])
+        this.select('interior_id', KnexService.raw('count(id) as count'))
           .from('interior_models')
-          .as('interior_models')
-          .leftJoin("models", { 'interior_models.model_id': 'models.id' })
-          .groupBy('interior_models.id')
-      }, { 'interiors.id': 'interior_models.interior_id' })
+          .groupBy('interior_id')
+          .as('tags_count')
+      }, { 'interiors.id': 'tags_count.interior_id' })
       .leftJoin(function () {
         this.select([
           'interior_images.id',
@@ -124,6 +124,7 @@ export default class InteriorsDAO {
       .groupBy(
         'interiors.id',
         'style.id',
+        'category.id',
         'author.id',
         'interactions.id'
       )
@@ -134,9 +135,9 @@ export default class InteriorsDAO {
           }
           else q.orderBy(`interiors.${orderBy}`, order)
         }
-        if (status) q.whereIn("status", Array.isArray(status) ? status : [status])
-        if (categories && categories.length > 0) q.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
-        if (styles && styles.length > 0) q.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
+        if (status) q.whereIn("interiors.status", Array.isArray(status) ? status : [status])
+        if (categories && categories.length > 0) q.whereIn("interiors.category_id", Array.isArray(categories) ? categories : [categories])
+        if (styles && styles.length > 0) q.whereIn("interiors.style_id", Array.isArray(styles) ? styles : [styles])
         if (platforms && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
         if (name && name.length) q.whereILike('interiors.name', `%${name}%`)
         if (author && author.length) q.andWhere('interiors.user_id', author)

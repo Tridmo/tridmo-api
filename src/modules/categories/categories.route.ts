@@ -22,6 +22,8 @@ export default class CategoriesRoute implements Routes {
     this.router.get(`${this.path}/`, this.categoriesController.getAll);
     // Get brands
     this.router.get(`${this.path}/brand/:brand_id`, this.categoriesController.getByBrand);
+    this.router.get(`${this.path}/user/downloads/:username`, protect, check_access('get_users'), this.categoriesController.getByUserDownloads);
+    this.router.get(`${this.path}/user/interiors/:username`, protect, check_access('get_users'), this.categoriesController.getByUserInteriors);
     // Get main parent categories
     this.router.get(`${this.path}/main`, this.categoriesController.getAllParents);
     // Get children of one category

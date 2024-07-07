@@ -15,6 +15,8 @@ import buildPagination from '../shared/utils/paginationBuilder';
 import { authVariables } from '../auth/variables';
 import { reqT } from '../shared/utils/language';
 import { UploadedFile } from 'express-fileupload';
+import DownloadsService from '../downloads/downloads.service';
+import ErrorResponse from '../shared/utils/errorResponse';
 
 class UsersController {
   public usersService = new UsersService();
@@ -33,6 +35,27 @@ class UsersController {
         success: true,
         data: {
           users: data
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAll_admin = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { query } = req
+      const filters = extractQuery(query).filters
+      const sorts = extractQuery(query).sorts
+
+      const data = await this.usersService.getAll_admin(filters, sorts)
+      const count = await this.usersService.count(filters)
+
+      res.status(200).json({
+        success: true,
+        data: {
+          users: data,
+          pagination: buildPagination(count, sorts)
         }
       });
     } catch (error) {
@@ -112,7 +135,6 @@ class UsersController {
         username: profile.username,
         company_name: profile.company_name,
         image_src: profile.image_src,
-        birth_date: profile.birth_date,
         address: profile.address,
         phone: profile.phone,
         telegram: profile.telegram,
@@ -123,6 +145,65 @@ class UsersController {
         success: true,
         data: {
           user: userData,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public profileByUsername_admin = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { username } = req.params
+
+      const profile = await this.usersService.getByUsername(username);
+
+      const userData = {
+        user_id: profile.id,
+        created_at: profile.created_at,
+        full_name: profile.full_name,
+        designs_count: profile.designs_count,
+        tags_count: profile.tags_count,
+        downloads_count: profile.downloads_count,
+        username: profile.username,
+        email: profile.email,
+        company_name: profile.company_name,
+        image_src: profile.image_src,
+        address: profile.address,
+        phone: profile.phone,
+        telegram: profile.telegram,
+        portfolio_link: profile.portfolio_link,
+      }
+
+      res.status(200).json({
+        success: true,
+        data: {
+          user: userData,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+  public getUserDownloads = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { filters, sorts } = extractQuery(req.query)
+
+      const downloadService = new DownloadsService()
+
+      const profile = await this.usersService.getByUsername_min(req.params.username);
+      if (!profile) throw new ErrorResponse(404, req.t.user_404())
+
+      const downloads = await downloadService.findWithModelBy({ ...filters, user_id: profile.id }, sorts)
+      const count = await downloadService.count({ user_id: profile.id })
+
+      res.status(200).json({
+        success: true,
+        data: {
+          downloads,
+          pagination: buildPagination(count, sorts)
         },
       });
     } catch (error) {

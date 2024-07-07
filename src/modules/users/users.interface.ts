@@ -53,6 +53,8 @@ export interface IUser {
   created_at: Date;
   updated_at: Date;
   designs_count?: number | string;
+  tags_count?: number | string;
+  downloads_count?: number | string;
 }
 
 export interface IGetUsersQuery {

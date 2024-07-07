@@ -5,6 +5,9 @@ import CategoryService from "./categories.service";
 import { CreateCategoryDTO, UpdateCategoryDTO } from "./categories.dto";
 import { IGetCategoriesQuery } from "./categories.interface";
 import { reqT } from '../shared/utils/language';
+import UsersService from '../users/users.service';
+import ErrorResponse from '../shared/utils/errorResponse';
+import { CustomRequest } from '../shared/interface/routes.interface';
 
 export default class CategoriesController {
   private categoriesService = new CategoryService()
@@ -61,6 +64,39 @@ export default class CategoriesController {
   public getByBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const data = await this.categoriesService.findByBrand(req.params.brand_id)
+
+      res.status(200).json({
+        success: true,
+        data
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getByUserDownloads = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = await new UsersService().getByUsername_min(req.params.username);
+      if (!user) throw new ErrorResponse(404, req.t.user_404())
+
+      const data = await this.categoriesService.findByUserDownloads(user.id)
+
+      res.status(200).json({
+        success: true,
+        data
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+
+  public getByUserInteriors = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = await new UsersService().getByUsername_min(req.params.username);
+      if (!user) throw new ErrorResponse(404, req.t.user_404())
+
+      const data = await this.categoriesService.findByUserInteriors(user.id)
 
       res.status(200).json({
         success: true,

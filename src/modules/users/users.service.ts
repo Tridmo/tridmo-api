@@ -54,6 +54,16 @@ export default class UsersService {
     return data
   }
 
+  async getAll_admin(filters, sorts): Promise<IUser> {
+    const data = await this.usersDao.getAll_admin(filters, sorts);
+
+    data.forEach((user, index) => {
+      data[index] = flat.unflatten(user)
+    });
+
+    return data
+  }
+
   async count(filters): Promise<number> {
     return await this.usersDao.count(filters);
   }
@@ -64,6 +74,9 @@ export default class UsersService {
 
   async getByUsername(username: string): Promise<IUser> {
     return await this.usersDao.getByUsername(username);
+  }
+  async getByUsername_min(username: string): Promise<IUser> {
+    return await this.usersDao.getByUsername_min(username);
   }
 
   async getVerifiedByEmail(email: string): Promise<IUser> {

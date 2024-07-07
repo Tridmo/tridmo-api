@@ -12,6 +12,9 @@ import ImageService from "../shared/modules/images/images.service";
 import { uploadFile } from "../shared/utils/fileUpload";
 import { UploadedFile } from "express-fileupload";
 import { reqT } from '../shared/utils/language';
+import UsersService from "../users/users.service";
+import ErrorResponse from "../shared/utils/errorResponse";
+import { CustomRequest } from "../shared/interface/routes.interface";
 
 export default class BrandsController {
   private brandsService = new BrandService()
@@ -70,6 +73,24 @@ export default class BrandsController {
         data: {
           brands: data,
           pagination: buildPagination(count, sorts)
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getAllByUserDownloads = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = await new UsersService().getByUsername_min(req.params.username);
+      if (!user) throw new ErrorResponse(404, req.t.user_404())
+
+      const data = await this.brandsService.findAllByUserDownloads(user.id)
+
+      res.status(200).json({
+        success: true,
+        data: {
+          brands: data,
         }
       })
     } catch (error) {
