@@ -24,6 +24,8 @@ import { IRequestFile } from "../shared/interface/files.interface";
 import { deleteFile, uploadFile } from "../shared/utils/fileUpload";
 import { s3Vars } from "../../config/conf";
 import { ChatUtils } from "../chat/utils";
+import slugify from "slugify";
+import { generateUsernameFromName } from "../shared/utils/generateUsername";
 
 
 export default class AuthService {
@@ -49,7 +51,7 @@ export default class AuthService {
     if (error)
       throw new ErrorResponse(error.status, error.message);
 
-    const username = generateUsername('', 4, 32, full_name.toLocaleLowerCase())
+    const username = generateUsernameFromName(full_name)
 
     const profile = await this.usersService.create({
       user_id: user.id, full_name, email, birth_date, company_name, username
@@ -78,7 +80,7 @@ export default class AuthService {
     if (!user?.identities?.length)
       throw new ErrorResponse(400, reqT('email_exist'));
 
-    username = username || generateUsername('', 4, 32, full_name.toLocaleLowerCase())
+    username = username || generateUsernameFromName(full_name)
 
     let uploadedImage;
     if (image) uploadedImage = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, username, /*fileDefaults.model_cover*/);
