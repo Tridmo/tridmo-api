@@ -40,12 +40,11 @@ export default class StatsController {
   public getInteriorsStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const { filters } = extractQuery(req.query)
-      const stats = await this.service.getInteriorsStats({
-        month: req.query.month,
-        year: req.query.year,
-        ...filters
-      })
-      const interiorsCount = await new InteriorsDAO().count(filters)
+
+      const { month, year, ...filter } = filters
+
+      const stats = await this.service.getInteriorsStats(filters)
+      const interiorsCount = await new InteriorsDAO().count(filter)
 
       res.status(200).json({
         success: !!stats,
@@ -103,24 +102,18 @@ export default class StatsController {
 
   public getBrandStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      const { filters: filter } = extractQuery(req.query)
+      const { filters, sorts } = extractQuery(req.query)
 
-      const filters = {
-        limit: req.query.limit || 10,
-        month: req.query.month,
-        year: req.query.year,
-        week: req.query.week,
-        ...filter
-      }
+      const { month, year, week, ...filter } = filters
 
       const brands =
         req.query.topic == 'downloads'
-          ? await this.service.getBrandsWithMostDownloads(filters)
+          ? await this.service.getBrandsWithMostDownloads({ ...filters, limit: sorts.limit })
           : req.query.topic == 'tags'
-            ? await this.service.getBrandsWithMostTags(filters)
-            : await this.service.getBrandsWithMostDownloads(filters)
+            ? await this.service.getBrandsWithMostTags({ ...filters, limit: sorts.limit })
+            : await this.service.getBrandsWithMostDownloads({ ...filters, limit: sorts.limit })
 
-      const brandsCount = await new BrandsDAO().count(filters)
+      const brandsCount = await new BrandsDAO().count(filter)
 
       res.status(200).json({
         success: !!brands || !!brands.length,

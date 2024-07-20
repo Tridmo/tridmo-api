@@ -94,7 +94,10 @@ class UsersController {
     try {
       const { user } = req
 
-      const profile = await this.usersService.getByUsername(user.profile.username)
+      const profile = await this.usersService.getByUsernameForProfile(user.profile.username)
+      console.log(profile);
+
+      if (!profile) throw new ErrorResponse(404, req.t.user_404())
 
       const isBrandAdmin = profile.role.id == authVariables.roles.brand
       if (isBrandAdmin) {

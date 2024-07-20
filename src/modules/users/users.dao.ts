@@ -61,7 +61,7 @@ export default class UsersDAO {
         ] : []),
       ])
       .innerJoin(function () {
-        this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name"])
+        this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id"])
           .from("user_roles")
           .as("user_roles")
           .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
@@ -111,6 +111,7 @@ export default class UsersDAO {
         "profiles.*",
         "user_roles.role_id as role.id",
         "role_name as role.name",
+        "roles_id as role.id",
         ...(isDesigner ? [
           KnexService.raw(`count(distinct "interiors"."id") as designs_count`),
           KnexService.raw(`count(distinct interior_models.id) as tags_count`),
@@ -262,32 +263,16 @@ export default class UsersDAO {
           "profiles.*",
           "user_roles.role_id as role.id",
           "role_name as role.name",
-          KnexService.raw(`count("interiors"."id") as designs_count`),
-          KnexService.raw(`sum("tags_count".count) as tags_count`),
-          KnexService.raw(`"downloads_count".count as downloads_count`),
+          "roles_id as role.id",
         ])
         .innerJoin(function () {
-          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name"])
+          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name", "role.id as roles_id"])
             .from("user_roles")
             .as("user_roles")
             .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
-            .whereNot("role_id", 1)
             .groupBy("user_roles.id", "role.id");
         }, { "profiles.id": "user_roles.user_id" })
-        .leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
-        .leftJoin(function () {
-          this.select('user_id', KnexService.raw('count(distinct id) as count'))
-            .from('downloads')
-            .groupBy('user_id')
-            .as('downloads_count')
-        }, { 'profiles.id': 'downloads_count.user_id' })
-        .leftJoin(function () {
-          this.select('interior_id', KnexService.raw('count(distinct id) as count'))
-            .from('interior_models')
-            .groupBy('interior_id')
-            .as('tags_count')
-        }, { 'interiors.id': 'tags_count.interior_id' })
-        .groupBy('profiles.id', "user_roles.id", "user_roles.role_id", "role_name", 'downloads_count.count')
+        .groupBy('profiles.id', "user_roles.id", "user_roles.role_id", "role_name")
         .where({ email })
     )
   }
@@ -300,11 +285,12 @@ export default class UsersDAO {
           "profiles.*",
           "user_roles.role_id as role.id",
           "role_name as role.name",
+          "roles_id as role.id",
           KnexService.raw(`count(distinct interiors.id) as designs_count`),
           KnexService.raw(`interior_models.count as tags_count`),
         ])
         .innerJoin(function () {
-          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name"])
+          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name", "role.id as roles_id"])
             .from("user_roles")
             .as("user_roles")
             .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
@@ -319,7 +305,30 @@ export default class UsersDAO {
             .as('interior_models')
         }, { 'interiors.id': 'interior_models.interior_id' })
         .groupBy(
-          'profiles.id', "user_roles.id", "user_roles.role_id", "role_name", 'interior_models.count'
+          'profiles.id', "user_roles.id", "user_roles.role_id", "role_name", "roles_id", 'interior_models.count'
+        )
+        .where({ username })
+    )
+  }
+  async getByUsernameForProfile(username: string, filters: any = {}): Promise<IUser> {
+
+    return getFirst(
+      await KnexService('profiles')
+        .select([
+          "profiles.*",
+          "user_roles.role_id as role.id",
+          "role_name as role.name",
+          "roles_id as role.id",
+        ])
+        .innerJoin(function () {
+          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name", "role.id as roles_id"])
+            .from("user_roles")
+            .as("user_roles")
+            .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
+            .groupBy("user_roles.id", "role.id");
+        }, { "profiles.id": "user_roles.user_id" })
+        .groupBy(
+          'profiles.id', "user_roles.id", "user_roles.role_id", "role_name", "roles_id"
         )
         .where({ username })
     )
@@ -334,12 +343,13 @@ export default class UsersDAO {
           'profiles.*',
           'user_roles.role_id as role.id',
           'role_name as role.name',
+          'roles_id as role.id',
           // KnexService.raw('COALESCE(interiors.count, 0) as designs_count'),
           // KnexService.raw('COALESCE(interior_models_count, 0) as tags_count'),
           // KnexService.raw('COALESCE(downloads.count, 0) as downloads_count'),
         ])
         .innerJoin(function () {
-          this.select(['user_roles.id', 'user_roles.user_id', 'user_roles.role_id', 'role.name as role_name'])
+          this.select(['user_roles.id', 'user_roles.user_id', 'user_roles.role_id', 'role.name as role_name', 'role.id as roles_id'])
             .from('user_roles')
             .as('user_roles')
             .leftJoin({ role: 'roles' }, { 'user_roles.role_id': 'role.id' })
@@ -382,7 +392,7 @@ export default class UsersDAO {
         // }, { 'profiles.id': 'downloads.user_id' })
         .groupBy(
           'profiles.id',
-          'user_roles.id', 'user_roles.role_id', 'role_name',
+          'user_roles.id', 'user_roles.role_id', 'role_name', 'roles_id',
           // 'interiors.count', 'interiors.interior_models_count', 'downloads.count',
         )
         .where({ username })

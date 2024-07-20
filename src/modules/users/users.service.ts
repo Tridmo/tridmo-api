@@ -78,6 +78,10 @@ export default class UsersService {
     const data = await this.usersDao.getByUsername(username, filters);
     return flat.unflatten(data)
   }
+  async getByUsernameForProfile(username: string, filters?: any): Promise<IUser> {
+    const data = await this.usersDao.getByUsernameForProfile(username, filters);
+    return flat.unflatten(data)
+  }
   async getByUsername_admin(username: string, filters?: any): Promise<IUser> {
     const data = await this.usersDao.getByUsername_admin(username, filters);
     return flat.unflatten(data)
