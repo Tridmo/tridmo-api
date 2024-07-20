@@ -7,6 +7,7 @@ import CategoriesDAO from "../categories/categories.dao";
 import UsersDAO from "../users/users.dao";
 import { authVariables } from "../auth/variables";
 import InteriorsDAO from "../interiors/interiors.dao";
+import extractQuery from "../shared/utils/extractQuery";
 
 
 const modelDao = new ModelsDAO()
@@ -16,9 +17,11 @@ export default class StatsController {
 
   public getRegisterStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
+      const { filters } = extractQuery(req.query)
       const stats = await this.service.getRegisteredUsersStats({
         month: req.query.month,
-        year: req.query.year
+        year: req.query.year,
+        ...filters
       })
       const userCount = await new UsersDAO().count({ role_id: authVariables.roles.designer })
 
@@ -36,11 +39,13 @@ export default class StatsController {
 
   public getInteriorsStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
+      const { filters } = extractQuery(req.query)
       const stats = await this.service.getInteriorsStats({
         month: req.query.month,
-        year: req.query.year
+        year: req.query.year,
+        ...filters
       })
-      const interiorsCount = await new InteriorsDAO().count({})
+      const interiorsCount = await new InteriorsDAO().count(filters)
 
       res.status(200).json({
         success: !!stats,
@@ -57,12 +62,17 @@ export default class StatsController {
 
   public getModelStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
+      const { filters: filter } = extractQuery(req.query)
+
       const filters = {
         limit: req.query.limit || 10,
         month: req.query.month,
         year: req.query.year,
         week: req.query.week,
+        ...filter
       }
+
+      const { limit, month, year, week, topic, ...others } = filter
 
       const models =
         req.query.topic == 'downloads'
@@ -71,9 +81,10 @@ export default class StatsController {
             ? await this.service.getMostUsedModels(filters)
             : await this.service.getMostDownloadedModels(filters);
 
-      const modelsCount = await modelDao.count({})
-      const modelsAvailableCount = await modelDao.count({ availability: 1 })
-      const modelsUnavailableCount = await modelDao.count({ availability: 2 })
+      const modelsCount = await modelDao.count(others)
+      const modelsAvailableCount = await modelDao.count({ ...others, availability: 1 })
+      const modelsUnavailableCount = await modelDao.count({ ...others, availability: 2 })
+      const modelsByOrderingCount = await modelDao.count({ ...others, availability: 3 })
 
       res.status(200).json({
         success: !!models || !!models.length,
@@ -81,6 +92,7 @@ export default class StatsController {
           count: modelsCount,
           available_count: modelsAvailableCount,
           unavailable_count: modelsUnavailableCount,
+          by_ordering_count: modelsByOrderingCount,
           top_list: models
         }
       })
@@ -91,11 +103,14 @@ export default class StatsController {
 
   public getBrandStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
+      const { filters: filter } = extractQuery(req.query)
+
       const filters = {
         limit: req.query.limit || 10,
         month: req.query.month,
         year: req.query.year,
         week: req.query.week,
+        ...filter
       }
 
       const brands =
@@ -105,7 +120,7 @@ export default class StatsController {
             ? await this.service.getBrandsWithMostTags(filters)
             : await this.service.getBrandsWithMostDownloads(filters)
 
-      const brandsCount = await new BrandsDAO().count({})
+      const brandsCount = await new BrandsDAO().count(filters)
 
       res.status(200).json({
         success: !!brands || !!brands.length,
@@ -121,12 +136,16 @@ export default class StatsController {
 
   public getCategoryStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
+      const { filters: filter } = extractQuery(req.query)
+
       const filters = {
         limit: req.query.limit || 10,
         month: req.query.month,
         year: req.query.year,
         week: req.query.week,
+        ...filter
       }
+      const { limit, month, year, week, topic, ...others } = filters
 
       const categs =
         req.query.topic == 'downloads'
@@ -135,7 +154,7 @@ export default class StatsController {
             ? await this.service.getCategoriesWithMostTags(filters)
             : await this.service.getCategoriesWithMostDownloads(filters)
 
-      const categsCount = await new CategoriesDAO().count({ type: 'model' })
+      const categsCount = await new CategoriesDAO().count({ type: 'model', ...others })
 
       res.status(200).json({
         success: !!categs || !!categs.length,
@@ -149,12 +168,10 @@ export default class StatsController {
     }
   }
 
-  public getDownloadStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  public getDownloadsCount = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      const stats = await this.service.getDownloadsStats({
-        month: req.query.month,
-        year: req.query.year
-      })
+      const { filters } = extractQuery(req.query)
+
       const downloadsCount = await this.service.getDownloadsCount({
         model_id: req.query.model_id,
         brand_id: req.query.brand_id,
@@ -162,9 +179,29 @@ export default class StatsController {
       })
 
       res.status(200).json({
-        success: !!stats,
+        success: true,
         data: {
           count: downloadsCount,
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getDownloadsChart = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      const { filters } = extractQuery(req.query)
+
+      const stats = await this.service.getDownloadsStats({
+        month: req.query.month,
+        year: req.query.year,
+        ...filters
+      })
+
+      res.status(200).json({
+        success: !!stats,
+        data: {
           chart_data: stats,
         }
       })
@@ -173,12 +210,10 @@ export default class StatsController {
     }
   }
 
-  public getTagsStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  public getTagsCount = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      const stats = await this.service.getTagsStats({
-        month: req.query.month,
-        year: req.query.year
-      })
+      const { filters } = extractQuery(req.query)
+
       const tagsCount = await this.service.getTagsCount({
         model_id: req.query.model_id,
         brand_id: req.query.brand_id,
@@ -186,9 +221,29 @@ export default class StatsController {
       })
 
       res.status(200).json({
-        success: !!stats,
+        success: true,
         data: {
           count: tagsCount,
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getTagsChart = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      const { filters } = extractQuery(req.query)
+
+      const stats = await this.service.getTagsStats({
+        month: req.query.month,
+        year: req.query.year,
+        ...filters
+      })
+
+      res.status(200).json({
+        success: !!stats,
+        data: {
           chart_data: stats,
         }
       })

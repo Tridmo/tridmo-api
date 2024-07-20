@@ -3,6 +3,7 @@ import NotificationsService from './notifications.service';
 import { reqT } from '../shared/utils/language';
 import { CustomRequest } from "../shared/interface/routes.interface";
 import extractQuery from "../shared/utils/extractQuery";
+import buildPagination from "../shared/utils/paginationBuilder";
 
 export default class NotificationsController {
   private service = new NotificationsService()
@@ -29,14 +30,17 @@ export default class NotificationsController {
   public markAsSeen = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params
-      const data = await this.service.update(id, { seen: true })
+      const data = await this.service.update(
+        { id, seen: false },
+        { seen: true }
+      )
 
       res.status(200).json({
         success: true,
         data: {
           notification: data
         },
-        message: reqT('saved_successfully')
+        message: reqT('updated_successfully')
       })
     } catch (error) {
       next(error)
@@ -45,14 +49,17 @@ export default class NotificationsController {
 
   public markAsSeenMany = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.service.updateMany(req.body.notifications, { seen: true })
+      const data = await this.service.updateMany(
+        req.body.notifications.map(e => { return { id: e, seen: false } }),
+        { seen: true }
+      )
 
       res.status(200).json({
         success: true,
         data: {
           notification: data
         },
-        message: reqT('saved_successfully')
+        message: reqT('updated_successfully')
       })
     } catch (error) {
       next(error)
@@ -61,14 +68,17 @@ export default class NotificationsController {
 
   public markAsSeenAll = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.service.updateByReceipent(req.user.profile.id, { seen: true })
+      const data = await this.service.updateByReceipent(
+        { recipient_id: req.user.profile.id, seen: false },
+        { seen: true }
+      )
 
       res.status(200).json({
         success: true,
         data: {
-          notification: data
+          notifications: data
         },
-        message: reqT('saved_successfully')
+        message: reqT('updated_successfully')
       })
     } catch (error) {
       next(error)
@@ -83,10 +93,16 @@ export default class NotificationsController {
         recipient_id: req.user.profile.id,
       }, sorts)
 
+      const count = await this.service.count({
+        ...filters,
+        recipient_id: req.user.profile.id,
+      })
+
       res.status(200).json({
         success: true,
         data: {
-          platforms: data
+          notifications: data,
+          pagination: buildPagination(count, sorts)
         }
       })
     } catch (error) {

@@ -1,5 +1,5 @@
 import UserRolesDAO from './user_roles.dao';
-import { ICreateUserRole } from './user_roles.interface';
+import { ICreateUserRole, IUserRole } from './user_roles.interface';
 
 export default class UserRoleService {
   private userRolesDao = new UserRolesDAO();
@@ -17,8 +17,8 @@ export default class UserRoleService {
   getByUserId(id: string) {
     return this.userRolesDao.getByUserId(id);
   }
-  getByUserAndRole({ user_id, role_id }: { user_id: string; role_id: number }) {
-    return this.userRolesDao.getByUserAdnRole(user_id, role_id);
+  getByUserAndRole({ user_id, role_id }: { user_id: string; role_id: number }): Promise<IUserRole> {
+    return this.userRolesDao.getByUserAndRole(user_id, role_id);
   }
 
   deleteById(id: number) {

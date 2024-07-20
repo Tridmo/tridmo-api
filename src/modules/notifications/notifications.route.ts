@@ -19,7 +19,7 @@ export default class NotificationsRoute implements Routes {
     this.router.get(`${this.path}/`, protect, this.controller.getAll);
     this.router.post(`${this.path}/`, protect, validate(CreateNotificationDTO, "body", true), this.controller.create);
     this.router.put(`${this.path}/`, protect, validate(MarkManyNotificationDTO, "body", true), this.controller.markAsSeenMany);
-    this.router.put(`${this.path}/all`, protect, validate(ValidateUuidDTO, "params"), this.controller.markAsSeenAll);
+    this.router.put(`${this.path}/all`, protect, this.controller.markAsSeenAll);
     this.router.put(`${this.path}/:id`, protect, validate(ValidateUuidDTO, "params"), this.controller.markAsSeen);
     this.router.delete(`${this.path}/`, protect, this.controller.deleteAll);
     this.router.delete(`${this.path}/:id`, protect, validate(ValidateUuidDTO, "params"), this.controller.delete);

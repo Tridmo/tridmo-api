@@ -6,13 +6,13 @@ import { verify } from "jsonwebtoken";
 import { server } from "../../../../config/conf";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
 import supabase from "../../../../database/supabase/supabase";
+import UserRoleService from "../../../users/user_roles/user_roles.service";
 
 const accessToken = server.accessToken
 
 const checkUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
 
-    const usersDao = new UsersDAO();
     let authToken = ""
     const authorization = req.headers.authorization
     if (!authorization) { next(); return }
@@ -29,9 +29,10 @@ const checkUser = async (req: CustomRequest, res: Response, next: NextFunction) 
 
     if (!user) { next(); return }
 
-    const profile = await usersDao.getByUserId(user.id)
+    const profile = await new UsersDAO().getByUserId(user?.id)
+    const roles = await new UserRoleService().getByUserId(profile?.id)
 
-    req.user = { ...user, profile }
+    req.user = { ...user, profile, roles }
 
     next()
 

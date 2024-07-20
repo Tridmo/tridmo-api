@@ -26,6 +26,7 @@ import { s3Vars } from "../../config/conf";
 import { ChatUtils } from "../chat/utils";
 import slugify from "slugify";
 import { generateUsernameFromName } from "../shared/utils/generateUsername";
+import BrandService from "../brands/brands.service";
 
 
 export default class AuthService {
@@ -112,7 +113,7 @@ export default class AuthService {
     return data
   }
 
-  async signIn({ email, username, password, role }: ISignin) {
+  async signIn({ email, username, password, role_name }: ISignin) {
 
     if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
 
@@ -120,10 +121,10 @@ export default class AuthService {
 
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));
 
-    const roles = await this.rolesService.findByName(role)
+    const roles = await this.rolesService.findByName(role_name)
     if (!roles) throw new ErrorResponse(404, 'Role was not found')
-    const userRoles = await this.userRolesService.getByUserAndRole({ user_id: profile.id, role_id: roles.id })
-    if (!userRoles.length) throw new ErrorResponse(404, reqT('user_404'))
+    const role = await this.userRolesService.getByUserAndRole({ user_id: profile.id, role_id: roles.id })
+    if (!role) throw new ErrorResponse(404, reqT('user_404'))
 
     const { data: { user, session }, error } = await supabase.auth.signInWithPassword({
       email: profile.email,
@@ -143,6 +144,7 @@ export default class AuthService {
 
     if (session && user) {
       await this.chat.syncUser(profile, role || authVariables.roles.designer)
+
       return {
         user: {
           id: user.id,

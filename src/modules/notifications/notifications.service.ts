@@ -1,7 +1,7 @@
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import NotificationsDAO from './notifications.dao';
 import { ICreateNotification, IFilterNotifications, INotification, IUpdateNotification } from './notifications.interface';
-
+import flat from 'flat';
 
 export default class NotificationsService {
   private dao = new NotificationsDAO();
@@ -9,21 +9,48 @@ export default class NotificationsService {
   async create(values: ICreateNotification): Promise<INotification> {
     return await this.dao.create(values)
   }
-  async update(id: string, values: IUpdateNotification): Promise<INotification[]> {
-    return await this.dao.update(id, values)
+  async updateById(id: string, values: IUpdateNotification): Promise<INotification[]> {
+    return await this.dao.updateById(id, values)
   }
-  async updateByReceipent(recipient_id: string, values: IUpdateNotification): Promise<INotification> {
-    return await this.dao.updateByReceipent(recipient_id, values)
+  async update(filters: IFilterNotifications, values: IUpdateNotification): Promise<INotification[]> {
+    return await this.dao.update(filters, values)
   }
-  async updateMany(ids: string, values: IUpdateNotification): Promise<INotification[]> {
+  async updateByReceipent(filters: IFilterNotifications & { recipient_id: string }, values: IUpdateNotification): Promise<INotification[]> {
+    return await this.dao.updateByReceipent(filters, values)
+  }
+  async updateMany(filters: IFilterNotifications[], values: IUpdateNotification): Promise<INotification[]> {
     const arr = []
-    for await (const id of ids) {
-      arr.push(await this.dao.update(id, values))
+    for await (const e of filters) {
+      arr.push(await this.dao.update(e, values))
     }
     return arr
   }
   async findBy(filters: IFilterNotifications, sorts: IDefaultQuery): Promise<INotification[]> {
-    return await this.dao.getBy(filters, sorts)
+
+    const data = await this.dao.getBy(filters, sorts)
+
+    data.forEach((el, i) => {
+      let e = flat.unflatten(el)
+      const { model, interior, ...other } = e
+      if (!interior?.id) {
+        e = {
+          product: { entity: 'models', ...model },
+          ...other
+        }
+      }
+      else if (!model?.id) {
+        e = {
+          product: { entity: 'interiors', ...interior },
+          ...other
+        }
+      }
+      data[i] = e;
+    })
+
+    return data
+  }
+  async count(filters: IFilterNotifications) {
+    return await this.dao.count(filters)
   }
   async findOne(id: string): Promise<INotification> {
     return await this.dao.getById(id)

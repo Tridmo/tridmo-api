@@ -63,6 +63,7 @@ export interface IGetInteriorsQuery extends IDefaultQuery {
   platforms?: string[];
   author?: string;
   is_deleted?: boolean;
+  has_models_of_brand?: string;
 }
 
 export interface IAddImageResult {

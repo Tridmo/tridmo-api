@@ -6,6 +6,7 @@ import { server } from "../../../../config/conf";
 import ErrorResponse from "../../utils/errorResponse";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
 import supabase from "../../../../database/supabase/supabase";
+import UserRoleService from "../../../users/user_roles/user_roles.service";
 
 const accessToken = server.accessToken
 
@@ -26,18 +27,17 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
     const decodedToken = verify(authToken, accessToken.secret) as IDecodedToken;
     if (!decodedToken) throw new ErrorResponse(401, req.t.unauthorized())
 
-    const usersDao = new UsersDAO();
-
     const { data: { user }, error } = await supabase.auth.getUser(authToken)
 
     if (!user) throw new ErrorResponse(404, req.t.user_404())
     if (error) throw new ErrorResponse(error.status, error.message)
 
-    const profile = await usersDao.getByUserId(user.id)
+    const profile = await new UsersDAO().getByUserId(user?.id)
+    const roles = await new UserRoleService().getByUserId(profile?.id)
 
     if (!profile) throw new ErrorResponse(403, req.t.access_denied())
 
-    req.user = { ...user, profile }
+    req.user = { ...user, profile, roles }
 
     next()
 

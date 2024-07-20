@@ -37,6 +37,8 @@ export interface IUpdateInteriorModel {
 export interface IFilterInteriorModel {
   id?: string;
   model_id?: string;
+  user_id?: string;
+  brand_id?: string;
   interior_id?: string;
   interior_image_id?: string;
 }

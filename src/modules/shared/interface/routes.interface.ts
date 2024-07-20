@@ -3,9 +3,11 @@ import { User } from "@supabase/supabase-js";
 import { IUser } from '../../users/users.interface';
 import L from '../../../i18n/i18n-node';
 import { TranslationFunctions } from '../../../i18n/i18n-types';
+import { IUserRole } from '../../auth/roles/roles.interface';
 
-interface IReqUser extends User {
+export interface IReqUser extends User {
   profile: IUser
+  roles: IUserRole[]
 }
 
 export interface Routes {

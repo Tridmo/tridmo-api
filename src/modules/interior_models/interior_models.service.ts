@@ -4,6 +4,7 @@ import { IInteriorModel, ICreateInteriorModel, IUpdateInteriorModel, IFilterInte
 import InteriorModelsDAO from "./interior_models.dao";
 import { IDefaultQuery } from "../shared/interface/query.interface";
 import flat from 'flat';
+import { IGetInteriorsQuery, IInterior } from "../interiors/interiors.interface";
 
 export default class InteriorModelsService {
   private dao = new InteriorModelsDAO()
@@ -18,6 +19,10 @@ export default class InteriorModelsService {
     if (isEmpty(foundImageTag)) throw new ErrorResponse(400, "Image tag was not found");
     const data = await this.dao.update(id, values)
     return data
+  }
+
+  async count(filters: IFilterInteriorModel): Promise<number> {
+    return await this.dao.count(filters);
   }
 
   async findById(id: string): Promise<IInteriorModel> {
@@ -36,6 +41,13 @@ export default class InteriorModelsService {
   }
   async findAll(filters: IFilterInteriorModel, sorts: IDefaultQuery): Promise<IInteriorModel[]> {
     const data = await this.dao.getAll(filters, sorts);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = flat.unflatten(data[i])
+    }
+    return data
+  }
+  async findInteriorsByTaggedModel(model_id: string, filters: IGetInteriorsQuery, sorts: IDefaultQuery): Promise<IInterior[]> {
+    const data = await this.dao.getInteriorsByTaggedModel(model_id, filters, sorts);
     for (let i = 0; i < data.length; i++) {
       data[i] = flat.unflatten(data[i])
     }

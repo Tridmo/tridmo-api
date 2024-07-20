@@ -3,6 +3,7 @@ import InteriorModelsService from './interior_models.service';
 import { reqT } from '../shared/utils/language';
 import { CustomRequest } from "../shared/interface/routes.interface";
 import extractQuery from "../shared/utils/extractQuery";
+import buildPagination from "../shared/utils/paginationBuilder";
 
 export default class InteriorModelsController {
   private service = new InteriorModelsService()
@@ -49,6 +50,26 @@ export default class InteriorModelsController {
         success: true,
         data: {
           tags: data
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getInteriorsByTaggedModel = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { filters, sorts } = extractQuery(req.query)
+
+      const data = await this.service.findInteriorsByTaggedModel(req.params.model_id, filters, sorts)
+      const count = await this.service.count({ model_id: req.params.model_id })
+
+      res.status(200).json({
+        success: true,
+        data: {
+          count,
+          interiors: data,
+          pagination: buildPagination(count, sorts)
         }
       })
     } catch (error) {

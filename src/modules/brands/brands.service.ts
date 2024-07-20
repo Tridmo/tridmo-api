@@ -181,6 +181,11 @@ export default class BrandService {
     return brand
   }
 
+  async findByAdmin(user_id: string): Promise<IBrand> {
+    const brand = await this.brandsDao.getByAdmin(user_id);
+    return brand
+  }
+
   async delete(brand_id: string): Promise<void> {
     const brand = await this.brandsDao.getById(brand_id);
     if (!brand) throw new ErrorResponse(404, reqT('brand_404'))

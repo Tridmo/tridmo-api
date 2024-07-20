@@ -17,12 +17,14 @@ export default class StatsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/registrations`, protect, check_access('create_role'), this.controller.getRegisterStats);
-    this.router.get(`${this.path}/brands`, protect, check_access('create_role'), this.controller.getBrandStats);
-    this.router.get(`${this.path}/models`, protect, check_access('create_role'), this.controller.getModelStats);
-    this.router.get(`${this.path}/categories`, protect, check_access('create_role'), this.controller.getCategoryStats);
-    this.router.get(`${this.path}/interiors`, protect, check_access('create_role'), this.controller.getInteriorsStats);
-    this.router.get(`${this.path}/downloads`, protect, check_access('create_role'), this.controller.getDownloadStats);
-    this.router.get(`${this.path}/tags`, protect, check_access('create_role'), this.controller.getTagsStats);
+    this.router.get(`${this.path}/registrations`, protect, check_access('update_brand'), this.controller.getRegisterStats);
+    this.router.get(`${this.path}/brands`, protect, check_access('update_brand'), this.controller.getBrandStats);
+    this.router.get(`${this.path}/models`, protect, check_access('update_brand'), this.controller.getModelStats);
+    this.router.get(`${this.path}/categories`, protect, check_access('update_brand'), this.controller.getCategoryStats);
+    this.router.get(`${this.path}/interiors`, protect, check_access('update_brand'), this.controller.getInteriorsStats);
+    this.router.get(`${this.path}/downloads/count`, protect, check_access('update_brand'), this.controller.getDownloadsCount);
+    this.router.get(`${this.path}/downloads/chart`, protect, check_access('update_brand'), this.controller.getDownloadsChart);
+    this.router.get(`${this.path}/tags/count`, protect, check_access('update_brand'), this.controller.getTagsCount);
+    this.router.get(`${this.path}/tags/chart`, protect, check_access('update_brand'), this.controller.getTagsChart);
   }
 }

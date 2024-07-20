@@ -3,6 +3,7 @@ import { chatApi, s3Vars } from "../../../config/conf";
 import { IUser } from "../../users/users.interface";
 import { IRequestFile } from "../../shared/interface/files.interface";
 import ErrorResponse from "../../shared/utils/errorResponse";
+import { authVariables } from "../../auth/variables";
 
 export class ChatUtils {
 
@@ -48,7 +49,7 @@ export class ChatUtils {
     }
   }
 
-  public async syncUser(user: IUser, role?) {
+  public async syncUser(user: IUser, role?, directory?) {
     console.log(user);
     console.log(`${s3Vars.publicImagesEndpoint}/${user.image_src}`);
 
@@ -62,9 +63,11 @@ export class ChatUtils {
           email: user.email,
           nickname: user.username,
           picture: `${s3Vars.publicImagesEndpoint}/${user.image_src}`,
-          directory: 'DEMOD',
+          directory: directory || role && role == authVariables.roles.admin ? 'ADMINS' : 'DEMOD',
+          display_name: user.full_name,
           metadata: {
             company_name: user.company_name,
+            display_name: user.full_name,
             role: role
           }
         },

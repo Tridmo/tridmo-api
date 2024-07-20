@@ -64,8 +64,8 @@ export default class InteriorsController {
 
         if (s == '0' || s.includes('0')) {
           if (!req.user) throw new ErrorResponse(401, reqT('unauthorized'))
-          const roles = await new UserRoleService().getByUserAndRole({ user_id: req.user.profile.id, role_id: authVariables.roles.admin })
-          if (!roles || !roles.length) throw new ErrorResponse(401, reqT('unauthorized'))
+          const role = await new UserRoleService().getByUserAndRole({ user_id: req.user.profile.id, role_id: authVariables.roles.admin })
+          if (!role) throw new ErrorResponse(401, reqT('unauthorized'))
         }
       }
 

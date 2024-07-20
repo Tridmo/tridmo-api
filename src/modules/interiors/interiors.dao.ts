@@ -45,12 +45,12 @@ export default class InteriorsDAO {
   async count(
     filters: IGetInteriorsQuery,
   ): Promise<number> {
-    const { styles, status, categories, platforms, name, author, ...otherFilters } = filters
+    const { styles, status, categories, platforms, name, author, has_models_of_brand, ...otherFilters } = filters
 
     return (
       await KnexService('interiors')
-        .countDistinct("id")
-        .where({ is_deleted: otherFilters.is_deleted || false })
+        .countDistinct("interiors.id")
+        .where({ 'interiors.is_deleted': otherFilters.is_deleted || false })
         .modify((q) => {
           if (status) q.whereIn("status", Array.isArray(status) ? status : [status])
           if (categories && categories.length > 0) q.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
@@ -59,6 +59,11 @@ export default class InteriorsDAO {
           if (name && name.length) q.whereILike('name', `%${name}%`)
           if (author && author.length) q.andWhere('interiors.user_id', author)
           if (Object.keys(otherFilters).length) q.andWhere(otherFilters)
+          if (has_models_of_brand) {
+            q.innerJoin('interior_models', { 'interior_models.interior_id': 'interiors.id' })
+              .innerJoin('models', { 'models.id': 'interior_models.model_id' })
+              .where('models.brand_id', '=', has_models_of_brand)
+          }
         })
     )[0].count as number
   }
@@ -69,7 +74,7 @@ export default class InteriorsDAO {
   ): Promise<IInterior[]> {
 
     const { limit, offset, order, orderBy } = sorts
-    const { status, styles, categories, platforms, author, name, ...otherFilters } = filters
+    const { status, styles, categories, platforms, author, name, has_models_of_brand, ...otherFilters } = filters
 
     return await KnexService("interiors")
       .select([
@@ -99,12 +104,6 @@ export default class InteriorsDAO {
       .leftJoin({ category: "categories" }, { "interiors.category_id": "category.id" })
       .leftJoin("interactions", { 'interiors.interaction_id': 'interactions.id' })
       .leftJoin(function () {
-        this.select('interior_id', KnexService.raw('count(id) as count'))
-          .from('interior_models')
-          .groupBy('interior_id')
-          .as('tags_count')
-      }, { 'interiors.id': 'tags_count.interior_id' })
-      .leftJoin(function () {
         this.select([
           'interior_images.id',
           'interior_images.is_main',
@@ -120,7 +119,7 @@ export default class InteriorsDAO {
       }, { 'interiors.id': 'interior_images.interior_id' })
       .limit(limit)
       .offset(offset)
-      .where({ is_deleted: otherFilters.is_deleted || false })
+      .where({ 'interiors.is_deleted': otherFilters.is_deleted || false })
       .groupBy(
         'interiors.id',
         'style.id',
@@ -142,6 +141,23 @@ export default class InteriorsDAO {
         if (name && name.length) q.whereILike('interiors.name', `%${name}%`)
         if (author && author.length) q.andWhere('interiors.user_id', author)
         if (Object.keys(otherFilters).length) q.andWhere(otherFilters)
+        if (has_models_of_brand) {
+          q.innerJoin(function () {
+            this.select('interior_id', 'model_id', KnexService.raw('count(id) as count'))
+              .from('interior_models')
+              .groupBy('interior_id', 'model_id')
+              .as('tags_count')
+          }, { 'interiors.id': 'tags_count.interior_id' })
+            .innerJoin('models', { 'models.id': 'tags_count.model_id' })
+            .where('models.brand_id', '=', has_models_of_brand)
+        } else if (!has_models_of_brand) {
+          q.leftJoin(function () {
+            this.select('interior_id', KnexService.raw('count(id) as count'))
+              .from('interior_models')
+              .groupBy('interior_id')
+              .as('tags_count')
+          }, { 'interiors.id': 'tags_count.interior_id' })
+        }
       })
   }
 
@@ -237,7 +253,10 @@ export default class InteriorsDAO {
     )
   }
 
-  async getByAuthor(user_id: string): Promise<IInterior[]> {
+  async getByAuthor(user_id: string, filters: IGetInteriorsQuery = {}): Promise<IInterior[]> {
+
+    const { has_models_of_brand } = filters
+
     return await KnexService('interiors')
       .select([
         'interiors.*',
@@ -273,6 +292,13 @@ export default class InteriorsDAO {
       .where({ is_deleted: false, user_id })
       .orderBy(`interiors.created_at`, 'desc')
       .groupBy('interiors.id', 'style.id')
+      .modify(q => {
+        if (has_models_of_brand) {
+          q.innerJoin('interior_models', { 'interior_models.interior_id': 'interiors.id' })
+            .innerJoin('models', { 'models.id': 'interior_models.model_id' })
+            .where('models.brand_id', '=', has_models_of_brand)
+        }
+      })
 
   }
 

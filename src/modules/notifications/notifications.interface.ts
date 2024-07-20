@@ -41,6 +41,7 @@ export interface IUpdateNotification {
 }
 
 export interface IFilterNotifications {
+  id?: string;
   action_id?: NotificationAction;
   model_id?: string;
   interior_id?: string;

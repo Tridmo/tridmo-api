@@ -8,6 +8,8 @@ import { reqT } from '../shared/utils/language';
 import UsersService from '../users/users.service';
 import ErrorResponse from '../shared/utils/errorResponse';
 import { CustomRequest } from '../shared/interface/routes.interface';
+import ModelService from '../models/models.service';
+import ModelsDAO from '../models/models.dao';
 
 export default class CategoriesController {
   private categoriesService = new CategoryService()
@@ -63,7 +65,8 @@ export default class CategoriesController {
 
   public getByBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.categoriesService.findByBrand(req.params.brand_id)
+      const { filters } = extractQuery(req.query)
+      const data = await this.categoriesService.findByBrand(req.params.brand_id, filters)
 
       res.status(200).json({
         success: true,
@@ -79,7 +82,9 @@ export default class CategoriesController {
       const user = await new UsersService().getByUsername_min(req.params.username);
       if (!user) throw new ErrorResponse(404, req.t.user_404())
 
-      const data = await this.categoriesService.findByUserDownloads(user.id)
+      const { filters, sorts } = extractQuery(req.query)
+
+      const data = await this.categoriesService.findByUserDownloads(user.id, filters)
 
       res.status(200).json({
         success: true,
@@ -97,6 +102,22 @@ export default class CategoriesController {
       if (!user) throw new ErrorResponse(404, req.t.user_404())
 
       const data = await this.categoriesService.findByUserInteriors(user.id)
+
+      res.status(200).json({
+        success: true,
+        data
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public getByModelInteriors = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const model = await new ModelsDAO().getByIdOrSlug_min(req.params.identifier);
+      if (!model) throw new ErrorResponse(404, req.t.model_404())
+
+      const data = await this.categoriesService.findByModelInteriors(model.id)
 
       res.status(200).json({
         success: true,

@@ -13,7 +13,7 @@ export interface ISignin {
   email?: string;
   username?: string;
   password: string;
-  role?: string;
+  role_name?: string;
 }
 
 export interface ISignup {

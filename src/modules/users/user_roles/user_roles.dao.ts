@@ -34,14 +34,25 @@ export default class UserRolesDAO {
 
   getByUserId(id: string) {
     return KnexService('user_roles')
-      .select("*")
+      .select([
+        "user_roles.*",
+        "roles.name as role_name",
+      ])
+      .innerJoin('roles', { 'roles.id': 'user_roles.role_id' })
+      .groupBy('user_roles.id', 'roles.name')
       .where("user_id", id)
   }
 
-  getByUserAdnRole(user_id: string, role_id: number) {
+  getByUserAndRole(user_id: string, role_id: number) {
     return KnexService('user_roles')
-      .select("*")
+      .select([
+        "user_roles.*",
+        "roles.name as role_name",
+      ])
+      .innerJoin('roles', { 'roles.id': 'user_roles.role_id' })
+      .groupBy('user_roles.id', 'roles.name')
       .where({ user_id, role_id })
+      .first()
   }
 
   deleteById(id: number) {

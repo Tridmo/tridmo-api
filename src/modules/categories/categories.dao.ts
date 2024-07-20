@@ -56,9 +56,26 @@ export default class CategoriesDAO {
   async count(filters?) {
     return (
       await KnexService('categories')
-        .count("id")
+        .count("categories.id")
         .where(filters)
         .whereNotNull('parent_id')
+        .modify(q => {
+          if (filters.brand_id) {
+            q.innerJoin('models', 'categories.id', 'models.category_id')
+              .innerJoin('brands', 'models.brand_id', 'brands.id')
+              .where('brands.id', '=', filters.brand_id)
+          }
+          if (filters.user_id) {
+            q.innerJoin('models', 'categories.id', 'models.category_id')
+              .innerJoin('downloads', 'downloads.model_id', 'models.id')
+              .where('downloads.user_id', filters.user_id)
+          }
+          if (filters.model_id) {
+            q.innerJoin('interiors', 'categories.id', 'interiors.category_id')
+              .innerJoin('interior_models', 'interior_models.interior_id', 'interiors.id')
+              .where('interior_models.model_id', filters.model_id)
+          }
+        })
     )[0]?.count
   }
 
@@ -145,22 +162,35 @@ export default class CategoriesDAO {
     )
   }
 
-  async getByBrand(brand_id: string) {
+  async getByBrand(brand_id: string, filters?) {
+
+    const { downloads_count } = filters
+
     return await KnexService('categories')
       .select([
         "categories.id",
         "categories.name",
         "categories.type",
-        "categories.description",
-        "categories.parent_id"])
+        "categories.parent_id",
+        KnexService.raw(`count(distinct models.id) as models_count`),
+        ...(downloads_count ? [KnexService.raw(`count(distinct downloads.id) as downloads_count`)] : []),
+      ])
       .distinct()
       .from('categories')
       .innerJoin('models', 'categories.id', 'models.category_id')
       .innerJoin('brands', 'models.brand_id', 'brands.id')
       .where('brands.id', '=', brand_id)
+      .groupBy('categories.id')
+      .modify(q => {
+        if (downloads_count) {
+          q.leftJoin('downloads', 'downloads.model_id', 'models.id')
+            .orderBy('downloads_count', 'desc')
+        }
+      })
   }
 
-  async getByUserDownloads(user_id: string) {
+  async getByUserDownloads(user_id: string, filters: any = {}) {
+    const { brand_id } = filters
     return await KnexService('categories')
       .select([
         "categories.id",
@@ -174,7 +204,37 @@ export default class CategoriesDAO {
       .from('categories')
       .innerJoin('models', 'categories.id', 'models.category_id')
       .innerJoin('downloads', 'downloads.model_id', 'models.id')
-      .where('downloads.user_id', user_id)
+      .where('downloads.user_id', '=', user_id)
+      .modify(q => {
+        if (brand_id) {
+          q.where('models.brand_id', '=', brand_id)
+        }
+      })
+      .groupBy([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id"
+      ])
+      .orderBy('downloads_count', 'desc')
+  }
+
+  async getByModelInteriors(model_id: string) {
+    return await KnexService('categories')
+      .select([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.description",
+        "categories.parent_id",
+        KnexService.raw('COUNT(interior_models.id) as tags_count')
+      ])
+      .distinct()
+      .from('categories')
+      .innerJoin('interiors', 'categories.id', 'interiors.category_id')
+      .innerJoin('interior_models', 'interior_models.interior_id', 'interiors.id')
+      .where('interior_models.model_id', model_id)
       .groupBy([
         "categories.id",
         "categories.name",

@@ -24,6 +24,8 @@ import SavedModelsService from '../saved_models/saved_models.service';
 import { IUser } from '../users/users.interface';
 import { reqT } from '../shared/utils/language';
 import NotificationsService from '../notifications/notifications.service';
+import { IReqUser } from '../shared/interface/routes.interface';
+import { authVariables } from '../auth/variables';
 
 export default class ModelService {
   private modelsDao = new ModelsDAO()
@@ -436,7 +438,7 @@ export default class ModelService {
     return deleted
   }
 
-  async download(model_id: string, profile_id: string): Promise<string> {
+  async download(model_id: string, user: IReqUser): Promise<string> {
     const model = await this.modelsDao.getByIdMinimal(model_id)
     if (!model) throw new ErrorResponse(404, reqT('model_404'));
 
@@ -445,15 +447,17 @@ export default class ModelService {
 
     const presignedUrl = generatePresignedUrl(file.key)
 
-    const downloads = await this.downloadService.findBy({ model_id: model.id, user_id: profile_id });
-    if (!downloads.length) {
-      await this.downloadService.create({ model_id: model.id, user_id: profile_id })
+    const isAdmin = user.roles.find(e => e.role_id == authVariables.roles.admin || e.role_id == authVariables.roles.brand)
+
+    const downloads = await this.downloadService.findBy({ model_id: model.id, user_id: user.profile.id });
+    if (!downloads.length && !isAdmin) {
+      await this.downloadService.create({ model_id: model.id, user_id: user.profile.id })
       const brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id: model.brand_id })
       if (brandAdmin) {
         await this.notificationsService.create({
           model_id: model_id,
           action_id: 'new_model_download',
-          notifier_id: profile_id,
+          notifier_id: user.profile.id,
           recipient_id: brandAdmin.profile_id,
         })
       }

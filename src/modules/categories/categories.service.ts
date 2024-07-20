@@ -70,18 +70,23 @@ export default class CategoryService {
     return category
   }
 
-  async findByBrand(brand_id: string): Promise<ICategory[]> {
-    const categories = await this.categoriesDao.getByBrand(brand_id);
+  async findByBrand(brand_id: string, filters?): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByBrand(brand_id, filters);
     return categories
   }
 
-  async findByUserDownloads(user_id: string): Promise<ICategory[]> {
-    const categories = await this.categoriesDao.getByUserDownloads(user_id);
+  async findByUserDownloads(user_id: string, filters?: any): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByUserDownloads(user_id, filters);
     return categories
   }
 
   async findByUserInteriors(user_id: string): Promise<ICategory[]> {
     const categories = await this.categoriesDao.getByUserInteriors(user_id);
+    return categories
+  }
+
+  async findByModelInteriors(model_id: string): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByModelInteriors(model_id);
     return categories
   }
 

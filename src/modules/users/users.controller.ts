@@ -17,6 +17,10 @@ import { reqT } from '../shared/utils/language';
 import { UploadedFile } from 'express-fileupload';
 import DownloadsService from '../downloads/downloads.service';
 import ErrorResponse from '../shared/utils/errorResponse';
+import BrandService from '../brands/brands.service';
+import InteriorsDAO from '../interiors/interiors.dao';
+import InteriorModelsDAO from '../interior_models/interior_models.dao';
+import DownloadsDao from '../downloads/downloads.dao';
 
 class UsersController {
   public usersService = new UsersService();
@@ -92,7 +96,13 @@ class UsersController {
 
       const profile = await this.usersService.getByUsername(user.profile.username)
 
+      const isBrandAdmin = profile.role.id == authVariables.roles.brand
+      if (isBrandAdmin) {
+        var brand = await new BrandService().findByAdmin(profile.id)
+      }
+
       const userData = {
+        ...(isBrandAdmin ? { is_brand: true, brand } : {}),
         user_id: profile.id,
         created_at: user.created_at,
         full_name: profile.full_name,
@@ -126,6 +136,7 @@ class UsersController {
       const { username } = req.params
 
       const profile = await this.usersService.getByUsername(username)
+      if (!profile) throw new ErrorResponse(404, req.t.user_404())
 
       const userData = {
         user_id: profile.id,
@@ -156,15 +167,32 @@ class UsersController {
     try {
       const { username } = req.params
 
-      const profile = await this.usersService.getByUsername(username);
+      const profile = await this.usersService.getByUsername_admin(username, req.query);
+      if (!profile) throw new ErrorResponse(404, req.t.user_404())
+
+      const isBrandAdmin = profile.role.id == authVariables.roles.brand
+      if (isBrandAdmin) {
+        var brand = await new BrandService().findByAdmin(profile.id)
+      }
+
+      const designs_count = await new InteriorsDAO().count({ author: profile?.id })
+      const tags_count = await new InteriorModelsDAO().count({ user_id: profile?.id, brand_id: req.query.downloads_from_brand as string })
+      const downloads_count = await new DownloadsDao().count({ user_id: profile?.id, brand_id: req.query.downloads_from_brand as string })
+
+      console.log(
+        designs_count,
+        tags_count,
+        downloads_count,
+      );
 
       const userData = {
+        ...(isBrandAdmin ? { is_brand: true, brand } : {}),
         user_id: profile.id,
         created_at: profile.created_at,
         full_name: profile.full_name,
-        designs_count: profile.designs_count,
-        tags_count: profile.tags_count,
-        downloads_count: profile.downloads_count,
+        designs_count: designs_count,
+        tags_count: tags_count,
+        downloads_count: downloads_count,
         username: profile.username,
         email: profile.email,
         company_name: profile.company_name,
@@ -202,6 +230,7 @@ class UsersController {
       res.status(200).json({
         success: true,
         data: {
+          count,
           downloads,
           pagination: buildPagination(count, sorts)
         },

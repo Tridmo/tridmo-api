@@ -2,6 +2,7 @@ import { adminUsername } from "../../config/conf"
 import knexInstance from "../../database/connection"
 import { authVariables } from "../auth/variables"
 import { IFilterDownload } from "../downloads/downloads.interface"
+import { IGetModelsQuery } from "../models/models.interface"
 import { IDefaultQuery } from "../shared/interface/query.interface"
 import { IDateFilters, IGetDownloadsCountFilter } from "./stats.interface"
 
@@ -31,7 +32,7 @@ export default class StatsDao {
 
     return (
       await knexInstance('downloads')
-        .count('id')
+        .count('downloads.id')
         .modify(q => {
           if (model_id) q.where({ model_id })
           if (user_id) q.where({ user_id })
@@ -51,7 +52,7 @@ export default class StatsDao {
 
     return (
       await knexInstance('interior_models')
-        .count('id')
+        .count('interior_models.id')
         .modify(q => {
           if (model_id) q.where({ model_id })
           if (user_id) q.where({ user_id })
@@ -61,7 +62,7 @@ export default class StatsDao {
                 .from('models')
                 .as('models')
                 .where({ brand_id })
-            }, { 'downloads.model_id': 'models.id' })
+            }, { 'interior_models.model_id': 'models.id' })
           }
         })
     )[0].count
@@ -69,7 +70,7 @@ export default class StatsDao {
   }
 
 
-  async getMostDownloadedModels({ limit, month, year, week }: IDefaultQuery & IDateFilters) {
+  async getMostDownloadedModels({ limit, month, year, week, brand_id }: IDefaultQuery & IDateFilters & IGetModelsQuery) {
 
     let query = knexInstance("models")
       .select([
@@ -107,17 +108,19 @@ export default class StatsDao {
           .orderBy('model_images.created_at', 'asc')
       }, { 'models.id': 'model_images.model_id' })
       .limit(limit)
-      .where({ is_deleted: false })
       .orderBy('downloads_count', 'desc')
       .groupBy(
         'models.id',
         'brands.id',
         'categories.name'
-      );
+      )
+      .modify(q => {
+        if (brand_id) q.where('models.brand_id', '=', brand_id)
+      })
 
     // Adjust for timezone difference
     const timezoneOffset = '-05:00';
-    const offsetQuery = `downloads.created_at AT TIME ZONE '${timezoneOffset}'`;
+    const offsetQuery = `downloads.created_at`;
 
     // Apply year filter if provided
     if (year) {
@@ -148,7 +151,7 @@ export default class StatsDao {
 
     // Adjust for timezone difference
     const timezoneOffset = '-05:00';
-    const offsetQuery = `downloads.created_at AT TIME ZONE '${timezoneOffset}'`;
+    const offsetQuery = `downloads.created_at`;
 
     // Define the base query for models with conditional time filtering
     let modelsSubquery = knexInstance('models')
@@ -206,17 +209,22 @@ export default class StatsDao {
     return query;
 
   }
-  async getCategoriesWithMostDownloads({ limit, month, year, week }: IDefaultQuery & IDateFilters) {
+  async getCategoriesWithMostDownloads({ limit, month, year, week, brand_id }: IDefaultQuery & IDateFilters & IGetModelsQuery) {
 
-    // Adjust for timezone difference
-    const timezoneOffset = '-05:00';
-    const offsetQuery = `downloads.created_at AT TIME ZONE '${timezoneOffset}'`;
+    const offsetQuery = `downloads.created_at`;
 
     // Define the base query for downloads with conditional time filtering
     let downloadsSubquery = knexInstance('downloads')
       .select('models.category_id')
       .count('downloads.id as downloads_count')
-      .leftJoin('models', 'downloads.model_id', 'models.id')
+      .modify(q => {
+        if (brand_id) {
+          q.innerJoin('models', 'downloads.model_id', 'models.id')
+          q.where('models.brand_id', '=', brand_id)
+        } else {
+          q.leftJoin('models', 'downloads.model_id', 'models.id')
+        }
+      })
       .groupBy('models.category_id');
 
     // Apply year filter if provided
@@ -242,7 +250,12 @@ export default class StatsDao {
       .select('category_id')
       .count('id as models_count')
       .groupBy('category_id')
-      .as('modelscount');
+      .as('modelscount')
+      .modify(q => {
+        if (brand_id) {
+          q.where('models.brand_id', '=', brand_id)
+        }
+      })
 
     // Main query
     const query = await knexInstance('categories')
@@ -252,8 +265,15 @@ export default class StatsDao {
         knexInstance.raw('coalesce(downloadssubquery.downloads_count, 0) as downloads_count'),
         knexInstance.raw('coalesce(modelscount.models_count, 0) as models_count')
       ])
-      .leftJoin(modelsCountSubquery, 'categories.id', 'modelscount.category_id')
-      .leftJoin(downloadsSubquery.as('downloadssubquery'), 'categories.id', 'downloadssubquery.category_id')
+      .modify(q => {
+        if (brand_id) {
+          q.innerJoin(downloadsSubquery.as('downloadssubquery'), 'categories.id', 'downloadssubquery.category_id')
+          q.innerJoin(modelsCountSubquery, 'categories.id', 'modelscount.category_id')
+        } else {
+          q.leftJoin(downloadsSubquery.as('downloadssubquery'), 'categories.id', 'downloadssubquery.category_id')
+          q.leftJoin(modelsCountSubquery, 'categories.id', 'modelscount.category_id')
+        }
+      })
       .where('categories.type', '=', 'model')
       .whereNotNull('parent_id')
       .groupBy('categories.id', 'categories.name', 'downloadssubquery.downloads_count', 'modelscount.models_count')
@@ -267,7 +287,7 @@ export default class StatsDao {
   }
 
 
-  async getMostUsedModels({ limit, month, year, week }: IDefaultQuery & IDateFilters) {
+  async getMostUsedModels({ limit, month, year, week, brand_id }: IDefaultQuery & IDateFilters & IGetModelsQuery) {
 
     let query = knexInstance("models")
       .select([
@@ -311,11 +331,14 @@ export default class StatsDao {
         'models.id',
         'brands.id',
         'categories.name'
-      );
+      )
+      .modify(q => {
+        if (brand_id) q.where('models.brand_id', '=', brand_id)
+      })
 
     // Adjust for timezone difference
     const timezoneOffset = '-05:00';
-    const offsetQuery = `interior_models.created_at AT TIME ZONE '${timezoneOffset}'`;
+    const offsetQuery = `interior_models.created_at`;
 
     // Apply year filter if provided
     if (year) {
@@ -346,7 +369,7 @@ export default class StatsDao {
 
     // Adjust for timezone difference
     const timezoneOffset = '-05:00';
-    const offsetQuery = `interior_models.created_at AT TIME ZONE '${timezoneOffset}'`;
+    const offsetQuery = `interior_models.created_at`;
 
     // Define the base query for models with conditional time filtering
     let modelsSubquery = knexInstance('models')
@@ -404,17 +427,25 @@ export default class StatsDao {
     return query;
 
   }
-  async getCategoriesWithMostTags({ limit, month, year, week }: IDefaultQuery & IDateFilters) {
+  async getCategoriesWithMostTags({ limit, month, year, week, brand_id }: IDefaultQuery & IDateFilters & IGetModelsQuery) {
 
     // Adjust for timezone difference
     const timezoneOffset = '-05:00';
-    const offsetQuery = `interior_models.created_at AT TIME ZONE '${timezoneOffset}'`;
+    const offsetQuery = `interior_models.created_at`;
+    // const offsetQuery = `interior_models.created_at AT TIME ZONE '${timezoneOffset}'`;
 
     // Define the base query for interior_models with conditional time filtering
     let tagsSubquery = knexInstance('interior_models')
       .select('models.category_id')
       .count('interior_models.id as tags_count')
-      .leftJoin('models', 'interior_models.model_id', 'models.id')
+      .modify(q => {
+        if (brand_id) {
+          q.innerJoin('models', 'interior_models.model_id', 'models.id')
+          q.where('models.brand_id', '=', brand_id)
+        } else {
+          q.leftJoin('models', 'interior_models.model_id', 'models.id')
+        }
+      })
       .groupBy('models.category_id');
 
     // Apply year filter if provided
@@ -441,7 +472,12 @@ export default class StatsDao {
       .select('category_id')
       .count('id as models_count')
       .groupBy('category_id')
-      .as('modelscount');
+      .as('modelscount')
+      .modify(q => {
+        if (brand_id) {
+          q.where('models.brand_id', '=', brand_id)
+        }
+      })
 
     // Main query
     const query = await knexInstance('categories')
@@ -451,8 +487,15 @@ export default class StatsDao {
         knexInstance.raw('coalesce(tagssubquery.tags_count, 0) as tags_count'),
         knexInstance.raw('coalesce(modelscount.models_count, 0) as models_count')
       ])
-      .leftJoin(modelsCountSubquery, 'categories.id', 'modelscount.category_id')
-      .leftJoin(tagsSubquery.as('tagssubquery'), 'categories.id', 'tagssubquery.category_id')
+      .modify(q => {
+        if (brand_id) {
+          q.innerJoin(tagsSubquery.as('tagssubquery'), 'categories.id', 'tagssubquery.category_id')
+          q.innerJoin(modelsCountSubquery, 'categories.id', 'modelscount.category_id')
+        } else {
+          q.leftJoin(tagsSubquery.as('tagssubquery'), 'categories.id', 'tagssubquery.category_id')
+          q.leftJoin(modelsCountSubquery, 'categories.id', 'modelscount.category_id')
+        }
+      })
       .where('categories.type', '=', 'model')
       .whereNotNull('parent_id')
       .groupBy('categories.id', 'categories.name', 'tagssubquery.tags_count', 'modelscount.models_count')
@@ -497,7 +540,7 @@ export default class StatsDao {
   async getDownloadsMonthly({ year, model_id, brand_id, user_id }: IDateFilters & IFilterDownload) {
     const result = await knexInstance('downloads')
       .select(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\')) AS month'))
-      .count('id AS count')
+      .count('downloads.id AS count')
       .whereRaw('EXTRACT(YEAR FROM (created_at - interval \'5 hours\')) = ?', [year])
       .groupBy(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\'))'))
       .orderByRaw(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\'))'))
@@ -506,7 +549,7 @@ export default class StatsDao {
         if (user_id) q.where({ user_id })
         if (brand_id) {
           q.innerJoin(function () {
-            this.select('id', 'brand_id')
+            this.select('models.id', 'models.brand_id')
               .from('models')
               .as('models')
               .where({ brand_id })
@@ -519,7 +562,7 @@ export default class StatsDao {
   async getDownloadsDaily({ month, year, model_id, brand_id, user_id }: IDateFilters & IFilterDownload) {
     const result = await knexInstance('downloads')
       .select(knexInstance.raw('EXTRACT(DAY FROM (created_at - interval \'5 hours\')) AS day'))
-      .count('id AS count')
+      .count('downloads.id AS count')
       .whereRaw('EXTRACT(YEAR FROM (created_at - interval \'5 hours\')) = ?', [year])
       .andWhereRaw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\')) = ?', [month])
       .groupBy(knexInstance.raw('EXTRACT(DAY FROM (created_at - interval \'5 hours\'))'))
@@ -529,7 +572,7 @@ export default class StatsDao {
         if (user_id) q.where({ user_id })
         if (brand_id) {
           q.innerJoin(function () {
-            this.select('id', 'brand_id')
+            this.select('models.id', 'models.brand_id')
               .from('models')
               .as('models')
               .where({ brand_id })
@@ -544,7 +587,7 @@ export default class StatsDao {
   async getTagsMonthly({ year, model_id, brand_id, user_id }: IDateFilters & IFilterDownload) {
     const result = await knexInstance('interior_models')
       .select(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\')) AS month'))
-      .count('id AS count')
+      .count('interior_models.id AS count')
       .whereRaw('EXTRACT(YEAR FROM (created_at - interval \'5 hours\')) = ?', [year])
       .groupBy(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\'))'))
       .orderByRaw(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\'))'))
@@ -553,7 +596,7 @@ export default class StatsDao {
         if (user_id) q.where({ user_id })
         if (brand_id) {
           q.innerJoin(function () {
-            this.select('id', 'brand_id')
+            this.select('models.id', 'models.brand_id')
               .from('models')
               .as('models')
               .where({ brand_id })
@@ -566,7 +609,7 @@ export default class StatsDao {
   async getTagsDaily({ month, year, model_id, brand_id, user_id }: IDateFilters & IFilterDownload) {
     const result = await knexInstance('interior_models')
       .select(knexInstance.raw('EXTRACT(DAY FROM (created_at - interval \'5 hours\')) AS day'))
-      .count('id AS count')
+      .count('interior_models.id AS count')
       .whereRaw('EXTRACT(YEAR FROM (created_at - interval \'5 hours\')) = ?', [year])
       .andWhereRaw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\')) = ?', [month])
       .groupBy(knexInstance.raw('EXTRACT(DAY FROM (created_at - interval \'5 hours\'))'))
@@ -576,7 +619,7 @@ export default class StatsDao {
         if (user_id) q.where({ user_id })
         if (brand_id) {
           q.innerJoin(function () {
-            this.select('id', 'brand_id')
+            this.select('models.id', 'models.brand_id')
               .from('models')
               .as('models')
               .where({ brand_id })
@@ -591,7 +634,7 @@ export default class StatsDao {
   async getInteriorsMonthly({ year }: IDateFilters) {
     const result = await knexInstance('interiors')
       .select(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\')) AS month'))
-      .count('id AS count')
+      .count('interiors.id AS count')
       .whereRaw('EXTRACT(YEAR FROM (created_at - interval \'5 hours\')) = ?', [year])
       .groupBy(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\'))'))
       .orderByRaw(knexInstance.raw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\'))'));
@@ -601,7 +644,7 @@ export default class StatsDao {
   async getInteriorsDaily({ month, year }: IDateFilters & IFilterDownload) {
     const result = await knexInstance('interiors')
       .select(knexInstance.raw('EXTRACT(DAY FROM (created_at - interval \'5 hours\')) AS day'))
-      .count('id AS count')
+      .count('interiors.id AS count')
       .whereRaw('EXTRACT(YEAR FROM (created_at - interval \'5 hours\')) = ?', [year])
       .andWhereRaw('EXTRACT(MONTH FROM (created_at - interval \'5 hours\')) = ?', [month])
       .groupBy(knexInstance.raw('EXTRACT(DAY FROM (created_at - interval \'5 hours\'))'))

@@ -1,10 +1,14 @@
+import { IFilterDownload } from "../downloads/downloads.interface";
+import { IFilterInteriorModel } from "../interior_models/interior_models.interface";
+import { IGetInteriorsQuery } from "../interiors/interiors.interface";
+import { IGetUsersQuery } from "../users/users.interface";
 import StatsDao from "./stats.dao";
 import { IDateFilters } from "./stats.interface";
 
 export default class StatsService {
   private dao = new StatsDao()
 
-  async getRegisteredUsersStats({ month, year }: IDateFilters) {
+  async getRegisteredUsersStats({ month, year }: IDateFilters & IGetUsersQuery) {
 
     const currentDate = new Date();
     month = month || currentDate.getMonth() + 1;
@@ -41,14 +45,14 @@ export default class StatsService {
     }
   }
 
-  async getDownloadsStats({ month, year }: IDateFilters) {
+  async getDownloadsStats({ month, year, model_id, brand_id }: IDateFilters & IFilterDownload) {
 
     const currentDate = new Date();
     month = month || currentDate.getMonth() + 1;
     year = year || currentDate.getFullYear();
 
-    const daily_downloads_results = await this.dao.getDownloadsDaily({ month, year })
-    const monthly_downloads_results = await this.dao.getDownloadsMonthly({ year })
+    const daily_downloads_results = await this.dao.getDownloadsDaily({ month, year, model_id, brand_id })
+    const monthly_downloads_results = await this.dao.getDownloadsMonthly({ year, model_id, brand_id })
 
     let daily_downloads = []
     let monthly_downloads = []
@@ -78,7 +82,7 @@ export default class StatsService {
     }
   }
 
-  async getInteriorsStats({ month, year }: IDateFilters) {
+  async getInteriorsStats({ month, year }: IDateFilters & IGetInteriorsQuery) {
 
     const currentDate = new Date();
     month = month || currentDate.getMonth() + 1;
@@ -115,14 +119,14 @@ export default class StatsService {
     }
   }
 
-  async getTagsStats({ month, year }: IDateFilters) {
+  async getTagsStats({ month, year, model_id, brand_id }: IDateFilters & IFilterDownload) {
 
     const currentDate = new Date();
     month = month || currentDate.getMonth() + 1;
     year = year || currentDate.getFullYear();
 
-    const daily_tags_results = await this.dao.getTagsDaily({ month, year })
-    const monthly_tags_results = await this.dao.getTagsMonthly({ year })
+    const daily_tags_results = await this.dao.getTagsDaily({ month, year, model_id, brand_id })
+    const monthly_tags_results = await this.dao.getTagsMonthly({ year, model_id, brand_id })
 
     let daily_tags = []
     let monthly_tags = []
@@ -158,7 +162,7 @@ export default class StatsService {
   }
 
   async getTagsCount({ model_id, brand_id, user_id }) {
-    const data = await this.dao.getDownloadsCount({ model_id, brand_id, user_id })
+    const data = await this.dao.getTagsCount({ model_id, brand_id, user_id })
     return data;
   }
 
@@ -167,13 +171,13 @@ export default class StatsService {
     return data;
   }
 
-  async getCategoriesWithMostDownloads({ limit, month, year, week }) {
-    const data = await this.dao.getCategoriesWithMostDownloads({ limit, month, year, week })
+  async getCategoriesWithMostDownloads({ limit, month, year, week, brand_id }) {
+    const data = await this.dao.getCategoriesWithMostDownloads({ limit, month, year, week, brand_id })
     return data;
   }
 
-  async getMostDownloadedModels({ limit, month, year, week }) {
-    const data = await this.dao.getMostDownloadedModels({ limit, month, year, week })
+  async getMostDownloadedModels({ limit, month, year, week, brand_id }) {
+    const data = await this.dao.getMostDownloadedModels({ limit, month, year, week, brand_id })
     return data;
   }
 
@@ -183,13 +187,13 @@ export default class StatsService {
     return data;
   }
 
-  async getCategoriesWithMostTags({ limit, month, year, week }) {
-    const data = await this.dao.getCategoriesWithMostTags({ limit, month, year, week })
+  async getCategoriesWithMostTags({ limit, month, year, week, brand_id }) {
+    const data = await this.dao.getCategoriesWithMostTags({ limit, month, year, week, brand_id })
     return data;
   }
 
-  async getMostUsedModels({ limit, month, year, week }) {
-    const data = await this.dao.getMostUsedModels({ limit, month, year, week })
+  async getMostUsedModels({ limit, month, year, week, brand_id }) {
+    const data = await this.dao.getMostUsedModels({ limit, month, year, week, brand_id })
     return data;
   }
 }

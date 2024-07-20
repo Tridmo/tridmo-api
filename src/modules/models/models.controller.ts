@@ -304,7 +304,7 @@ export default class ModelsController {
     try {
       const presignedUrl = await this.modelsService.download(
         req.params.id,
-        req.user.profile.id
+        req.user
       )
 
       res.status(200).json({

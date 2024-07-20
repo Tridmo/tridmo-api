@@ -52,12 +52,13 @@ export interface IUser {
   image_src?: string;
   created_at: Date;
   updated_at: Date;
+  role?: { id: number, name: string }
   designs_count?: number | string;
   tags_count?: number | string;
   downloads_count?: number | string;
 }
 
 export interface IGetUsersQuery {
-  full_name: string;
-  role_id: string | number;
+  full_name?: string;
+  role_id?: string | number;
 }

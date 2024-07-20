@@ -3,7 +3,7 @@ import { authVariables } from '../auth/variables';
 import { ChatUtils } from '../chat/utils';
 import { IRequestFile } from '../shared/interface/files.interface';
 import ErrorResponse from '../shared/utils/errorResponse';
-import { uploadFile } from '../shared/utils/fileUpload';
+import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
 import UsersDAO from './users.dao';
 import { ICreateUser, IUpdateUser, IUser } from './users.interface';
 import flat from 'flat';
@@ -34,6 +34,7 @@ export default class UsersService {
       updatedUser = await this.usersDao.update(id, values);
 
     if (image) {
+      await deleteFile(s3Vars.imagesBucket, user.image_src)
       const uploadedCover = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, user.username/*fileDefaults.model_cover*/)
       updatedUser = await this.usersDao.update(id, {
         image_src: uploadedCover[0].src
@@ -54,7 +55,7 @@ export default class UsersService {
     return data
   }
 
-  async getAll_admin(filters, sorts): Promise<IUser> {
+  async getAll_admin(filters, sorts): Promise<IUser[]> {
     const data = await this.usersDao.getAll_admin(filters, sorts);
 
     data.forEach((user, index) => {
@@ -69,14 +70,21 @@ export default class UsersService {
   }
 
   async getByEmail(email: string): Promise<IUser> {
-    return this.usersDao.getByEmail(email);
+    const data = this.usersDao.getByEmail(email);
+    return flat.unflatten(data)
   }
 
-  async getByUsername(username: string): Promise<IUser> {
-    return await this.usersDao.getByUsername(username);
+  async getByUsername(username: string, filters?: any): Promise<IUser> {
+    const data = await this.usersDao.getByUsername(username, filters);
+    return flat.unflatten(data)
+  }
+  async getByUsername_admin(username: string, filters?: any): Promise<IUser> {
+    const data = await this.usersDao.getByUsername_admin(username, filters);
+    return flat.unflatten(data)
   }
   async getByUsername_min(username: string): Promise<IUser> {
-    return await this.usersDao.getByUsername_min(username);
+    const data = await this.usersDao.getByUsername_min(username);
+    return data
   }
 
   async getVerifiedByEmail(email: string): Promise<IUser> {

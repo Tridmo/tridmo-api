@@ -102,7 +102,7 @@ export default class UsersDAO {
 
   async getAll_admin(filters, sorts) {
     const { limit, offset, order, orderBy } = sorts;
-    const { key, keyword, role_id, ...otherFilters } = filters;
+    const { key, keyword, role_id, downloads_from_brand, downloaded_model, ...otherFilters } = filters;
 
     const isDesigner = role_id && role_id == authVariables.roles.designer;
 
@@ -112,62 +112,101 @@ export default class UsersDAO {
         "user_roles.role_id as role.id",
         "role_name as role.name",
         ...(isDesigner ? [
-          KnexService.raw(`count("interiors"."id") as designs_count`),
-          KnexService.raw(`sum("tags_count".count) as tags_count`),
-          KnexService.raw(`"downloads_count".count as downloads_count`),
+          KnexService.raw(`count(distinct "interiors"."id") as designs_count`),
+          KnexService.raw(`count(distinct interior_models.id) as tags_count`),
+          KnexService.raw(`downloads.count as downloads_count`),
         ] : []),
+        ...(downloaded_model ? ['downloads.created_at as downloaded_at'] : [])
       ])
+      .distinct('profiles.id')
       .innerJoin(function () {
-        this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name"])
+        this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "roles.name as role_name"])
           .from("user_roles")
           .as("user_roles")
-          .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
+          .leftJoin({ roles: "roles" }, { "user_roles.role_id": "roles.id" })
           .whereNot("role_id", 1)
-          .groupBy("user_roles.id", "role.id");
+          .groupBy("user_roles.id", "roles.id");
       }, { "profiles.id": "user_roles.user_id" })
-      .modify((q) => {
-        if (isDesigner) {
-          q.leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
-          q.leftJoin(function () {
-            this.select('user_id', KnexService.raw('count(distinct id) as count'))
-              .from('downloads')
-              .groupBy('user_id')
-              .as('downloads_count')
-          }, { 'profiles.id': 'downloads_count.user_id' })
-          q.leftJoin(function () {
-            this.select('interior_id', KnexService.raw('count(distinct id) as count'))
-              .from('interior_models')
-              .groupBy('interior_id')
-              .as('tags_count')
-          }, { 'interiors.id': 'tags_count.interior_id' })
-        }
-      })
       .limit(limit)
       .offset(offset)
-      .groupBy("profiles.id", "user_roles.id", "user_roles.role_id", "role_name", 'downloads_count.count')
+      .groupBy([
+        "profiles.id",
+        "user_roles.id",
+        "user_roles.role_id",
+        "role_name",
+        ...(isDesigner ? ['downloads.count'] : []),
+        ...(downloaded_model ? ['downloads.created_at'] : [])
+      ])
       .modify((q) => {
-        if (Object.entries(otherFilters).length) q.andWhere(otherFilters);
-        if (key) {
-          q.whereILike(`full_name`, `%${key}%`)
-            .orWhereILike(`username`, `%${key}%`)
-            .orWhereILike(`email`, `%${key}%`)
-            .orWhereILike(`company_name`, `%${key}%`);
+        if (isDesigner) {
+          if (!downloads_from_brand && !downloaded_model) {
+            q.leftJoin(function () {
+              this.select('user_id', KnexService.raw('count(distinct id) as count'))
+                .from('downloads')
+                .groupBy('user_id')
+                .as('downloads');
+            }, { 'profiles.id': 'downloads.user_id' });
+          }
+          q.leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
+          q.leftJoin(function () {
+            this.select('interior_models.id', 'interior_id', 'model_id')
+              .from('interior_models')
+              .groupBy('interior_models.id', 'interior_id', 'model_id')
+              .as('interior_models')
+              .modify(tag_query => {
+                if (downloads_from_brand) {
+                  tag_query.innerJoin({ model: 'models' }, { 'interior_models.model_id': 'model.id' })
+                    .where('model.brand_id', '=', downloads_from_brand)
+                }
+              })
+          }, { 'interiors.id': 'interior_models.interior_id' })
         }
+
+        if (downloads_from_brand || downloaded_model) {
+          q.innerJoin(function () {
+            this.select('user_id', 'model_id', 'downloads.created_at', KnexService.raw('count(distinct downloads.id) as count'))
+              .from('downloads')
+              .groupBy('user_id', 'model_id', 'downloads.created_at')
+              .as('downloads');
+          }, { 'profiles.id': 'downloads.user_id' })
+            .modify(d_query => {
+              if (downloads_from_brand) {
+                d_query.innerJoin('models', { 'downloads.model_id': 'models.id' })
+                  .where('models.brand_id', '=', downloads_from_brand)
+              }
+              if (downloaded_model) {
+                d_query.where('downloads.model_id', '=', downloaded_model)
+                q.orderBy(`downloads.created_at`, order)
+              }
+            })
+        }
+
+        if (Object.entries(otherFilters).length) q.andWhere(otherFilters);
+
+        if (key) {
+          q.whereILike('full_name', `%${key}%`)
+          q.whereILike('username', `%${key}%`)
+        }
+
         if (role_id) {
           q.andWhere('user_roles.role_id', role_id);
         }
+
         q.orderBy(
-          orderBy !== 'designs_count' && orderBy !== 'tags_count'
-            ? `profiles.${orderBy}`
-            : orderBy,
+          ['designs_count', 'tags_count', 'downloads_count'].includes(orderBy)
+            && !downloaded_model
+            ? orderBy
+            : `profiles.${orderBy}`,
           order
-        );
+        )
       });
   }
 
 
+
+
   async count(filters) {
-    const { full_name, key, keyword, role_id, ...otherFilters } = filters;
+    const { full_name, key, keyword, role_id, downloads_from_brand, downloaded_model, ...otherFilters } = filters;
 
     return (
       await KnexService('profiles')
@@ -178,6 +217,15 @@ export default class UsersDAO {
           if (role_id) q.where('user_roles.role_id', role_id)
           if (full_name) q.whereILike(`full_name`, `%${full_name}%`)
           if (Object.entries(otherFilters).length) q.andWhere(otherFilters)
+          if (downloads_from_brand) {
+            q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
+            q.innerJoin('models', { 'downloads.model_id': 'models.id' })
+            q.where('models.brand_id', '=', downloads_from_brand)
+          }
+          if (downloaded_model) {
+            q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
+            q.where('downloads.model_id', '=', downloaded_model)
+          }
         })
     )[0].count
   }
@@ -207,21 +255,25 @@ export default class UsersDAO {
       .first();
   }
 
-  getByEmail(email: string): Promise<IUser> {
-    return KnexService('profiles')
-      .where({ email })
-      .first();
-  }
-
-  async getByUsername(username: string): Promise<IUser> {
+  async getByEmail(email: string): Promise<IUser> {
     return getFirst(
       await KnexService('profiles')
         .select([
           "profiles.*",
+          "user_roles.role_id as role.id",
+          "role_name as role.name",
           KnexService.raw(`count("interiors"."id") as designs_count`),
           KnexService.raw(`sum("tags_count".count) as tags_count`),
           KnexService.raw(`"downloads_count".count as downloads_count`),
         ])
+        .innerJoin(function () {
+          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name"])
+            .from("user_roles")
+            .as("user_roles")
+            .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
+            .whereNot("role_id", 1)
+            .groupBy("user_roles.id", "role.id");
+        }, { "profiles.id": "user_roles.user_id" })
         .leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
         .leftJoin(function () {
           this.select('user_id', KnexService.raw('count(distinct id) as count'))
@@ -235,10 +287,108 @@ export default class UsersDAO {
             .groupBy('interior_id')
             .as('tags_count')
         }, { 'interiors.id': 'tags_count.interior_id' })
-        .groupBy('profiles.id', 'downloads_count.count')
+        .groupBy('profiles.id', "user_roles.id", "user_roles.role_id", "role_name", 'downloads_count.count')
+        .where({ email })
+    )
+  }
+
+  async getByUsername(username: string, filters: any = {}): Promise<IUser> {
+
+    return getFirst(
+      await KnexService('profiles')
+        .select([
+          "profiles.*",
+          "user_roles.role_id as role.id",
+          "role_name as role.name",
+          KnexService.raw(`count(distinct interiors.id) as designs_count`),
+          KnexService.raw(`interior_models.count as tags_count`),
+        ])
+        .innerJoin(function () {
+          this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name"])
+            .from("user_roles")
+            .as("user_roles")
+            .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
+            .whereNot("role_id", 1)
+            .groupBy("user_roles.id", "role.id");
+        }, { "profiles.id": "user_roles.user_id" })
+        .leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
+        .leftJoin(function () {
+          this.select('interior_id', KnexService.raw('count(interior_models.id) as count'))
+            .from('interior_models')
+            .groupBy('interior_id')
+            .as('interior_models')
+        }, { 'interiors.id': 'interior_models.interior_id' })
+        .groupBy(
+          'profiles.id', "user_roles.id", "user_roles.role_id", "role_name", 'interior_models.count'
+        )
         .where({ username })
     )
   }
+
+  async getByUsername_admin(username: string, filters: any = {}): Promise<IUser> {
+    const { downloads_from_brand } = filters;
+
+    return getFirst(
+      await KnexService('profiles')
+        .select([
+          'profiles.*',
+          'user_roles.role_id as role.id',
+          'role_name as role.name',
+          // KnexService.raw('COALESCE(interiors.count, 0) as designs_count'),
+          // KnexService.raw('COALESCE(interior_models_count, 0) as tags_count'),
+          // KnexService.raw('COALESCE(downloads.count, 0) as downloads_count'),
+        ])
+        .innerJoin(function () {
+          this.select(['user_roles.id', 'user_roles.user_id', 'user_roles.role_id', 'role.name as role_name'])
+            .from('user_roles')
+            .as('user_roles')
+            .leftJoin({ role: 'roles' }, { 'user_roles.role_id': 'role.id' })
+            .whereNot('role_id', 1)
+            .groupBy('user_roles.id', 'role.id');
+        }, { 'profiles.id': 'user_roles.user_id' })
+        // .leftJoin(function () {
+        //   this.select([
+        //     'user_id',
+        //     'interior_models.count as interior_models_count',
+        //     KnexService.raw('count(interiors.id) as count')
+        //   ])
+        //     .from('interiors')
+        //     .groupBy('user_id', 'interior_models.count')
+        //     .as('interiors')
+        //     .leftJoin(function () {
+        //       this.select('interior_id', KnexService.raw('count(interior_models.id) as count'))
+        //         .from('interior_models')
+        //         .groupBy('interior_id')
+        //         .as('interior_models')
+        //         .modify(q => {
+        //           if (downloads_from_brand) {
+        //             q.innerJoin('models', { 'interior_models.model_id': 'models.id' })
+        //               .where('models.brand_id', '=', downloads_from_brand)
+        //           }
+        //         })
+        //     }, { 'interiors.id': 'interior_models.interior_id' })
+        // }, { 'interiors.user_id': 'profiles.id' })
+        // .leftJoin(function () {
+        //   this.select('user_id', KnexService.raw('count(downloads.id) as count'))
+        //     .from('downloads')
+        //     .groupBy('user_id')
+        //     .as('downloads')
+        //     .modify(q => {
+        //       if (downloads_from_brand) {
+        //         q.innerJoin('models', { 'downloads.model_id': 'models.id' })
+        //           .where('models.brand_id', '=', downloads_from_brand)
+        //       }
+        //     })
+        // }, { 'profiles.id': 'downloads.user_id' })
+        .groupBy(
+          'profiles.id',
+          'user_roles.id', 'user_roles.role_id', 'role_name',
+          // 'interiors.count', 'interiors.interior_models_count', 'downloads.count',
+        )
+        .where({ username })
+    )
+  }
+
 
   async getByUsername_min(username: string): Promise<IUser> {
     return getFirst(

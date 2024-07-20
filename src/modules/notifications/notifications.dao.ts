@@ -12,7 +12,7 @@ export default class NotificationsDAO {
     )
   }
 
-  async update(id: string, values: IUpdateNotification) {
+  async updateById(id: string, values: IUpdateNotification) {
     return getFirst(
       await KnexService('notifications')
         .where({ id: id })
@@ -22,15 +22,23 @@ export default class NotificationsDAO {
         .returning("*")
     )
   }
-  async updateByReceipent(recipient_id: string, values: IUpdateNotification) {
+  async update(filters: IFilterNotifications, values: IUpdateNotification) {
     return getFirst(
       await KnexService('notifications')
-        .where({ recipient_id })
+        .where(filters)
         .update({
           ...values
         })
         .returning("*")
     )
+  }
+  async updateByReceipent(filters: IFilterNotifications & { recipient_id: string }, values: IUpdateNotification) {
+    return await KnexService('notifications')
+      .where(filters)
+      .update({
+        ...values
+      })
+      .returning("*")
   }
 
   async getBy(filters: IFilterNotifications, sorts: IDefaultQuery) {
@@ -39,18 +47,31 @@ export default class NotificationsDAO {
       .select([
         'notifications.*',
 
+        'notification_actions.id as action.name',
+        'notification_actions.description as action.description',
+
+        'profiles.id as notifier.id',
+        'profiles.full_name as notifier.full_name',
+        'profiles.username as notifier.username',
+        'profiles.image_src as notifier.image_src',
+
         'models.id as model.id',
         'models.name as model.name',
+        'models.slug as model.slug',
         'model_cover as model.cover',
 
         'interiors.id as interior.id',
         'interiors.name as interior.name',
+        'interiors.slug as interior.slug',
         'interior_cover as interior.cover',
       ])
+      .innerJoin('notification_actions', { 'notifications.action_id': 'notification_actions.id' })
+      .innerJoin('profiles', { 'notifications.notifier_id': 'profiles.id' })
       .leftJoin(function () {
         this.select([
           'models.id',
-          'name',
+          'models.name',
+          'models.slug',
           KnexService.raw(`jsonb_agg(distinct "model_images") as model_cover`)
         ])
           .from('models')
@@ -74,7 +95,8 @@ export default class NotificationsDAO {
       .leftJoin(function () {
         this.select([
           'interiors.id',
-          'name',
+          'interiors.name',
+          'interiors.slug',
           KnexService.raw(`jsonb_agg(distinct "interior_images") as interior_cover`)
         ])
           .from('interiors')
@@ -95,21 +117,40 @@ export default class NotificationsDAO {
           }, { 'interiors.id': 'interior_images.interior_id' })
           .groupBy('interiors.id')
       }, { 'interiors.id': 'notifications.interior_id' })
-      .orderBy(`notifications.${orderBy}`, order)
+      .orderBy(`notifications.seen`, 'asc')
+      .orderBy(`notifications.created_at`, 'desc')
       .limit(limit)
       .offset(offset)
       .groupBy(
         'notifications.id',
+        'notification_actions.id',
+        'notification_actions.description',
+        'profiles.id',
+        'profiles.full_name',
+        'profiles.username',
+        'profiles.image_src',
         'models.id',
         'models.name',
+        'models.slug',
         'models.model_cover',
         'interiors.id',
         'interiors.name',
+        'interiors.slug',
         'interiors.interior_cover'
       )
       .modify((q) => {
         if (Object.keys(filters).length) q.where(filters)
       })
+  }
+
+  async count(filters: IFilterNotifications) {
+    return (
+      await KnexService('notifications')
+        .count('notifications.id')
+        .modify(q => {
+          if (Object.keys(filters).length) q.where(filters)
+        })
+    )?.[0]?.count
   }
 
   async getById(id: string) {

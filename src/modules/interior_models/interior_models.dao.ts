@@ -1,4 +1,5 @@
 import KnexService from '../../database/connection';
+import { IGetInteriorsQuery, IInterior } from '../interiors/interiors.interface';
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import { getFirst } from "../shared/utils/utils";
 import { ICreateInteriorModel, IFilterInteriorModel, IInteriorModel, IUpdateInteriorModel } from "./interior_models.interface";
@@ -23,6 +24,31 @@ export default class InteriorModelsDAO {
         })
         .returning("*")
     )
+  }
+
+  async count(
+    filters: IFilterInteriorModel,
+  ): Promise<number> {
+
+    const { user_id, brand_id } = filters
+
+    return (
+      await KnexService('interior_models')
+        .countDistinct("interior_models.id")
+        .modify((q) => {
+          if (Object.keys(filters).length) {
+            q.andWhere(filters)
+          }
+          if (user_id) {
+            q.innerJoin('interiors', { 'interior_models.interior_id': 'interiors.id' })
+              .where('interiors.user_id', '=', user_id)
+          }
+          if (brand_id) {
+            q.innerJoin('models', { 'interior_models.model_id': 'models.id' })
+              .where('models.brand_id', '=', brand_id)
+          }
+        })
+    )[0].count as number
   }
 
   async getById(id: string): Promise<IInteriorModel> {
@@ -148,6 +174,82 @@ export default class InteriorModelsDAO {
         'models.cover',
       )
       .where(filters)
+  }
+
+  async getInteriorsByTaggedModel(model_id: string, filters: IGetInteriorsQuery, sorts: IDefaultQuery): Promise<IInterior[]> {
+
+    const { limit, offset, order, orderBy } = sorts
+    const { status, styles, categories, platforms, author, name, ...otherFilters } = filters
+
+    return await KnexService("interiors")
+      .select([
+        'interiors.*',
+
+        'category.id as category.id',
+        'category.name as category.name',
+
+        'author.id as author.id',
+        'author.full_name as author.full_name',
+        'author.username as author.username',
+        'author.company_name as author.company_name',
+        'author.image_src as author.image_src',
+
+        'interactions.views as views',
+        'interactions.likes as likes',
+        'interactions.saves as saves',
+
+        KnexService.raw('jsonb_agg(distinct "interior_images") as cover'),
+        KnexService.raw(`sum("tags_count".count) as tags_count`),
+      ])
+      .leftJoin({ author: 'profiles' }, { 'author.id': 'interiors.user_id' })
+      .leftJoin({ category: "categories" }, { "interiors.category_id": "category.id" })
+      .leftJoin("interactions", { 'interiors.interaction_id': 'interactions.id' })
+      .innerJoin(function () {
+        this.select('interior_id', KnexService.raw('count(id) as count'))
+          .from('interior_models')
+          .groupBy('interior_id')
+          .as('tags_count')
+          .where('model_id', '=', model_id)
+      }, { 'interiors.id': 'tags_count.interior_id' })
+      .leftJoin(function () {
+        this.select([
+          'interior_images.id',
+          'interior_images.is_main',
+          'interior_images.image_id',
+          'interior_images.interior_id',
+          'images.src as image_src'
+        ])
+          .from('interior_images')
+          .as('interior_images')
+          .where('interior_images.is_main', '=', true)
+          .leftJoin("images", { 'interior_images.image_id': 'images.id' })
+          .groupBy('interior_images.id', 'images.id')
+      }, { 'interiors.id': 'interior_images.interior_id' })
+      .limit(limit)
+      .offset(offset)
+      .where({ is_deleted: otherFilters.is_deleted || false })
+      .groupBy(
+        'interiors.id',
+        'category.id',
+        'author.id',
+        'interactions.id'
+      )
+      .modify((q) => {
+        if (orderBy) {
+          if (orderBy == 'views' || orderBy == 'likes' || orderBy == 'saves') {
+            q.orderBy(`interactions.${orderBy}`, order)
+          }
+          else q.orderBy(`interiors.${orderBy}`, order)
+        }
+        if (status) q.whereIn("interiors.status", Array.isArray(status) ? status : [status])
+        if (categories && categories.length > 0) q.whereIn("interiors.category_id", Array.isArray(categories) ? categories : [categories])
+        if (styles && styles.length > 0) q.whereIn("interiors.style_id", Array.isArray(styles) ? styles : [styles])
+        if (platforms && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
+        if (name && name.length) q.whereILike('interiors.name', `%${name}%`)
+        if (author && author.length) q.andWhere('interiors.user_id', author)
+        if (Object.keys(otherFilters).length) q.andWhere(otherFilters)
+      })
+
   }
 
   async getAll(filters: IFilterInteriorModel, sorts: IDefaultQuery): Promise<IInteriorModel[]> {

@@ -353,6 +353,16 @@ export default class ModelsDAO {
     )
   }
 
+  async getByIdOrSlug_min(identifier: string): Promise<IModel> {
+    return getFirst(
+      await KnexService('models')
+        .select('models.*')
+        .where({
+          [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+        })
+    )
+  }
+
   async getSimilarSlugs(slug: string): Promise<IModel[]> {
     return await KnexService('models')
       .select(['slug'])

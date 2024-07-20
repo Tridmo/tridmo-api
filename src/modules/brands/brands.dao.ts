@@ -190,6 +190,27 @@ export default class BrandsDAO {
     )
   }
 
+  async getByAdmin(user_id: string): Promise<IBrand> {
+    return getFirst(
+      await KnexService('brands')
+        .select([
+          "brands.id",
+          "brands.name",
+          "brands.slug",
+          "brands.site_link",
+          "brands.address",
+          "brands.email",
+          "brands.phone",
+          "brands.description",
+          "images.key as image_src",
+        ])
+        .leftJoin('images', { 'brands.image_id': 'images.id' })
+        .innerJoin('brand_admins', { 'brand_admins.brand_id': 'brands.id' })
+        .groupBy("brands.id", "images.key")
+        .where('brand_admins.profile_id', '=', user_id)
+    )
+  }
+
   async getById(id: string): Promise<IBrand> {
     return getFirst(
       await KnexService('brands')
