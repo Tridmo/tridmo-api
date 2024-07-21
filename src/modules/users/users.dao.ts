@@ -121,7 +121,7 @@ export default class UsersDAO {
       ])
       .distinct('profiles.id')
       .innerJoin(function () {
-        this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "roles.name as role_name"])
+        this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "roles.name as role_name", "roles.id as roles_id"])
           .from("user_roles")
           .as("user_roles")
           .leftJoin({ roles: "roles" }, { "user_roles.role_id": "roles.id" })
@@ -135,6 +135,7 @@ export default class UsersDAO {
         "user_roles.id",
         "user_roles.role_id",
         "role_name",
+        "roles_id",
         ...(isDesigner ? ['downloads.count'] : []),
         ...(downloaded_model ? ['downloads.created_at'] : [])
       ])
