@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
         create table if not exists chat_tokens ( 
             id uuid primary key default uuid_generate_v4(), 
             user_id uuid references profiles(id) on delete cascade not null,
-            token varchar(128),
+            token varchar not null,
             created_at timestamp with time zone not null default current_timestamp
         );
     `);

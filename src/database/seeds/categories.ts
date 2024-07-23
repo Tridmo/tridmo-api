@@ -9,20 +9,20 @@ export async function seed(knex: Knex): Promise<void> {
   if (Number(count[0]?.count)) return
 
   // Inserts seed entries
-  for (const cat of categoriesData) {
-    const created: ICategory = getFirst(
-      await knex("categories").insert({
-        name: cat.name,
-        type: cat.type
-      }).returning("*")
-    )
+  // for (const cat of categoriesData) {
+  //   const created: ICategory = getFirst(
+  //     await knex("categories").insert({
+  //       name: cat.name,
+  //       type: cat.type
+  //     }).returning("*")
+  //   )
 
-    for (const c of cat.children) {
-      await knex("categories").insert({
-        name: c.name,
-        parent_id: created.id,
-        type: c.type
-      })
-    }
-  };
+  //   for (const c of cat.children) {
+  //     await knex("categories").insert({
+  //       name: c.name,
+  //       parent_id: created.id,
+  //       type: c.type
+  //     })
+  //   }
+  // };
 };

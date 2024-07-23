@@ -20,12 +20,15 @@ export async function up(knex: Knex): Promise<void> {
         create index if not exists project_models_projectId_index on project_models(project_id);
         create index if not exists project_models_modelId_index on project_models(model_id);
         create index if not exists project_models_projectIdmodelId_index on project_models(project_id, model_id);
+
+        ALTER TABLE project_models ADD CONSTRAINT project_model_unique UNIQUE (project_id, model_id);
   `);
 }
 
 
 export async function down(knex: Knex): Promise<void> {
   await knex.raw(`
+        ALTER TABLE project_models DROP CONSTRAINT project_model_unique;
         drop table if exists projects;
         drop table if exists project_models;
         drop index if exists projects_userId_index;

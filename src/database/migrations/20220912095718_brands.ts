@@ -2,10 +2,11 @@ import { Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
         create table if not exists brands (
             id uuid primary key default uuid_generate_v4(),
             name varchar(1024) not null,
+            slug varchar(64) unique not null,
             description text,
             site_link varchar(1024) not null,
             phone VARCHAR(48),
@@ -20,7 +21,7 @@ export async function up(knex: Knex): Promise<void> {
 
 
 export async function down(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
         drop table if exists brands;
     `);
 }

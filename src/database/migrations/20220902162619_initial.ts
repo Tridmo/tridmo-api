@@ -25,6 +25,7 @@ export async function up(knex: Knex): Promise<void> {
       full_name varchar(64) not null,
       username varchar(64) unique not null,
       email VARCHAR(256) unique NOT NULL,
+      company_name varchar(128) not null,
       phone VARCHAR(48),
       telegram VARCHAR(256),
       linkedin VARCHAR(256),
