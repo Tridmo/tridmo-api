@@ -58,9 +58,32 @@ export default class AuthService {
       user_id: user.id, full_name, email, birth_date, company_name, username
     })
 
-    await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.designer })
+    const role = await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.designer })
 
-    return { otpEmail: email };
+    if (session && user) {
+      await this.chat.syncUser(profile, role?.role_id || authVariables.roles.designer)
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email!,
+          fullName: user.user_metadata.full_name,
+          is_verified: !!user.email_confirmed_at || user.role == 'authenticated' || !!user.last_sign_in_at,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at!,
+        },
+        token: {
+          refreshToken: session.refresh_token,
+          accessToken: session.access_token,
+          expiresIn: session.expires_in,
+          tokenType: session.token_type
+        }
+      }
+    } else {
+      throw new ErrorResponse(500, reqT('sth_went_wrong'))
+    }
+
+    // return { otpEmail: email };
   }
 
   async syncToChat(user: IUser) {
@@ -143,7 +166,7 @@ export default class AuthService {
     };
 
     if (session && user) {
-      await this.chat.syncUser(profile, role || authVariables.roles.designer)
+      await this.chat.syncUser(profile, role?.role_id || authVariables.roles.designer)
 
       return {
         user: {

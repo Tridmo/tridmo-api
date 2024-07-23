@@ -50,9 +50,6 @@ export class ChatUtils {
   }
 
   public async syncUser(user: IUser, role?, directory?) {
-    console.log(user);
-    console.log(`${s3Vars.publicImagesEndpoint}/${user.image_src}`);
-
 
     try {
       const res = await axios.put(

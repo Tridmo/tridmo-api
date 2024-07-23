@@ -26,7 +26,7 @@ export async function seed(knex: Knex): Promise<void> {
         email: user.email,
         username: 'demodadmin',
         full_name: 'Demod Admin',
-        birth_date: new Date()
+        company_name: 'Demod',
       }).returning("*")
   )
   await knex("user_roles").insert([

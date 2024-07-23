@@ -13,9 +13,15 @@ class AuthController {
     try {
       const userData: SignupDTO = req.body;
 
-      await this.authService.signup(userData);
+      const data = await this.authService.signup(userData);
 
-      res.status(201).json({ success: true, message: reqT('signup_success_check_email') });
+      res.status(201).json({
+        success: true,
+        message: reqT('login_success'),
+        data
+      });
+
+      // res.status(201).json({ success: true, message: reqT('signup_success_check_email') });
     } catch (error) {
       next(error);
     }
