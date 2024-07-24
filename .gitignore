@@ -5,5 +5,5 @@ package-lock.json/
 src/public/uploads/files/*
 src/public/uploads/images/*
 src/sequlize/queries/queries.sql
-package-lock.json
+# package-lock.json
 /build
