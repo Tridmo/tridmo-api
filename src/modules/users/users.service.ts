@@ -90,6 +90,10 @@ export default class UsersService {
     const data = await this.usersDao.getByUsername_min(username);
     return data
   }
+  async getByEmail_min(email: string): Promise<IUser> {
+    const data = await this.usersDao.getByEmail_min(email);
+    return data
+  }
 
   async getVerifiedByEmail(email: string): Promise<IUser> {
     return await this.usersDao.getVerifiedByEmail(email);

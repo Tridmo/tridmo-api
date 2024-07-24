@@ -140,7 +140,7 @@ export default class AuthService {
 
     if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
 
-    const profile = email ? await this.usersService.getByEmail(email) : await this.usersService.getByUsername_min(username)
+    const profile = email ? await this.usersService.getByEmail_min(email) : await this.usersService.getByUsername_min(username)
 
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));
 

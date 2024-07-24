@@ -265,15 +265,27 @@ export default class UsersDAO {
           "user_roles.role_id as role.id",
           "role_name as role.name",
           "roles_id as role.id",
+          KnexService.raw(`count(distinct interiors.id) as designs_count`),
+          KnexService.raw(`interior_models.count as tags_count`),
         ])
         .innerJoin(function () {
           this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "role.name as role_name", "role.id as roles_id"])
             .from("user_roles")
             .as("user_roles")
             .leftJoin({ role: "roles" }, { "user_roles.role_id": "role.id" })
+            .whereNot("role_id", 1)
             .groupBy("user_roles.id", "role.id");
         }, { "profiles.id": "user_roles.user_id" })
-        .groupBy('profiles.id', "user_roles.id", "user_roles.role_id", "role_name")
+        .leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
+        .leftJoin(function () {
+          this.select('interior_id', KnexService.raw('count(interior_models.id) as count'))
+            .from('interior_models')
+            .groupBy('interior_id')
+            .as('interior_models')
+        }, { 'interiors.id': 'interior_models.interior_id' })
+        .groupBy(
+          'profiles.id', "user_roles.id", "user_roles.role_id", "role_name", "roles_id", 'interior_models.count'
+        )
         .where({ email })
     )
   }
@@ -408,6 +420,16 @@ export default class UsersDAO {
           "profiles.*"
         ])
         .where({ username })
+    )
+  }
+
+  async getByEmail_min(email: string): Promise<IUser> {
+    return getFirst(
+      await KnexService('profiles')
+        .select([
+          "profiles.*"
+        ])
+        .where({ email })
     )
   }
 
