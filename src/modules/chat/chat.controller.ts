@@ -4,6 +4,7 @@ import ChatTokenService from "./chat_tokens/chat_tokens.service";
 import { CustomRequest } from "../shared/interface/routes.interface";
 import { chatApi } from "../../config/conf";
 import { ChatUtils } from "./utils";
+import UsersDAO from '../users/users.dao'
 
 export default class ChatController {
   private tokenService = new ChatTokenService()
@@ -11,6 +12,7 @@ export default class ChatController {
 
   public getToken = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
+      await this.chatUtils.syncUser(req.user.profile)
       const data = await this.tokenService.create(req.user.profile.id)
 
       res.status(200).json({
