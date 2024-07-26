@@ -81,7 +81,7 @@ export default class UsersDAO {
       })
       .limit(limit)
       .offset(offset)
-      .groupBy("profiles.id", "user_roles.id", "user_roles.role_id", "role_name")
+      .groupBy("profiles.id", "user_roles.id", "user_roles.role_id")
       .modify((q) => {
         if (full_name) {
           q.whereILike(`full_name`, `%${full_name}%`)

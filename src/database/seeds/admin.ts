@@ -16,20 +16,24 @@ export async function seed(knex: Knex): Promise<void> {
 
   if (error) {
     console.log(error);
-    return
   }
 
-  const profile = getFirst(
-    await knex('profiles')
-      .insert({
-        user_id: user.id,
-        email: user.email,
-        username: 'demodadmin',
-        full_name: 'Demod Admin',
-        company_name: 'Demod',
-      }).returning("*")
-  )
-  await knex("user_roles").insert([
-    { user_id: profile.id, role_id: 1 }
-  ]);
+  if (user) {
+    const profile = getFirst(
+      await knex('profiles')
+        .insert({
+          user_id: user.id,
+          email: user.email,
+          username: 'demodadmin',
+          full_name: 'Demod Admin',
+          company_name: 'Demod',
+        }).returning("*")
+    )
+
+    if (profile) {
+      await knex("user_roles").insert([
+        { user_id: profile.id, role_id: 1 }
+      ]);
+    }
+  }
 };
