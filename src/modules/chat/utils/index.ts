@@ -60,7 +60,7 @@ export class ChatUtils {
           email: user.email,
           nickname: user.username,
           picture: `${s3Vars.publicImagesEndpoint}/${user.image_src}`,
-          directory: directory || role && role == authVariables.roles.admin ? 'ADMINS' : 'DEMOD',
+          directory: 'DEMOD',
           display_name: user.full_name,
           metadata: {
             company_name: user.company_name,

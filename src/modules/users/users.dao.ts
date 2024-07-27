@@ -94,9 +94,9 @@ export default class UsersDAO {
           q.andWhere('user_roles.role_id', role_id);
         }
         q.orderBy(
-          orderBy !== 'designs_count' && orderBy !== 'tags_count'
-            ? `profiles.${orderBy}`
-            : orderBy,
+          orderBy === 'rating' || orderBy === 'designs_count' || orderBy === 'tags_count'
+            ? orderBy
+            : `profiles.${orderBy}`,
           order
         );
       });
