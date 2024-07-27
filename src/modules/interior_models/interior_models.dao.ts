@@ -30,14 +30,14 @@ export default class InteriorModelsDAO {
     filters: IFilterInteriorModel,
   ): Promise<number> {
 
-    const { user_id, brand_id } = filters
+    const { user_id, brand_id, ...others } = filters
 
     return (
       await KnexService('interior_models')
         .countDistinct("interior_models.id")
         .modify((q) => {
-          if (Object.keys(filters).length) {
-            q.andWhere(filters)
+          if (Object.keys(others).length) {
+            q.andWhere(others)
           }
           if (user_id) {
             q.innerJoin('interiors', { 'interior_models.interior_id': 'interiors.id' })

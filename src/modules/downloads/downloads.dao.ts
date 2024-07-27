@@ -23,13 +23,13 @@ export default class DownloadsDao {
   }
 
   async count(filters: IFilterDownload) {
-    const { brand_id } = filters
+    const { brand_id, ...others } = filters
     return (
       await KnexService('downloads')
         .count('downloads.id')
         .modify((q) => {
-          if (Object.keys(filters).length) {
-            q.andWhere(filters)
+          if (Object.keys(others).length) {
+            q.andWhere(others)
           }
           if (brand_id) {
             q.innerJoin('models', { 'downloads.model_id': 'models.id' })
