@@ -4,6 +4,7 @@ import KnexService from '../../database/connection';
 import { getFirst } from '../shared/utils/utils';
 import { ICreateUser, IUpdateUser, IUser } from './users.interface';
 import { authVariables } from '../auth/variables';
+import { usersVariables } from './variables';
 
 export default class UsersDAO {
   async create({
@@ -56,8 +57,9 @@ export default class UsersDAO {
         "profiles.username",
         "profiles.company_name",
         ...(isDesigner ? [
-          KnexService.raw(`count("interiors"."id") as designs_count`),
-          KnexService.raw(`sum("tags_count".count) as tags_count`),
+          KnexService.raw(`coalesce(count("interiors"."id"), 0) as designs_count`),
+          KnexService.raw(`coalesce(sum("tags_count".count), 0) as tags_count`),
+          KnexService.raw(`(coalesce(count("interiors"."id"), 0) * ${usersVariables.scoreForDesign} + coalesce(sum("tags_count".count), 0) * ${usersVariables.scoreForTag}) as rating`)
         ] : []),
       ])
       .innerJoin(function () {

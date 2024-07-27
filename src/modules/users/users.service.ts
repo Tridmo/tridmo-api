@@ -7,6 +7,7 @@ import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
 import UsersDAO from './users.dao';
 import { ICreateUser, IUpdateUser, IUser } from './users.interface';
 import flat from 'flat';
+import { usersVariables } from './variables';
 
 export default class UsersService {
   private usersDao = new UsersDAO();
@@ -49,7 +50,11 @@ export default class UsersService {
     const data = await this.usersDao.getAll(filters, sorts);
 
     data.forEach((user, index) => {
-      data[index] = flat.unflatten(user)
+      const x = flat.unflatten(user)
+      if (x.designs_count == undefined || x.designs_count == null || isNaN(x.designs_count)) x.designs_count = 0;
+      if (x.tags_count == undefined || x.tags_count == null || isNaN(x.tags_count)) x.tags_count = 0;
+      // x.rating = (Number(x.designs_count) * usersVariables.scoreForDesign) + (Number(x.tags_count) * usersVariables.scoreForTag);
+      data[index] = x;
     });
 
     return data
