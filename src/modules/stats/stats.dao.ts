@@ -68,6 +68,15 @@ export default class StatsDao {
     )[0].count
 
   }
+  async getRegistersCount() {
+    const result = await knexInstance('profiles')
+      .count('profiles.id AS count')
+      .innerJoin(function () {
+        this.select('id', 'role_id', 'user_id').from('user_roles').as('user_roles').where('role_id', '=', authVariables.roles.designer)
+      }, { 'user_roles.user_id': 'profiles.id' })
+
+    return result?.[0]?.count;
+  }
 
 
   async getMostDownloadedModels({ limit, month, year, week, brand_id }: IDefaultQuery & IDateFilters & IGetModelsQuery) {

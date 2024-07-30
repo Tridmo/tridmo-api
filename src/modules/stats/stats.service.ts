@@ -156,6 +156,11 @@ export default class StatsService {
     }
   }
 
+  async getUsersCount() {
+    const data = await this.dao.getRegistersCount()
+    return data;
+  }
+
   async getDownloadsCount({ model_id, brand_id, user_id }) {
     const data = await this.dao.getDownloadsCount({ model_id, brand_id, user_id })
     return data;

@@ -23,7 +23,7 @@ export default class StatsController {
         year: req.query.year,
         ...filters
       })
-      const userCount = await new UsersDAO().count({ role_id: authVariables.roles.designer })
+      const userCount = await this.service.getUsersCount()
 
       res.status(200).json({
         success: !!stats,
