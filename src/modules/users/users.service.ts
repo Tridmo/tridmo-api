@@ -8,6 +8,8 @@ import UsersDAO from './users.dao';
 import { ICreateUser, IUpdateUser, IUser } from './users.interface';
 import flat from 'flat';
 import { usersVariables } from './variables';
+import { reqT } from '../shared/utils/language';
+import supabase from '../../database/supabase/supabase';
 
 export default class UsersService {
   private usersDao = new UsersDAO();
@@ -64,7 +66,16 @@ export default class UsersService {
     const data = await this.usersDao.getAll_admin(filters, sorts);
 
     data.forEach((user, index) => {
-      data[index] = flat.unflatten(user)
+      let x = flat.unflatten(user)
+      if (x?.bans) {
+        if (x?.bans?.length && x?.bans?.[0] == null) {
+          x.bans = [];
+          x.is_banned = false;
+        }
+        else if (x?.bans?.length) x.is_banned = true;
+      }
+
+      data[index] = x
     });
 
     return data
@@ -88,8 +99,19 @@ export default class UsersService {
     return flat.unflatten(data)
   }
   async getByUsername_admin(username: string, filters?: any): Promise<IUser> {
-    const data = await this.usersDao.getByUsername_admin(username, filters);
-    return flat.unflatten(data)
+    const data = flat.unflatten(
+      await this.usersDao.getByUsername_admin(username, filters)
+    )
+
+    if (data?.bans) {
+      if (data?.bans?.length && data?.bans?.[0] == null) {
+        data.bans = [];
+        data.is_banned = false;
+      }
+      else if (data?.bans?.length) data.is_banned = true;
+    }
+
+    return data
   }
   async getByUsername_min(username: string): Promise<IUser> {
     const data = await this.usersDao.getByUsername_min(username);
@@ -116,5 +138,13 @@ export default class UsersService {
   }
   async deleteByUserId(user_id: string) {
     return await this.usersDao.deleteById(user_id);
+  }
+
+  async deleteAccount_admin(user_id: string) {
+    const user = await this.usersDao.getById(user_id)
+    if (!user) throw new ErrorResponse(404, reqT('user_404'))
+    await new ChatUtils().deleteUser(user.id)
+    await deleteFile(s3Vars.imagesBucket, user.image_src)
+    await supabase.auth.admin.deleteUser(user.user_id)
   }
 }

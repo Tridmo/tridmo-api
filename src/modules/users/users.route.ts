@@ -23,8 +23,12 @@ export default class AuthRoute implements Routes {
     this.router.get(`${this.path}/:username/downloads`, protect, check_access("update_brand"), this.usersController.getUserDownloads);
     this.router.get(`${this.path}/profile`, protect, check_access("get_user"), this.usersController.profile);
     this.router.put(`${this.path}/profile`, protect, check_access("update_user"), validate(UpdateUserDTO, "body", true), this.usersController.update);
+    this.router.put(`${this.path}/profile/:id`, protect, check_access("create_role"), validate(UpdateUserDTO, "body", true), this.usersController.updateUser);
     this.router.put(`${this.path}/role/:id`, protect, check_access("create_role"), validate(CreateUserRoleDTO, 'body', true), this.usersController.updateUserRole);
+    this.router.post(`${this.path}/ban/:id`, protect, check_access("create_role"), this.usersController.banUser);
+    this.router.post(`${this.path}/unban/:id`, protect, check_access("create_role"), this.usersController.unbanUser);
     this.router.get(`${this.path}/check/:username`, this.usersController.checkUsername);
     this.router.get(`${this.path}/:username`, this.usersController.profileByUsername);
+    this.router.delete(`${this.path}/:id`, protect, check_access("delete_user"), validate(UpdateUserDTO, "body", true), this.usersController.deleteAccount);
   }
 }

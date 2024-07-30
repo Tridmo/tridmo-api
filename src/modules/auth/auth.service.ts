@@ -27,6 +27,7 @@ import { ChatUtils } from "../chat/utils";
 import slugify from "slugify";
 import { generateUsernameFromName } from "../shared/utils/generateUsername";
 import BrandService from "../brands/brands.service";
+import UserBanService from "../users/user_bans/user_bans.service";
 
 
 export default class AuthService {
@@ -143,6 +144,15 @@ export default class AuthService {
     const profile = email ? await this.usersService.getByEmail_min(email) : await this.usersService.getByUsername_min(username)
 
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));
+
+    const bans = await new UserBanService().getByUserId(profile.id)
+    console.log(bans);
+
+    if (bans.length) {
+      bans.forEach(ban => {
+        if (ban.permanent == true) throw new ErrorResponse(403, reqT('you_are_banned'))
+      })
+    }
 
     const roles = await this.rolesService.findByName(role_name)
     if (!roles) throw new ErrorResponse(404, 'Role was not found')

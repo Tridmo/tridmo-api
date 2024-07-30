@@ -12,10 +12,13 @@ const ru = {
   login_success: 'Авторизация прошла успешна',
   signup_success: 'Регистрация прошла успешно',
   invalid_login_credentials: 'Неверные логин или пароль',
+  you_are_banned: 'Aккаунт заблокирован',
+  you_are_banned_until: 'Aккаунт заблокирован до ',
 
   created_successfully: 'Успешно создано',
   added_successfully: 'Успешно добавлено',
   updated_successfully: 'Успешно обновлено',
+  banned_successfully: 'Успешно заблокировано',
   saved_successfully: 'Успешно сохранено',
   deleted_successfully: 'Успешно удалено',
   sth_went_wrong: 'Что-то пошло не так. Пожалуйста, попробуйте еще раз',

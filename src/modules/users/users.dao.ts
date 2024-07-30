@@ -114,6 +114,7 @@ export default class UsersDAO {
         "user_roles.role_id as role.id",
         "role_name as role.name",
         "roles_id as role.id",
+        KnexService.raw(`jsonb_agg(distinct user_bans) as bans`),
         ...(isDesigner ? [
           KnexService.raw(`count(distinct "interiors"."id") as designs_count`),
           KnexService.raw(`count(distinct interior_models.id) as tags_count`),
@@ -122,6 +123,10 @@ export default class UsersDAO {
         ...(downloaded_model ? ['downloads.created_at as downloaded_at'] : [])
       ])
       .distinct('profiles.id')
+      .leftJoin('user_bans', function () {
+        this.on('user_bans.user_id', '=', 'profiles.id')
+          .andOn('user_bans.permanent', KnexService.raw('?', [true]))
+      })
       .innerJoin(function () {
         this.select(["user_roles.id", "user_roles.user_id", "user_roles.role_id", "roles.name as role_name", "roles.id as roles_id"])
           .from("user_roles")
@@ -242,7 +247,13 @@ export default class UsersDAO {
 
   getByUserId(user_id: string): Promise<IUser> {
     return KnexService('profiles')
-      .where({ user_id })
+      .select([
+        'profiles.*',
+        "user_roles.role_id as role_id",
+      ])
+      .innerJoin('user_roles', { 'user_roles.user_id': 'profiles.id' })
+      .groupBy('profiles.id', "user_roles.role_id")
+      .where({ 'profiles.user_id': user_id })
       .first();
   }
 
@@ -359,10 +370,15 @@ export default class UsersDAO {
           'user_roles.role_id as role.id',
           'role_name as role.name',
           'roles_id as role.id',
+          KnexService.raw(`jsonb_agg(distinct user_bans) as bans`),
           // KnexService.raw('COALESCE(interiors.count, 0) as designs_count'),
           // KnexService.raw('COALESCE(interior_models_count, 0) as tags_count'),
           // KnexService.raw('COALESCE(downloads.count, 0) as downloads_count'),
         ])
+        .leftJoin('user_bans', function () {
+          this.on('user_bans.user_id', '=', 'profiles.id')
+            .andOn('user_bans.permanent', KnexService.raw('?', [true]))
+        })
         .innerJoin(function () {
           this.select(['user_roles.id', 'user_roles.user_id', 'user_roles.role_id', 'role.name as role_name', 'role.id as roles_id'])
             .from('user_roles')

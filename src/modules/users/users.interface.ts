@@ -1,3 +1,5 @@
+import { IUserBan } from "./user_bans/user_bans.interface";
+
 export interface ICreateUser {
   user_id: string;
   full_name: string;
@@ -52,7 +54,10 @@ export interface IUser {
   image_src?: string;
   created_at: Date;
   updated_at: Date;
-  role?: { id: number, name: string }
+  role?: { id: number, name: string };
+  is_banned?: boolean;
+  bans?: IUserBan[];
+  role_id: number;
   designs_count?: number | string;
   tags_count?: number | string;
   downloads_count?: number | string;

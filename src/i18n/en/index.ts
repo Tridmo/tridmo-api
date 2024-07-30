@@ -12,10 +12,13 @@ const en = {
   login_success: 'Logged in successfully',
   signup_success: 'Signed up successfully',
   invalid_login_credentials: 'Invalid login credentials',
+  you_are_banned: 'Account has been blocked',
+  you_are_banned_until: 'Account is blocked until ',
 
   created_successfully: 'Created successfully',
   added_successfully: 'Added successfully',
   updated_successfully: 'Updated successfully',
+  banned_successfully: 'Blocked successfully',
   saved_successfully: 'Saved successfully',
   deleted_successfully: 'Deleted successfully',
   sth_went_wrong: 'Something went wrong. Please, try again',

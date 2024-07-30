@@ -21,6 +21,8 @@ import BrandService from '../brands/brands.service';
 import InteriorsDAO from '../interiors/interiors.dao';
 import InteriorModelsDAO from '../interior_models/interior_models.dao';
 import DownloadsDao from '../downloads/downloads.dao';
+import { ICreateUserBan } from './user_bans/user_bans.interface';
+import UserBanService from './user_bans/user_bans.service';
 
 class UsersController {
   public usersService = new UsersService();
@@ -182,14 +184,9 @@ class UsersController {
       const tags_count = await new InteriorModelsDAO().count({ user_id: profile?.id, brand_id: req.query.downloads_from_brand as string })
       const downloads_count = await new DownloadsDao().count({ user_id: profile?.id, brand_id: req.query.downloads_from_brand as string })
 
-      console.log(
-        designs_count,
-        tags_count,
-        downloads_count,
-      );
-
       const userData = {
         ...(isBrandAdmin ? { is_brand: true, brand } : {}),
+        is_banned: profile.is_banned,
         user_id: profile.id,
         created_at: profile.created_at,
         full_name: profile.full_name,
@@ -277,6 +274,19 @@ class UsersController {
     }
   }
 
+  public updateUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.usersService.update(
+        req.params.id,
+        req.body,
+      )
+
+      res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public updateUserRole = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { role_id }: ICreateUserRole = req.body
@@ -285,6 +295,26 @@ class UsersController {
       const data = await this.uRolesService.updateByUser(id, { role_id })
 
       res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public banUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params
+      const data = await new UserBanService().create({ user_id: id, ...req.body })
+      res.status(201).json({ success: true, data: data, message: reqT('banned_successfully') });
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public unbanUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params
+      const data = await new UserBanService().deleteByUserId(id)
+      res.status(200).json({ success: true, data: data, message: reqT('updated_successfully') });
     } catch (error) {
       next(error)
     }
@@ -301,6 +331,15 @@ class UsersController {
       next(error)
     }
   }
+
+  public deleteAccount = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await this.usersService.deleteAccount_admin(req.params.id);
+      res.status(200).json({ success: true, message: reqT('deleted_successfully') });
+    } catch (error) {
+      next(error);
+    }
+  };
 
 }
 

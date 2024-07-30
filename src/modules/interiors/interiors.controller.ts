@@ -60,9 +60,8 @@ export default class InteriorsController {
 
       if (query.status) {
         const s = processValue(query.status)
-        console.log(s);
 
-        if (s == '0' || s.includes('0')) {
+        if (s == '0') {
           if (!req.user) throw new ErrorResponse(401, reqT('unauthorized'))
           const role = await new UserRoleService().getByUserAndRole({ user_id: req.user.profile.id, role_id: authVariables.roles.admin })
           if (!role) throw new ErrorResponse(401, reqT('unauthorized'))
@@ -139,6 +138,25 @@ export default class InteriorsController {
     }
   }
 
+  public getCounts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const all = await this.interiorsService.count({})
+      const unchecked = await this.interiorsService.count({ status: 0 })
+      const checked = await this.interiorsService.count({ status: 1 })
+
+      res.status(200).json({
+        success: true,
+        data: {
+          all,
+          checked,
+          unchecked
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public getOne = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const data = await this.interiorsService.findOne(req.params.identifier, req.user?.profile)
@@ -198,12 +216,13 @@ export default class InteriorsController {
     }
   }
 
-  public updateStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public updateStatus = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
 
       const data = await this.interiorsService.update(
         req.params.id,
         req.body,
+        req.user.profile,
         null,
         null
       );

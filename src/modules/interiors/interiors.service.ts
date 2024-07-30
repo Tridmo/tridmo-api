@@ -20,6 +20,7 @@ import InteractionService from '../interactions/interactions.service';
 import { IUser } from '../users/users.interface';
 import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
 import { reqT } from '../shared/utils/language';
+import { authVariables } from '../auth/variables';
 
 export default class InteriorService {
   // private modelService = new ModelService()
@@ -88,7 +89,9 @@ export default class InteriorService {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
-    if (interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
+    console.log(user);
+
+    if (user.role_id != authVariables.roles.admin && interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
 
     const { removed_images, ...otherValues } = values
 
@@ -270,7 +273,7 @@ export default class InteriorService {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
-    if (interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
+    if (user?.role_id != authVariables.roles.admin && interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
 
     const interiorImages = await this.interiorImageService.findByInterior(id)
 

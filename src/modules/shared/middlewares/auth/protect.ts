@@ -7,6 +7,7 @@ import ErrorResponse from "../../utils/errorResponse";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
 import supabase from "../../../../database/supabase/supabase";
 import UserRoleService from "../../../users/user_roles/user_roles.service";
+import UserBanService from "../../../users/user_bans/user_bans.service";
 
 const accessToken = server.accessToken
 
@@ -33,9 +34,16 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
     if (error) throw new ErrorResponse(error.status, error.message)
 
     const profile = await new UsersDAO().getByUserId(user?.id)
-    const roles = await new UserRoleService().getByUserId(profile?.id)
-
     if (!profile) throw new ErrorResponse(403, req.t.access_denied())
+
+    const roles = await new UserRoleService().getByUserId(profile?.id)
+    const bans = await new UserBanService().getByUserId(profile.id)
+
+    if (bans.length) {
+      bans.forEach(ban => {
+        if (ban.permanent == true) throw new ErrorResponse(403, req.t.you_are_banned())
+      })
+    }
 
     req.user = { ...user, profile, roles }
 

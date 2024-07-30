@@ -8,6 +8,7 @@ export async function up(knex: Knex): Promise<void> {
       id uuid primary key default uuid_generate_v4(),
       user_id uuid REFERENCES profiles(id) ON DELETE CASCADE not null,
       reason varchar,
+      permanent boolean default false,
       until TIMESTAMP WITH TIME ZONE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );

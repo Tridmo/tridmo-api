@@ -59,6 +59,14 @@ type RootTranslation = {
 	 */
 	invalid_login_credentials: string
 	/**
+	 * A​c​c​o​u​n​t​ ​h​a​s​ ​b​e​e​n​ ​b​l​o​c​k​e​d
+	 */
+	you_are_banned: string
+	/**
+	 * A​c​c​o​u​n​t​ ​i​s​ ​b​l​o​c​k​e​d​ ​u​n​t​i​l​ 
+	 */
+	you_are_banned_until: string
+	/**
 	 * C​r​e​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
 	 */
 	created_successfully: string
@@ -70,6 +78,10 @@ type RootTranslation = {
 	 * U​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
 	 */
 	updated_successfully: string
+	/**
+	 * B​l​o​c​k​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+	 */
+	banned_successfully: string
 	/**
 	 * S​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
 	 */
@@ -174,6 +186,14 @@ export type TranslationFunctions = {
 	 */
 	invalid_login_credentials: () => LocalizedString
 	/**
+	 * Account has been blocked
+	 */
+	you_are_banned: () => LocalizedString
+	/**
+	 * Account is blocked until 
+	 */
+	you_are_banned_until: () => LocalizedString
+	/**
 	 * Created successfully
 	 */
 	created_successfully: () => LocalizedString
@@ -185,6 +205,10 @@ export type TranslationFunctions = {
 	 * Updated successfully
 	 */
 	updated_successfully: () => LocalizedString
+	/**
+	 * Blocked successfully
+	 */
+	banned_successfully: () => LocalizedString
 	/**
 	 * Saved successfully
 	 */

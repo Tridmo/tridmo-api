@@ -21,6 +21,7 @@ export default class InteriorsRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.get(`${this.path}/counts`, this.interiorsController.getCounts);
     this.router.get(`${this.path}/images/cover/:id`, this.interiorsController.getCoverImage);
     this.router.post(`${this.path}/images/:id`, protect, check_access("update_interior"), validate(ValidateUuidDTO, "params"), this.interiorsController.addImages);
 

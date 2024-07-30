@@ -2,7 +2,7 @@ import { IDefaultQuery } from '../shared/interface/query.interface';
 import { getFirst } from "../shared/utils/utils";
 import { ICreateInterior, ICreateInteriorLike, IFilterInteriorLike, IGetInteriorsQuery, IInterior, IInteriorLike, IUpdateInterior } from "./interiors.interface";
 import KnexService from "../../database/connection";
-import { isUUID } from 'class-validator';
+import { isDefined, isUUID } from 'class-validator';
 
 export default class InteriorsDAO {
 
@@ -47,25 +47,24 @@ export default class InteriorsDAO {
   ): Promise<number> {
     const { styles, status, categories, platforms, name, author, has_models_of_brand, ...otherFilters } = filters
 
-    return (
-      await KnexService('interiors')
-        .countDistinct("interiors.id")
-        .where({ 'interiors.is_deleted': otherFilters.is_deleted || false })
-        .modify((q) => {
-          if (status) q.whereIn("status", Array.isArray(status) ? status : [status])
-          if (categories && categories.length > 0) q.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
-          if (styles && styles.length > 0) q.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
-          if (platforms && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
-          if (name && name.length) q.whereILike('name', `%${name}%`)
-          if (author && author.length) q.andWhere('interiors.user_id', author)
-          if (Object.keys(otherFilters).length) q.andWhere(otherFilters)
-          if (has_models_of_brand) {
-            q.innerJoin('interior_models', { 'interior_models.interior_id': 'interiors.id' })
-              .innerJoin('models', { 'models.id': 'interior_models.model_id' })
-              .where('models.brand_id', '=', has_models_of_brand)
-          }
-        })
-    )[0].count as number
+    const query = KnexService('interiors')
+      .countDistinct("interiors.id")
+      .where({ 'interiors.is_deleted': otherFilters.is_deleted || false })
+      .modify((q) => {
+        if (isDefined(status)) q.where("status", status)
+        if (isDefined(categories) && categories.length > 0) q.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
+        if (isDefined(styles) && styles.length > 0) q.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
+        if (isDefined(platforms) && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
+        if (isDefined(name) && name.length) q.whereILike('name', `%${name}%`)
+        if (isDefined(author) && author.length) q.andWhere('interiors.user_id', author)
+        if (Object.keys(otherFilters).length) q.andWhere(otherFilters)
+        if (isDefined(has_models_of_brand)) {
+          q.innerJoin('interior_models', { 'interior_models.interior_id': 'interiors.id' })
+            .innerJoin('models', { 'models.id': 'interior_models.model_id' })
+            .where('models.brand_id', '=', has_models_of_brand)
+        }
+      })
+    return (await query)[0].count as number
   }
 
   async getAll(
@@ -128,20 +127,20 @@ export default class InteriorsDAO {
         'interactions.id'
       )
       .modify((q) => {
-        if (orderBy) {
+        if (isDefined(orderBy)) {
           if (orderBy == 'views' || orderBy == 'likes' || orderBy == 'saves') {
             q.orderBy(`interactions.${orderBy}`, order)
           }
           else q.orderBy(`interiors.${orderBy}`, order)
         }
-        if (status) q.whereIn("interiors.status", Array.isArray(status) ? status : [status])
-        if (categories && categories.length > 0) q.whereIn("interiors.category_id", Array.isArray(categories) ? categories : [categories])
-        if (styles && styles.length > 0) q.whereIn("interiors.style_id", Array.isArray(styles) ? styles : [styles])
-        if (platforms && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
-        if (name && name.length) q.whereILike('interiors.name', `%${name}%`)
-        if (author && author.length) q.andWhere('interiors.user_id', author)
+        if (isDefined(status)) q.whereIn("interiors.status", Array.isArray(status) ? status : [status])
+        if (isDefined(categories) && categories.length > 0) q.whereIn("interiors.category_id", Array.isArray(categories) ? categories : [categories])
+        if (isDefined(styles) && styles.length > 0) q.whereIn("interiors.style_id", Array.isArray(styles) ? styles : [styles])
+        if (isDefined(platforms) && platforms.length > 0) q.whereIn("interiors.render_platform_id", Array.isArray(platforms) ? platforms : [platforms])
+        if (isDefined(name) && name.length) q.whereILike('interiors.name', `%${name}%`)
+        if (isDefined(author) && author.length) q.andWhere('interiors.user_id', author)
         if (Object.keys(otherFilters).length) q.andWhere(otherFilters)
-        if (has_models_of_brand) {
+        if (isDefined(has_models_of_brand)) {
           q.innerJoin(function () {
             this.select('interior_id', 'model_id', KnexService.raw('count(id) as count'))
               .from('interior_models')
