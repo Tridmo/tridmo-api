@@ -31,7 +31,7 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
     const { data: { user }, error } = await supabase.auth.getUser(authToken)
 
     if (!user) throw new ErrorResponse(404, req.t.user_404())
-    if (error) throw new ErrorResponse(error.status, error.message)
+    if (error) throw new ErrorResponse(error.status, error.message, error.message == 'jwt expired' ? 'token_expired' : '')
 
     const profile = await new UsersDAO().getByUserId(user?.id)
     if (!profile) throw new ErrorResponse(403, req.t.access_denied())
@@ -41,7 +41,7 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
 
     if (bans.length) {
       bans.forEach(ban => {
-        if (ban.permanent == true) throw new ErrorResponse(403, req.t.you_are_banned())
+        if (ban.permanent == true) throw new ErrorResponse(403, req.t.you_are_banned(), 'banned')
       })
     }
 

@@ -150,7 +150,7 @@ export default class AuthService {
 
     if (bans.length) {
       bans.forEach(ban => {
-        if (ban.permanent == true) throw new ErrorResponse(403, reqT('you_are_banned'))
+        if (ban.permanent == true) throw new ErrorResponse(403, reqT('you_are_banned'), 'banned')
       })
     }
 
