@@ -146,7 +146,6 @@ export default class AuthService {
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));
 
     const bans = await new UserBanService().getByUserId(profile.id)
-    console.log(bans);
 
     if (bans.length) {
       bans.forEach(ban => {
