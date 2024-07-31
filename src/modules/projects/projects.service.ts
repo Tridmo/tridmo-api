@@ -56,8 +56,6 @@ export default class ProjectsService {
     })
 
     const data = await this.dao.bulkUpsertProjectModels(records);
-    console.log(data);
-
     return data
   }
 

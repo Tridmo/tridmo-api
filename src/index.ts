@@ -6,9 +6,9 @@ import { ChatUtils } from './modules/chat/utils';
 const ExpressApp = new App(router)
 
 // const chat = new ChatUtils()
-// ; (
-//   async () => await chat.createChatApp()
-// )()
+//   ; (
+//     async () => await chat.registerWebhooks()
+//   )()
 
 const server = http.createServer(ExpressApp.getServer);
 const port = process.env.PORT || 5000

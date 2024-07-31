@@ -17,11 +17,8 @@ export default class ChatTokenService {
 
     if (!!exist) {
       const diff = secondsDiff(new Date(exist.created_at), new Date())
-      console.log(diff);
-
       if (diff >= chatApi.expiresIn) {
         const token = await this.chat.getChatToken(user_id);
-        console.log(token)
         return await this.dao.update(exist.id, { token })
       } else {
         return exist;

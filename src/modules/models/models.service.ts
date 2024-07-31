@@ -75,8 +75,6 @@ export default class ModelService {
 
     // create materials
     if (materials && materials.length > 0) {
-      console.log(materials);
-
       for await (const material_id of materials) {
         await this.modelMaterialService.create({ model_id: model.id, material_id: Number(material_id) })
       }

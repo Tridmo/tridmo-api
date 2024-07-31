@@ -28,6 +28,7 @@ import slugify from "slugify";
 import { generateUsernameFromName } from "../shared/utils/generateUsername";
 import BrandService from "../brands/brands.service";
 import UserBanService from "../users/user_bans/user_bans.service";
+import { IBrand } from "../brands/brands.interface";
 
 
 export default class AuthService {
@@ -92,7 +93,11 @@ export default class AuthService {
     await this.chat.syncUser(user, role[0].role_id)
   }
 
-  async createVerifiedUser({ email, full_name, password, birth_date, company_name, username, image_src }, image?: IRequestFile) {
+  async createVerifiedUser(
+    { email, full_name, password, birth_date, company_name, username, image_src },
+    image?: IRequestFile,
+    brand?: IBrand
+  ) {
 
     const { data: { user }, error } = await supabase.auth.admin.createUser({
       email,
@@ -100,10 +105,14 @@ export default class AuthService {
       email_confirm: true
     })
 
-    if (error)
+    if (error) {
+      if (brand) await new BrandService().delete(brand?.id)
       throw new Error(error.message);
-    if (!user?.identities?.length)
+    }
+    if (!user?.identities?.length) {
+      if (brand) await new BrandService().delete(brand?.id)
       throw new ErrorResponse(400, reqT('email_exist'));
+    }
 
     username = username || generateUsernameFromName(full_name)
 

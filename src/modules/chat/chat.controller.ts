@@ -5,6 +5,7 @@ import { CustomRequest } from "../shared/interface/routes.interface";
 import { chatApi } from "../../config/conf";
 import { ChatUtils } from "./utils";
 import UsersDAO from '../users/users.dao'
+import axios from "axios";
 
 export default class ChatController {
   private tokenService = new ChatTokenService()
@@ -20,6 +21,16 @@ export default class ChatController {
         access_token: data?.token,
         expires_in: chatApi.expiresIn,
       })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public handleWebhooks = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      console.log(req.headers)
+
+      res.status(200)
     } catch (error) {
       next(error)
     }

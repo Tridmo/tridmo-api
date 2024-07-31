@@ -57,7 +57,7 @@ export default class InteriorService {
     })
 
     // upload and create cover image
-    const uploadedCover = await uploadFile(cover, "images/interiors", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+    const uploadedCover = await uploadFile(cover, `images/interiors/${interior.slug}`, s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
     const cover_image = await this.imageService.create({ ...uploadedCover[0] })
     await this.interiorImageService.create({
       interior_id: interior.id,
@@ -65,8 +65,9 @@ export default class InteriorService {
       is_main: true
     })
 
-    // upload and create other images
-    const uploadedImages = await uploadFile(images, "images/interiors", s3Vars.imagesBucket, /*fileDefaults.interior*/)
+    console.log('REQ>FILES>IMAGES: ', images);
+    const uploadedImages = await uploadFile(images, `images/interiors/${interior.slug}`, s3Vars.imagesBucket, /*fileDefaults.interior*/)
+    console.log('PROCESSED: ', uploadedImages);
     Promise.all(uploadedImages.map(async i => {
       const image = await this.imageService.create(i)
       await this.interiorImageService.create({
@@ -89,8 +90,6 @@ export default class InteriorService {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
-    console.log(user);
-
     if (user.role_id != authVariables.roles.admin && interior.user_id != user.id) throw new ErrorResponse(403, reqT('access_denied'));
 
     const { removed_images, ...otherValues } = values
@@ -101,7 +100,7 @@ export default class InteriorService {
       const modelCover = await this.interiorImageService.findInteriorCover(id)
       await this.deleteImage(modelCover.image_id)
       // upload and create cover image
-      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+      const uploadedCover = await uploadFile(cover, `images/interiors/${interior.slug}`, s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
       await this.interiorImageService.create({
         interior_id: interior.id,
@@ -116,7 +115,7 @@ export default class InteriorService {
     }
     if (images) {
       // upload and create other images
-      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, /*fileDefaults.interior*/)
+      const uploadedImages = await uploadFile(images, `images/interiors/${interior.slug}`, s3Vars.imagesBucket, /*fileDefaults.interior*/)
       Promise.all(uploadedImages.map(async (i, ind) => {
         const image = await this.imageService.create(i)
         await this.interiorImageService.create({
@@ -185,7 +184,8 @@ export default class InteriorService {
     if (interior.used_models?.length && !interior.used_models[0]) {
       interior.used_models = [];
     }
-    if (interior.images?.length && !interior.images[0]) {
+    if (interior.images?.length && !interior.images?.[0]) {
+
       interior.images = [];
     }
 
@@ -220,7 +220,7 @@ export default class InteriorService {
     const result: IAddImageResult = {};
 
     if (cover) {
-      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket)
+      const uploadedCover = await uploadFile(cover, `images/interiors/${interior.slug}`, s3Vars.imagesBucket)
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
       await this.interiorImageService.create({
         interior_id,
@@ -232,7 +232,7 @@ export default class InteriorService {
     }
 
     if (images) {
-      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket)
+      const uploadedImages = await uploadFile(images, `images/interiors/${interior.slug}`, s3Vars.imagesBucket)
       if (uploadedImages.length > 1) {
         Promise.all(uploadedImages.map(async i => {
           const image = await this.imageService.create(i)

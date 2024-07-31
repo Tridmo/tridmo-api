@@ -22,7 +22,6 @@ export class ChatUtils {
         });
 
       if (![200, 201].includes(response?.status)) {
-        console.log(response?.data);
         throw new ErrorResponse(response?.status, `Error fetching app. Cause: ${response?.statusText}`);
       }
 
@@ -46,6 +45,56 @@ export class ChatUtils {
       return res?.data?.access_token;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  public async registerWebhooks() {
+    try {
+      const getExisting = await axios.get(
+        `${chatApi.url}/api/webhooks`,
+        {
+          headers: {
+            'Authorization': `Bearer ${chatApi.key}`
+          }
+        }
+      )
+
+      if (!!getExisting?.data?.data?.length) {
+        const hasPayload = getExisting?.data?.data?.find(w => w?.payload_url == chatApi.webhook_payload_url)
+        if (hasPayload) {
+          const res = await axios.patch(
+            `${chatApi.url}/api/webhooks/${hasPayload?.id}`,
+            {
+              payload_url: chatApi.webhook_payload_url,
+              secret: chatApi.webhook_secret,
+              triggers: ['conversations']
+            },
+            {
+              headers: { 'Authorization': `Bearer ${chatApi.key}` }
+            }
+          )
+          console.log("WEBHOOK UPDATED: ", res?.data);
+          return res?.data;
+        }
+      }
+
+      const res = await axios.post(
+        `${chatApi.url}/api/webhooks`,
+        {
+          payload_url: chatApi.webhook_payload_url,
+          secret: chatApi.webhook_secret,
+          triggers: [
+            'conversations'
+          ]
+        },
+        {
+          headers: { 'Authorization': `Bearer ${chatApi.key}` }
+        }
+      )
+      console.log("WEBHOOK CREATED: ", res?.data);
+      return res?.data;
+    } catch (error) {
+      console.log("WEBHOOK ERROR: ", error);
     }
   }
 

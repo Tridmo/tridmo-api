@@ -192,7 +192,23 @@ export default class InteriorsDAO {
           'interactions.likes as likes',
           'interactions.saves as saves',
 
-          KnexService.raw('jsonb_agg(distinct interior_images) as images'),
+          KnexService.raw(`
+            (select json_agg(
+              json_build_object(
+                'id', "interior_images"."id",
+                'is_main', "interior_images"."is_main",
+                'image_id', "interior_images"."image_id",
+                'interior_id', "interior_images"."interior_id",
+                'image_src', "images"."src"
+              )
+              order by "interior_images"."created_at" asc
+            )
+            from "interior_images"
+            left join "images" on "interior_images"."image_id" = "images"."id"
+            where "interior_images"."interior_id" = "interiors"."id"
+            and "interior_images"."is_main" = false
+            ) as images
+          `),
           KnexService.raw(`jsonb_agg(distinct interior_models) as used_models`),
 
         ])
@@ -222,19 +238,20 @@ export default class InteriorsDAO {
             .leftJoin("models", { 'interior_models.model_id': 'models.id' })
             .groupBy('interior_models.id')
         }, { 'interiors.id': 'interior_models.interior_id' })
-        .leftJoin(function () {
-          this.select([
-            'interior_images.id',
-            'interior_images.is_main',
-            'interior_images.image_id',
-            'interior_images.interior_id',
-            'images.src as image_src'
-          ])
-            .from('interior_images')
-            .as('interior_images')
-            .leftJoin("images", { 'interior_images.image_id': 'images.id' })
-            .groupBy('interior_images.id', 'images.id')
-        }, { 'interiors.id': 'interior_images.interior_id' })
+        // .leftJoin(function () {
+        //   this.select([
+        //     'interior_images.id',
+        //     'interior_images.is_main',
+        //     'interior_images.image_id',
+        //     'interior_images.interior_id',
+        //     'images.src as image_src'
+        //   ])
+        //     .from('interior_images')
+        //     .as('interior_images')
+        //     .leftJoin("images", { 'interior_images.image_id': 'images.id' })
+        //     .where('interior_images.is_main', '=', false)
+        //     .groupBy('interior_images.id', 'images.id')
+        // }, { 'interiors.id': 'interior_images.interior_id' })
         .groupBy(
           'interiors.id',
           'interactions.id',

@@ -70,7 +70,7 @@ export default class BrandService {
       company_name: name,
       image_src,
       password
-    })
+    }, null, brand)
 
     const brandAdmin = await this.brandsDao.createBrandAdmin({
       brand_id: brand.id,
@@ -101,8 +101,6 @@ export default class BrandService {
       let brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
 
       if (brandAdmin) {
-        console.log('kk', brandAdmin);
-
         if (username) {
           await this.usersService.update(brandAdmin?.id, { username })
         }

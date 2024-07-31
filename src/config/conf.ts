@@ -51,6 +51,8 @@ export const PAYMENT = {
 export const chatApi = {
   key: env.CHAT_API_KEY,
   url: env.CHAT_API_URL,
+  webhook_payload_url: env.CHAT_WEBHOOK_PAYLOAD_URL,
+  webhook_secret: env.CHAT_WEBHOOK_SECRET,
   expiresIn: Number(env.CHAT_EXPIRES_IN)
 };
 

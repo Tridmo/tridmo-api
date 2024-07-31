@@ -9,6 +9,9 @@ export async function seed(knex: Knex): Promise<void> {
   if (Number(count[0]?.count)) return
 
   // Inserts seed entries
+
+  await knex("roles").insert(categoriesData);
+
   // for (const cat of categoriesData) {
   //   const created: ICategory = getFirst(
   //     await knex("categories").insert({
