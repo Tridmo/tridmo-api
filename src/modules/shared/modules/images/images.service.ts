@@ -18,7 +18,7 @@ export default class ImageService {
   }
   async delete(id: string): Promise<number> {
     const image = await this.findOne(id);
-    await deleteFile(s3Vars.imagesBucket, image.key)
+    await deleteFile(s3Vars.imagesBucket, image.src)
     return await this.imagesDao.deleteById(id)
   }
 }

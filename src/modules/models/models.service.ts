@@ -87,7 +87,7 @@ export default class ModelService {
     }
 
     // upload and create cover image
-    const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+    const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, null, fileDefaults.model_cover)
     const cover_image = await this.imageService.create({ ...uploadedCover[0] })
     await this.modelImageService.create({
       model_id: model.id,
@@ -96,7 +96,7 @@ export default class ModelService {
     })
 
     // upload and create other images
-    const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, /*fileDefaults.model*/)
+    const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, null, fileDefaults.model)
     Promise.all(uploadedImages.map(async i => {
       const image = await this.imageService.create(i)
       await this.modelImageService.create({
@@ -148,7 +148,7 @@ export default class ModelService {
       const modelCover = await this.modelImageService.findModelCover(id)
       await this.deleteImage(modelCover.image_id)
       // upload and create cover image
-      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, /*fileDefaults.model_cover*/)
+      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, null, fileDefaults.model_cover)
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
       await this.modelImageService.create({
         model_id: model.id,
@@ -163,7 +163,7 @@ export default class ModelService {
     }
     if (images) {
       // upload and create other images
-      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, /*fileDefaults.model*/)
+      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, null, fileDefaults.model)
       Promise.all(uploadedImages.map(async (i, ind) => {
         const image = await this.imageService.create(i)
         await this.modelImageService.create({
@@ -316,7 +316,7 @@ export default class ModelService {
     const result: IAddImageResult = {};
 
     if (cover) {
-      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket)
+      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, null, fileDefaults.model_cover)
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
       await this.modelImageService.create({
         model_id,
@@ -328,7 +328,7 @@ export default class ModelService {
     }
 
     if (images) {
-      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket)
+      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, null, fileDefaults.model)
       if (uploadedImages.length > 1) {
         Promise.all(uploadedImages.map(async i => {
           const image = await this.imageService.create(i)
