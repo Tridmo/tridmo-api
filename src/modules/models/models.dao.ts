@@ -3,6 +3,7 @@ import { getFirst } from "../shared/utils/utils";
 import { ICreateModel, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
 import KnexService from "../../database/connection";
 import { isUUID } from 'class-validator';
+import { availabilityData } from './constants';
 
 export default class ModelsDAO {
 
@@ -252,11 +253,11 @@ export default class ModelsDAO {
           ])
             .from('model_images')
             .as('model_images')
+            // .where('model_images.is_main', '=', false)
             .leftJoin("images", { 'model_images.image_id': 'images.id' })
             .groupBy('model_images.id', 'images.id')
             .orderBy(`model_images.is_main`, 'desc')
         }, { 'models.id': 'model_images.model_id' })
-        // .where('model_images.is_main', '=', false)
         .leftJoin(function () {
           this.select([
             'model_colors.id',
@@ -412,14 +413,14 @@ export default class ModelsDAO {
 
   async deleteById(model_id: string): Promise<number> {
     return await KnexService('models')
-      .update({ availability: false })
       .where({ id: model_id })
+      .delete()
   }
 
   async deleteByBrandId(brand_id: string): Promise<number> {
     return await KnexService('models')
-      .update({ availability: false })
       .where({ brand_id })
+      .delete()
   }
 
 }

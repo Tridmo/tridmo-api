@@ -306,7 +306,6 @@ export default class InteriorService {
 
     await deleteFile(s3Vars.imagesBucket, image.src)
 
-    await this.interiorImageService.deleteByImage(image_id)
     const deleted = await this.imageService.delete(image_id)
 
     return deleted
@@ -320,9 +319,11 @@ export default class InteriorService {
 
     const interiorImages = await this.interiorImageService.findByInterior(id)
 
-    for await (const interior_image of interiorImages) {
-      await this.imageService.delete(interior_image.image_id)
-    }
+    await Promise.all(
+      interiorImages.map(async interior_image => {
+        await this.imageService.delete(interior_image.image_id)
+      })
+    )
 
     const deleted = await this.interiorsDao.deleteById(id)
 

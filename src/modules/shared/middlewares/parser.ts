@@ -29,19 +29,19 @@ export class ParserMiddleware {
   public parse = (
     target: 'body' | 'query' | 'params' = 'body',
     {
-      ignore = []
+      ignore = [],
+      nullify = []
     }: {
       ignore?: string[]
+      nullify?: string[]
     } = {}
   ) => {
     return (req: Request, res: Response, next: NextFunction) => {
       try {
-        console.log(req[target])
         for (const key in req[target]) {
-          console.log(key);
           if (Object.prototype.hasOwnProperty.call(req[target], key) && !isEmpty(req[target][key])) {
             const element = req[target][key];
-            req[target][key] = ignore.includes(key) ? element : processValue(element)
+            req[target][key] = ignore.includes(key) ? (nullify.includes(key) ? null : element) : processValue(element)
           }
         }
 

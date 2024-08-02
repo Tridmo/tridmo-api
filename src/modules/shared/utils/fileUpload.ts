@@ -15,6 +15,7 @@ interface FileUploadArgs {
   useIndexPrefix?: boolean,
   useIndexAsName?: boolean,
   prefix?: string,
+  index?: number,
 }
 
 export const uploadFile = async (
@@ -22,54 +23,14 @@ export const uploadFile = async (
 ): Promise<Array<IImage | IFile>> => {
   try {
     const arr = []
-    let bucketUrl: string;
-
-    if (bucketName == s3Vars.imagesBucket) {
-      bucketUrl = `${s3Vars.publicImagesEndpoint}`
-    }
-    else if (bucketName == s3Vars.filesBucket) {
-      bucketUrl = `${s3Vars.privateEndpoint}/${s3Vars.filesBucket}`
-    }
 
     if (Array.isArray(files)) {
       for await (let [index, file] of files.entries()) {
-        if (dimensions) file = await processImage(file, dimensions);
-
-        const ext = mimeTypes.extension(file.mimetype) || getExtension(file.name);
-
-        let filename = `${folder}/${useIndexAsName ? String(index) : (fileName || uuidv4()) + '.' + ext}`;
-
-        if (prefix) filename = prefix + filename;
-        if (useIndexPrefix) filename = index + filename;
-
-        await s3upload(file.data, { bucket_name: bucketName, filename });
-        const f = {
-          src: filename,
-          key: filename,
-          ext,
-          name: file.name,
-          size: file.size,
-          mimetype: file.mimetype
-        };
-        arr.push(f);
+        const f = await processFile({ files: file, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix, index })
+        arr.push(f)
       }
     } else {
-      let file = files
-
-      if (dimensions) file = await processImage(file, dimensions)
-
-      const ext = mimeTypes.extension(file.mimetype)
-      const filename = `${folder}/${(fileName || uuidv4()) + '.' + ext}`
-
-      await s3upload(file.data, { bucket_name: bucketName, filename })
-      const f = {
-        src: filename,
-        key: filename,
-        ext,
-        name: file.name,
-        size: file.size,
-        mimetype: file.mimetype
-      }
+      const f = await processFile({ files, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix })
       arr.push(f)
     }
 
@@ -77,6 +38,31 @@ export const uploadFile = async (
   } catch (error) {
     console.log("UPLOAD ERROR: ", error);
   }
+}
+
+async function processFile(
+  { files, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix, index }: FileUploadArgs
+) {
+  let file = files
+  if (dimensions) file = await processImage(file, dimensions);
+
+  if (dimensions) console.log("RESIZED", file);
+
+  const ext = mimeTypes.extension(file.mimetype) || getExtension(file.name)
+  const filename = `${folder}/${(fileName || uuidv4())}`
+  const fileNameWithExt = filename + '.' + ext
+
+  await s3upload(file.data, { bucket_name: bucketName, filename: ext == 'rar' || ext == '.rar' ? filename : fileNameWithExt })
+  const f = {
+    src: fileNameWithExt,
+    key: fileNameWithExt,
+    ext,
+    name: file.name,
+    size: file.size,
+    mimetype: file.mimetype
+  }
+
+  return f;
 }
 
 export const deleteFile = async (bucket: string, key: string) => {

@@ -63,7 +63,7 @@ export default class ModelService {
     // upload and create file
     const uploadedFile = await uploadFile({
       files: file,
-      folder: `files/$${modelValues['slug']}`,
+      folder: `files/${modelValues['slug']}`,
       fileName: file.name,
       bucketName: s3Vars.filesBucket
     })
@@ -155,7 +155,7 @@ export default class ModelService {
     if (file) {
       const uploadedFile = await uploadFile({
         files: file,
-        folder: `files/$${model.slug}`,
+        folder: `files/${model.slug}`,
         fileName: file.name,
         bucketName: s3Vars.filesBucket
       })
@@ -260,6 +260,9 @@ export default class ModelService {
     }
     if (model.images?.length && !model.images[0]) {
       model.images = [];
+    } else {
+      model['cover'] = model.images.find(i => i?.is_main == true)
+      model['images'] = model.images.filter(i => i?.is_main == false)
     }
 
     const file = await this.fileService.findOne(model.file_id)
@@ -273,15 +276,15 @@ export default class ModelService {
 
     model.file = filePublicData
 
-    model.images.sort((a, b) => {
-      if (a['is_main'] && !b['is_main']) {
-        return -1; // a comes before b
-      } else if (!a['is_main'] && b['is_main']) {
-        return 1; // b comes before a
-      } else {
-        return 0; // order remains unchanged
-      }
-    });
+    // model.images.sort((a, b) => {
+    //   if (a['is_main'] && !b['is_main']) {
+    //     return -1; // a comes before b
+    //   } else if (!a['is_main'] && b['is_main']) {
+    //     return 1; // b comes before a
+    //   } else {
+    //     return 0; // order remains unchanged
+    //   }
+    // });
 
     return flat.unflatten(model)
   }
@@ -410,7 +413,7 @@ export default class ModelService {
     // upload new file and create add to db
     const uploadedFile = await uploadFile({
       files: file,
-      folder: `files/$${foundModel.slug}`,
+      folder: `files/${foundModel.slug}`,
       fileName: file.name,
       bucketName: s3Vars.filesBucket
     })
@@ -467,12 +470,11 @@ export default class ModelService {
 
     const modelImages = await this.modelImageService.findByModel(model_id)
 
-    for await (const model_image of modelImages) {
-      const image = await this.imageService.findOne(model_image.image_id)
-      await deleteFile(s3Vars.imagesBucket, image.src)
-      await this.imageService.delete(model_image.image_id)
-    }
-
+    await Promise.all(
+      modelImages.map(async model_image => {
+        await this.imageService.delete(model_image.image_id)
+      })
+    )
     const deleted = await this.modelsDao.deleteById(model_id)
 
     await this.interactionService.delete(model.interaction_id)

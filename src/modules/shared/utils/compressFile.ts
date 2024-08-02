@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import sharp from 'sharp';
 
 export default async (data, dimensions: { width: number; height: number }) => {
@@ -12,8 +11,6 @@ export default async (data, dimensions: { width: number; height: number }) => {
     .toBuffer();
 
   const resizedInfo = await sharp(resized).metadata();
-
-
 
   return {
     ...data,
