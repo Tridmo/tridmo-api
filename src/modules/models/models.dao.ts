@@ -86,9 +86,11 @@ export default class ModelsDAO {
         'parent_name as category.parent_name',
 
         KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
+        KnexService.raw('count(distinct downloads.id) as downloads_count'),
 
       ])
       .leftJoin("brands", { 'models.brand_id': 'brands.id' })
+      .leftJoin("downloads", { 'models.id': 'downloads.model_id' })
       .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
       .leftJoin({ style: "styles" }, { "models.style_id": "style.id" })
       .leftJoin(function () {
@@ -186,6 +188,7 @@ export default class ModelsDAO {
           'interactions.likes as likes',
           'interactions.saves as saves',
 
+          KnexService.raw('count(distinct downloads.id) as downloads_count'),
           KnexService.raw('jsonb_agg(distinct "model_materials") as materials'),
           KnexService.raw('jsonb_agg(distinct "model_images") as images'),
           KnexService.raw('jsonb_agg(distinct "model_colors") as colors'),
@@ -193,7 +196,7 @@ export default class ModelsDAO {
 
         ])
         .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
-
+        .leftJoin("downloads", { 'models.id': 'downloads.model_id' })
         .leftJoin(function () {
           this.select([
             'model_materials.model_id',
