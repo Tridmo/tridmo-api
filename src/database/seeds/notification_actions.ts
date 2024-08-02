@@ -12,8 +12,11 @@ export async function seed(knex: Knex): Promise<void> {
     { id: "new_model_upload" },
     { id: "new_interior_upload" },
     { id: "new__tag" },
-    { id: "new_comment" },
-    { id: "new_like" },
+    { id: "new_model_comment" },
+    { id: "new_interior_comment" },
+    { id: "new_model_like" },
+    { id: "new_interior_like" },
+    { id: "new_comment_like" },
     { id: "new_message" },
     { id: "banned" },
   ]);

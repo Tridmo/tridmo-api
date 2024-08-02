@@ -6,11 +6,12 @@ export interface ICreateUser {
   email: string;
   username: string;
   company_name: string;
-  birth_date?: Date;
   image_src?: Date;
   address?: string;
   phone?: string;
   telegram?: string;
+  instagram?: string;
+  linkedin?: string;
   portfolio_link?: string;
 }
 
@@ -19,16 +20,16 @@ export interface IUpdateUser {
   image_src?: string;
   username?: string;
   company_name?: string;
-  birth_date?: Date;
   address?: string;
   phone?: string;
   telegram?: string;
+  instagram?: string;
+  linkedin?: string;
   portfolio_link?: string;
 }
 export interface IUserMetadata {
   full_name: string;
   username: string;
-  birth_date: Date;
 }
 export interface IUpdateUserEmail {
   email: string;
@@ -45,10 +46,11 @@ export interface IUser {
   email: string;
   username: string;
   company_name: string;
-  birth_date: Date;
   address: string;
   phone: string;
   telegram: string;
+  instagram: string;
+  linkedin: string;
   portfolio_link: string;
   image_id?: string;
   image_src?: string;

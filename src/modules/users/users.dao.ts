@@ -14,7 +14,6 @@ export default class UsersDAO {
     email,
     username,
     company_name,
-    birth_date,
     image_src
   }: ICreateUser): Promise<IUser> {
     return getFirst(
@@ -25,7 +24,6 @@ export default class UsersDAO {
           email,
           username,
           company_name,
-          birth_date,
           image_src
         })
         .returning('*'),

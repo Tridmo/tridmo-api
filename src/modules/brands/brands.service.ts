@@ -65,7 +65,6 @@ export default class BrandService {
     const admin = await this.authService.createVerifiedUser({
       email: email || `${username}@${username}.mail`,
       full_name: name,
-      birth_date: new Date(),
       username: username,
       company_name: name,
       image_src,
@@ -92,6 +91,8 @@ export default class BrandService {
   }
 
   async update(brand_id: string, values: IUpdateBrand & IBrandAuth, brand_image?: IRequestFile): Promise<IBrand> {
+    console.log(brand_id, values, brand_image);
+
     const foundBrand: IBrand = await this.brandsDao.getById(brand_id);
     if (isEmpty(foundBrand)) throw new ErrorResponse(400, reqT('brand_404'));
 

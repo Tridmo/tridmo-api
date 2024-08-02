@@ -1,7 +1,7 @@
 import KnexService from '../../database/connection';
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import { getFirst } from "../shared/utils/utils";
-import { ICreateComment, IFilterComment, IComment, IUpdateComment } from "./comments.interface";
+import { ICreateComment, IFilterComment, IComment, IUpdateComment, ICreateCommentLike, IFilterCommentLike } from "./comments.interface";
 
 export default class CommentsDAO {
   async create(values: ICreateComment) {
@@ -33,6 +33,7 @@ export default class CommentsDAO {
         "profiles.username as user.username",
         "profiles.image_src as user.image_src",
 
+        KnexService.raw(`count(distinct comment_likes.id) as likes`),
         KnexService.raw(`coalesce(jsonb_agg(distinct replies) filter (where replies.id is not null), '[]'::jsonb ) as replies`)
       ])
       .leftJoin(function () {
@@ -42,13 +43,16 @@ export default class CommentsDAO {
           "profiles.full_name as user.full_name",
           "profiles.username as user.username",
           "profiles.image_src as user.image_src",
+          KnexService.raw(`count(distinct comment_likes.id) as likes`),
         ])
           .from("comments")
           .as("replies")
           .innerJoin("profiles", { "profiles.id": "comments.user_id" })
+          .leftJoin("comment_likes", { "comments.id": "comment_likes.comment_id" })
           .groupBy("comments.id", "profiles.id")
       }, { "replies.parent_id": "comments.id" })
       .innerJoin("profiles", { "profiles.id": "comments.user_id" })
+      .leftJoin("comment_likes", { "comments.id": "comment_likes.comment_id" })
       .orderBy(`comments.${orderBy}`, order)
       .limit(limit)
       .offset(offset)
@@ -75,4 +79,22 @@ export default class CommentsDAO {
       .where(where)
       .delete()
   }
+
+  async createLike(values: ICreateCommentLike) {
+    const insert = getFirst(
+      await KnexService('comment_likes')
+        .insert(values)
+        .returning("*")
+    )
+    return insert
+  }
+
+  async removeLike(values: ICreateCommentLike) {
+    await KnexService('comment_likes').where(values).delete()
+  }
+
+  async findLike(filters: IFilterCommentLike) {
+    return await KnexService('comment_likes').where(filters)
+  }
+
 }

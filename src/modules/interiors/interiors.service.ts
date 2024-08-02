@@ -21,17 +21,16 @@ import { IUser } from '../users/users.interface';
 import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
 import { reqT } from '../shared/utils/language';
 import { authVariables } from '../auth/variables';
+import NotificationsService from '../notifications/notifications.service';
 
 export default class InteriorService {
-  // private modelService = new ModelService()
-  // private imageTagService = new ImageTagsService()
-  // private interiorModelService = new InteriorModelsService()
   private interiorsDao = new InteriorsDAO()
   private interiorImageService = new InteriorImageService()
   private imageService = new ImageService()
   private usersService = new UsersService()
   private interactionService = new InteractionService()
   private savedInteriorsService = new SavedInteriorsService()
+  private notificationsService = new NotificationsService()
 
   async create(
     data: ICreateInteriorBody,
@@ -72,13 +71,11 @@ export default class InteriorService {
       index: 0,
     })
 
-    console.log('REQ>FILES>IMAGES: ', images);
     const uploadedImages = await uploadFile({
       files: images,
       folder: `images/interiors/${interior.slug}`,
       bucketName: s3Vars.imagesBucket,
     })
-    console.log('PROCESSED: ', uploadedImages);
     await Promise.all(uploadedImages.map(async (i, index) => {
       const image = await this.imageService.create(i)
       await this.interiorImageService.create({
@@ -179,6 +176,12 @@ export default class InteriorService {
     const existing = (await this.interiorsDao.findLike({ interior_id, user_id })).length > 0;
     if (existing) return false;
     await this.interiorsDao.createLike(interior.interaction_id, { interior_id, user_id });
+    await this.notificationsService.create({
+      interior_id,
+      action_id: 'new_interior_like',
+      notifier_id: user_id,
+      recipient_id: interior.user_id,
+    })
     return true;
   }
   async removeLike({ interior_id, user_id }: IFilterInteriorLike): Promise<void> {

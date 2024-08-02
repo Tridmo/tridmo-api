@@ -36,10 +36,12 @@ export class ParserMiddleware {
   ) => {
     return (req: Request, res: Response, next: NextFunction) => {
       try {
+        console.log(req[target])
         for (const key in req[target]) {
-          if (Object.prototype.hasOwnProperty.call(req[target], key)) {
+          console.log(key);
+          if (Object.prototype.hasOwnProperty.call(req[target], key) && !isEmpty(req[target][key])) {
             const element = req[target][key];
-            req[target][key] = processValue(element)
+            req[target][key] = ignore.includes(key) ? element : processValue(element)
           }
         }
 

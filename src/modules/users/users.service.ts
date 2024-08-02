@@ -10,15 +10,15 @@ import flat from 'flat';
 import { usersVariables } from './variables';
 import { reqT } from '../shared/utils/language';
 import supabase from '../../database/supabase/supabase';
+import { fileDefaults } from '../shared/defaults/defaults';
 
 export default class UsersService {
   private usersDao = new UsersDAO();
 
-  async create({ full_name, email, user_id, birth_date, username, company_name, image_src }: ICreateUser): Promise<IUser> {
+  async create({ full_name, email, user_id, username, company_name, image_src }: ICreateUser): Promise<IUser> {
 
     return await this.usersDao.create({
       full_name,
-      birth_date,
       username,
       company_name,
       email,
@@ -38,7 +38,7 @@ export default class UsersService {
 
     if (image) {
       await deleteFile(s3Vars.imagesBucket, user.image_src)
-      const uploadedCover = await uploadFile({ files: image, folder: "images/pfps", bucketName: s3Vars.imagesBucket, fileName: user.username })
+      const uploadedCover = await uploadFile({ files: image, folder: "images/pfps", bucketName: s3Vars.imagesBucket, fileName: user.username, dimensions: fileDefaults.avatar })
       updatedUser = await this.usersDao.update(id, {
         image_src: uploadedCover[0].src
       })

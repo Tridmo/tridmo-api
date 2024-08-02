@@ -115,10 +115,11 @@ class UsersController {
         username: profile.username,
         company_name: profile.company_name,
         image_src: profile.image_src,
-        birth_date: profile.birth_date,
         address: profile.address,
         phone: profile.phone,
         telegram: profile.telegram,
+        instagram: profile.instagram,
+        linkedin: profile.linkedin,
         portfolio_link: profile.portfolio_link,
         is_verified: Boolean(user.confirmed_at)
       }
@@ -153,6 +154,8 @@ class UsersController {
         address: profile.address,
         phone: profile.phone,
         telegram: profile.telegram,
+        instagram: profile.instagram,
+        linkedin: profile.linkedin,
         portfolio_link: profile.portfolio_link,
       }
 
@@ -199,6 +202,8 @@ class UsersController {
         address: profile.address,
         phone: profile.phone,
         telegram: profile.telegram,
+        instagram: profile.instagram,
+        linkedin: profile.linkedin,
         portfolio_link: profile.portfolio_link,
       }
 

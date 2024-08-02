@@ -9,7 +9,22 @@ export class UpdateUserDTO implements IUpdateUser {
   username?: string;
 
   @IsString()
-  birth_date?: Date;
+  company_name?: string;
+
+  @IsString()
+  address?: string;
+
+  @IsString()
+  telegram?: string;
+
+  @IsString()
+  portfolio_link?: string;
+
+  @IsString()
+  instagram?: string;
+
+  @IsString()
+  linkedin?: string;
 }
 export class UpdateUserEmailDTO implements IUpdateUserEmail {
   @IsEmail()

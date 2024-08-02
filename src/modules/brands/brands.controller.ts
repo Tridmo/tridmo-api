@@ -15,6 +15,8 @@ import { reqT } from '../shared/utils/language';
 import UsersService from "../users/users.service";
 import ErrorResponse from "../shared/utils/errorResponse";
 import { CustomRequest } from "../shared/interface/routes.interface";
+import { authVariables } from "../auth/variables";
+import BrandsDAO from "./brands.dao";
 
 export default class BrandsController {
   private brandsService = new BrandService()
@@ -98,11 +100,22 @@ export default class BrandsController {
     }
   }
 
-  public getOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getOne = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { identifier } = req.params
 
       const data = await this.brandsService.findOne(identifier)
+
+      if (
+        !!req.user &&
+        (
+          req.user?.profile?.role_id == authVariables.roles.admin ||
+          req.user?.profile?.role?.id == authVariables.roles.admin
+        )
+      ) {
+        const brandAdmin = await new BrandsDAO().getBrandAdmin({ brand_id: data.id });
+        if (!!brandAdmin) data['username'] = brandAdmin.profiles?.username
+      }
 
       res.status(200).json({
         success: true,

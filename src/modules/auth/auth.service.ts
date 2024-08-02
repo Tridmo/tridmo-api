@@ -45,7 +45,7 @@ export default class AuthService {
 
   private jwtService = new TokenService()
 
-  async signup({ email, full_name, password, birth_date, company_name }: ISignup) {
+  async signup({ email, full_name, password, company_name }: ISignup) {
 
     const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
 
@@ -57,7 +57,7 @@ export default class AuthService {
     const username = generateUsernameFromName(full_name)
 
     const profile = await this.usersService.create({
-      user_id: user.id, full_name, email, birth_date, company_name, username
+      user_id: user.id, full_name, email, company_name, username
     })
 
     const role = await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.designer })
@@ -94,7 +94,7 @@ export default class AuthService {
   }
 
   async createVerifiedUser(
-    { email, full_name, password, birth_date, company_name, username, image_src },
+    { email, full_name, password, company_name, username, image_src },
     image?: IRequestFile,
     brand?: IBrand
   ) {
@@ -124,7 +124,7 @@ export default class AuthService {
     const user_image = uploadedImage ? uploadedImage[0].src : image_src ? image_src : null
 
     const profile = await this.usersService.create({
-      user_id: user.id, full_name, email, birth_date, username, company_name,
+      user_id: user.id, full_name, email, username, company_name,
       image_src: user_image
     })
     await this.userRolesService.create({ user_id: profile.id, role_id: authVariables.roles.brand })
@@ -219,7 +219,6 @@ export default class AuthService {
           full_name: session!.user.user_metadata.full_name,
           company_name: session!.user.user_metadata.full_name,
           username: session!.user.user_metadata.username,
-          birth_date: session!.user.user_metadata.birth_date,
         }
       )
     }

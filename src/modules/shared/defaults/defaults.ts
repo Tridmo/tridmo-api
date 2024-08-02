@@ -23,6 +23,11 @@ export const defaults = {
 
 
 export const fileDefaults = {
+  avatar: {
+    width: 200,
+    height: 200,
+  },
+
   interior: {
     width: 1500,
     height: 1500

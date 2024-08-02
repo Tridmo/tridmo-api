@@ -161,7 +161,7 @@ export default class InteriorsDAO {
       })
   }
 
-  async getByIdMinimal(id: string) {
+  async getByIdMinimal(id: string): Promise<IInterior> {
     return getFirst(
       await KnexService('interiors')
         .select('*')

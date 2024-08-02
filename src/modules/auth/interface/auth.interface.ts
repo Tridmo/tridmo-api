@@ -6,7 +6,6 @@ export interface ICreateUser {
   username: string;
   company_name: string;
   password: string;
-  birth_date: Date;
 }
 
 export interface ISignin {
@@ -22,7 +21,6 @@ export interface ISignup {
   username?: string;
   company_name: string;
   password: string;
-  birth_date?: Date;
 }
 
 export interface ITokenPayload {

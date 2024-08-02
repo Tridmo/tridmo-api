@@ -3,8 +3,11 @@ export type NotificationAction =
   'new_model_upload' |
   'new_interior_upload' |
   'new__tag' |
-  'new_comment' |
-  'new_like' |
+  'new_model_comment' |
+  'new_interior_comment' |
+  'new_model_like' |
+  'new_interior_like' |
+  'new_comment_like' |
   'new_message' |
   'banned';
 
