@@ -35,7 +35,7 @@ export const uploadFile = async (
       for await (let [index, file] of files.entries()) {
         if (dimensions) file = await processImage(file, dimensions);
 
-        const ext = mimeTypes.extension(file.mimetype) || 'png';
+        const ext = mimeTypes.extension(file.mimetype) || getExtension(file.name);
 
         let filename = `${folder}/${useIndexAsName ? String(index) : (fileName || uuidv4()) + '.' + ext}`;
 
