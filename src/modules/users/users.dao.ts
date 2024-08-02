@@ -5,6 +5,7 @@ import { getFirst } from '../shared/utils/utils';
 import { ICreateUser, IUpdateUser, IUser } from './users.interface';
 import { authVariables } from '../auth/variables';
 import { usersVariables } from './variables';
+import { isDefined } from 'class-validator';
 
 export default class UsersDAO {
   async create({
@@ -217,26 +218,27 @@ export default class UsersDAO {
   async count(filters) {
     const { full_name, key, keyword, role_id, downloads_from_brand, downloaded_model, ...otherFilters } = filters;
 
-    return (
-      await KnexService('profiles')
-        .count('profiles.id')
-        .innerJoin('user_roles', 'profiles.id', 'user_roles.user_id')
-        .groupBy("profiles.id", "user_roles.id")
-        .modify((q) => {
-          if (role_id) q.where('user_roles.role_id', role_id)
-          if (full_name) q.whereILike(`full_name`, `%${full_name}%`)
-          if (Object.entries(otherFilters).length) q.andWhere(otherFilters)
-          if (downloads_from_brand) {
-            q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
-            q.innerJoin('models', { 'downloads.model_id': 'models.id' })
-            q.where('models.brand_id', '=', downloads_from_brand)
-          }
-          if (downloaded_model) {
-            q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
-            q.where('downloads.model_id', '=', downloaded_model)
-          }
-        })
-    )[0].count
+    const query = KnexService('profiles')
+      .count('profiles.id')
+      .innerJoin('user_roles', 'profiles.id', 'user_roles.user_id')
+      .modify((q) => {
+        if (isDefined(role_id)) q.where('user_roles.role_id', role_id)
+        if (isDefined(full_name)) q.whereILike(`full_name`, `%${full_name}%`)
+        if (Object.entries(otherFilters).length) q.andWhere(otherFilters)
+        if (isDefined(downloads_from_brand)) {
+          q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
+          q.innerJoin('models', { 'downloads.model_id': 'models.id' })
+          q.where('models.brand_id', '=', downloads_from_brand)
+        }
+        if (isDefined(downloaded_model)) {
+          q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
+          q.where('downloads.model_id', '=', downloaded_model)
+        }
+      })
+
+    const result = await query;
+
+    return (result)[0].count
   }
 
   getById(id: string): Promise<IUser> {

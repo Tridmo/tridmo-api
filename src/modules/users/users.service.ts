@@ -38,7 +38,7 @@ export default class UsersService {
 
     if (image) {
       await deleteFile(s3Vars.imagesBucket, user.image_src)
-      const uploadedCover = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, user.username/*fileDefaults.model_cover*/)
+      const uploadedCover = await uploadFile({ files: image, folder: "images/pfps", bucketName: s3Vars.imagesBucket, fileName: user.username })
       updatedUser = await this.usersDao.update(id, {
         image_src: uploadedCover[0].src
       })

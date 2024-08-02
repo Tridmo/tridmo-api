@@ -117,7 +117,9 @@ export default class AuthService {
     username = username || generateUsernameFromName(full_name)
 
     let uploadedImage;
-    if (image) uploadedImage = await uploadFile(image, "images/pfps", s3Vars.imagesBucket, username, /*fileDefaults.model_cover*/);
+    if (image) uploadedImage = await uploadFile({
+      files: image, folder: "images/pfps", bucketName: s3Vars.imagesBucket, fileName: username
+    });
 
     const user_image = uploadedImage ? uploadedImage[0].src : image_src ? image_src : null
 

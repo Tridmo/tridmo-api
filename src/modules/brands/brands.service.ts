@@ -54,7 +54,7 @@ export default class BrandService {
 
     let image_src = null;
     if (!!brand) {
-      const upload = await uploadFile(brand_image, "images/brands", s3Vars.imagesBucket)
+      const upload = await uploadFile({ files: brand_image, folder: "images/brands", bucketName: s3Vars.imagesBucket })
       const newImage = await this.imagesService.create(upload[0])
       await this.brandsDao.update(brand.id, {
         image_id: newImage.id
@@ -136,7 +136,7 @@ export default class BrandService {
       await this.imagesService.delete(brand.image_id);
     }
 
-    const upload = await uploadFile(image, "images/brands", s3Vars.imagesBucket)
+    const upload = await uploadFile({ files: image, folder: "images/brands", bucketName: s3Vars.imagesBucket })
     const newImage = await this.imagesService.create(upload[0])
 
     const imageUpdate: IBrand = await this.brandsDao.update(brand_id, {

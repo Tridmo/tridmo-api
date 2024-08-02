@@ -106,6 +106,7 @@ export default class InteriorsDAO {
         this.select([
           'interior_images.id',
           'interior_images.is_main',
+          'interior_images.index',
           'interior_images.image_id',
           'interior_images.interior_id',
           'images.src as image_src'
@@ -197,11 +198,12 @@ export default class InteriorsDAO {
               json_build_object(
                 'id', "interior_images"."id",
                 'is_main', "interior_images"."is_main",
+                'index', "interior_images"."index",
                 'image_id', "interior_images"."image_id",
                 'interior_id', "interior_images"."interior_id",
                 'image_src', "images"."src"
               )
-              order by "interior_images"."created_at" asc
+              order by "interior_images"."index" asc
             )
             from "interior_images"
             left join "images" on "interior_images"."image_id" = "images"."id"

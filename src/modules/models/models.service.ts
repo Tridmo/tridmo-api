@@ -55,14 +55,19 @@ export default class ModelService {
 
     if (!brand) throw new ErrorResponse(404, 'Brand was not found')
 
-    // upload and create file
-    const uploadedFile = await uploadFile(file, "files/products", s3Vars.filesBucket)
-    const newFile = await this.fileService.create({ ...uploadedFile[0] })
-
     // generate unique slug
     modelValues['slug'] = generateSlug(modelValues.name)
     const foundSlugs = await this.modelsDao.getSimilarSlugs(modelValues['slug'])
     if (foundSlugs && !isEmpty(foundSlugs)) modelValues['slug'] = indexSlug(modelValues['slug'], foundSlugs.map(model => model.slug))
+
+    // upload and create file
+    const uploadedFile = await uploadFile({
+      files: file,
+      folder: `files/$${modelValues['slug']}`,
+      fileName: file.name,
+      bucketName: s3Vars.filesBucket
+    })
+    const newFile = await this.fileService.create({ ...uploadedFile[0] })
 
     const interactions = await this.interactionService.create();
 
@@ -87,7 +92,13 @@ export default class ModelService {
     }
 
     // upload and create cover image
-    const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, null, fileDefaults.model_cover)
+    const uploadedCover = await uploadFile({
+      files: cover,
+      folder: `images/models/${modelValues['slug']}`,
+      bucketName: s3Vars.imagesBucket,
+      fileName: 'cover',
+      dimensions: fileDefaults.model_cover
+    })
     const cover_image = await this.imageService.create({ ...uploadedCover[0] })
     await this.modelImageService.create({
       model_id: model.id,
@@ -96,7 +107,12 @@ export default class ModelService {
     })
 
     // upload and create other images
-    const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, null, fileDefaults.model)
+    const uploadedImages = await uploadFile({
+      files: images,
+      folder: `images/models/${modelValues['slug']}`,
+      bucketName: s3Vars.imagesBucket,
+      dimensions: fileDefaults.model,
+    })
     Promise.all(uploadedImages.map(async i => {
       const image = await this.imageService.create(i)
       await this.modelImageService.create({
@@ -137,7 +153,12 @@ export default class ModelService {
       }
     }
     if (file) {
-      const uploadedFile = await uploadFile(file, "files/products", s3Vars.filesBucket)
+      const uploadedFile = await uploadFile({
+        files: file,
+        folder: `files/$${model.slug}`,
+        fileName: file.name,
+        bucketName: s3Vars.filesBucket
+      })
       const newFile = await this.fileService.create({ ...uploadedFile[0] })
       await this.modelsDao.update(id, { file_id: newFile?.id })
       const oldFile = await this.fileService.findOne(model?.file_id)
@@ -148,7 +169,13 @@ export default class ModelService {
       const modelCover = await this.modelImageService.findModelCover(id)
       await this.deleteImage(modelCover.image_id)
       // upload and create cover image
-      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, null, fileDefaults.model_cover)
+      const uploadedCover = await uploadFile({
+        files: cover,
+        folder: `images/models/${model.slug}`,
+        bucketName: s3Vars.imagesBucket,
+        fileName: 'cover',
+        dimensions: fileDefaults.model_cover
+      })
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
       await this.modelImageService.create({
         model_id: model.id,
@@ -163,7 +190,12 @@ export default class ModelService {
     }
     if (images) {
       // upload and create other images
-      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, null, fileDefaults.model)
+      const uploadedImages = await uploadFile({
+        files: images,
+        folder: `images/models/${model.slug}`,
+        bucketName: s3Vars.imagesBucket,
+        dimensions: fileDefaults.model,
+      })
       Promise.all(uploadedImages.map(async (i, ind) => {
         const image = await this.imageService.create(i)
         await this.modelImageService.create({
@@ -312,11 +344,17 @@ export default class ModelService {
   }
 
   async addImages(model_id: string, cover: IRequestFile, images: IRequestFile[]): Promise<IAddImageResult> {
-
+    const model = await this.modelsDao.getByIdOrSlug_min(model_id)
     const result: IAddImageResult = {};
 
     if (cover) {
-      const uploadedCover = await uploadFile(cover, "images/products", s3Vars.imagesBucket, null, fileDefaults.model_cover)
+      const uploadedCover = await uploadFile({
+        files: cover,
+        folder: `images/models/${model.slug}`,
+        bucketName: s3Vars.imagesBucket,
+        fileName: 'cover',
+        dimensions: fileDefaults.model_cover
+      })
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
       await this.modelImageService.create({
         model_id,
@@ -328,7 +366,12 @@ export default class ModelService {
     }
 
     if (images) {
-      const uploadedImages = await uploadFile(images, "images/products", s3Vars.imagesBucket, null, fileDefaults.model)
+      const uploadedImages = await uploadFile({
+        files: images,
+        folder: `images/models/${model.slug}`,
+        bucketName: s3Vars.imagesBucket,
+        dimensions: fileDefaults.model,
+      })
       if (uploadedImages.length > 1) {
         Promise.all(uploadedImages.map(async i => {
           const image = await this.imageService.create(i)
@@ -365,7 +408,12 @@ export default class ModelService {
     if (fileExists) await deleteFile(s3Vars.filesBucket, oldFile.key)
 
     // upload new file and create add to db
-    const uploadedFile = await uploadFile(file, "files/product-files", s3Vars.filesBucket)
+    const uploadedFile = await uploadFile({
+      files: file,
+      folder: `files/$${foundModel.slug}`,
+      fileName: file.name,
+      bucketName: s3Vars.filesBucket
+    })
     const newFile = await this.fileService.update(foundModel.file_id, { ...uploadedFile[0] })
 
     // connect model to new file
