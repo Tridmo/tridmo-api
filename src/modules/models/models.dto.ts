@@ -43,8 +43,6 @@ export class CreateModelDTO implements ICreateModelBody {
   @IsNotEmpty()
   description: string;
 
-  @IsDefined()
-  @IsNotEmpty()
   @IsNumberOrStringifiedNumber()
   furniture_cost: number;
 
