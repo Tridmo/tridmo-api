@@ -121,7 +121,6 @@ export class UpdateModelDTO implements IUpdateModel {
   description: string;
 
   @IsOptional()
-  @IsNotEmpty()
   @IsNumberOrStringifiedNumber()
   furniture_cost: number;
 
