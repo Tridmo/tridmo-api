@@ -3,13 +3,14 @@ import KnexService from '../../../../database/connection';
 import { ICreateModelImage } from "../interface/model_images.interface";
 
 export default class ModelImagesDAO {
-  async create({ model_id, image_id, is_main }: ICreateModelImage) {
+  async create({ model_id, image_id, is_main, index }: ICreateModelImage) {
     return getFirst(
       await KnexService("model_images")
         .insert({
           model_id,
           image_id,
-          is_main
+          is_main,
+          index
         })
         .returning("*")
     )

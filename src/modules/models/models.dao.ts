@@ -190,9 +190,26 @@ export default class ModelsDAO {
 
           KnexService.raw('count(distinct downloads.id) as downloads_count'),
           KnexService.raw('jsonb_agg(distinct "model_materials") as materials'),
-          KnexService.raw('jsonb_agg(distinct "model_images") as images'),
           KnexService.raw('jsonb_agg(distinct "model_colors") as colors'),
           KnexService.raw(`jsonb_agg(distinct "interior_models") as used_interiors`),
+
+          KnexService.raw(`
+            (select json_agg(
+              json_build_object(
+                'id', "model_images"."id",
+                'is_main', "model_images"."is_main",
+                'index', "model_images"."index",
+                'image_id', "model_images"."image_id",
+                'model_id', "model_images"."model_id",
+                'image_src', "images"."src"
+              )
+              order by "model_images"."index" asc
+            )
+            from "model_images"
+            left join "images" on "model_images"."image_id" = "images"."id"
+            where "model_images"."model_id" = "models"."id"
+            ) as images
+          `),
 
         ])
         .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
@@ -243,24 +260,24 @@ export default class ModelsDAO {
             .groupBy("categories.id", "parent.id")
         }, { "models.category_id": "categories.id" })
         .leftJoin({ file: "files" }, { "models.file_id": "file.id" })
-        .innerJoin(function () {
-          this.select([
-            'model_images.id',
-            'model_images.is_main',
-            'model_images.image_id',
-            'model_images.model_id',
-            'model_images.created_at',
+        // .innerJoin(function () {
+        //   this.select([
+        //     'model_images.id',
+        //     'model_images.is_main',
+        //     'model_images.image_id',
+        //     'model_images.model_id',
+        //     'model_images.created_at',
 
-            // 'images.id as images.id',
-            'images.src as image_src'
-          ])
-            .from('model_images')
-            .as('model_images')
-            // .where('model_images.is_main', '=', false)
-            .leftJoin("images", { 'model_images.image_id': 'images.id' })
-            .groupBy('model_images.id', 'images.id')
-            .orderBy(`model_images.is_main`, 'desc')
-        }, { 'models.id': 'model_images.model_id' })
+        //     // 'images.id as images.id',
+        //     'images.src as image_src'
+        //   ])
+        //     .from('model_images')
+        //     .as('model_images')
+        //     // .where('model_images.is_main', '=', false)
+        //     .leftJoin("images", { 'model_images.image_id': 'images.id' })
+        //     .groupBy('model_images.id', 'images.id')
+        //     .orderBy(`model_images.is_main`, 'desc')
+        // }, { 'models.id': 'model_images.model_id' })
         .leftJoin(function () {
           this.select([
             'model_colors.id',

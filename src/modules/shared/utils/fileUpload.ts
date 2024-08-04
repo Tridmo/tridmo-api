@@ -46,13 +46,13 @@ async function processFile(
   let file = files
   if (dimensions) file = await processImage(file, dimensions);
 
-  if (dimensions) console.log("RESIZED", file);
-
   const ext = mimeTypes.extension(file.mimetype) || getExtension(file.name)
   const filename = `${folder}/${(fileName || uuidv4())}`
   const fileNameWithExt = filename + '.' + ext
 
-  await s3upload(file.data, { bucket_name: bucketName, filename: ext == 'rar' || ext == '.rar' ? filename : fileNameWithExt })
+  const finalFileName = ext == 'rar' || ext == '.rar' ? filename : fileNameWithExt
+
+  await s3upload(file.data, { bucket_name: bucketName, filename: fileNameWithExt })
   const f = {
     src: fileNameWithExt,
     key: fileNameWithExt,

@@ -23,7 +23,7 @@ export default class CommentsRoute implements Routes {
     // Create new
     this.router.post(`${this.path}/`, protect, validate(CreateCommentDTO, "body"), this.controller.create);
     // Update
-    this.router.post(`${this.path}/:id`, protect, validate(UpdateCommentDTO, "body"), this.controller.update);
+    this.router.put(`${this.path}/:id`, protect, validate(UpdateCommentDTO, "body"), this.controller.update);
     // Delete one
     this.router.delete(`${this.path}/:id`, protect, this.controller.delete);
   }

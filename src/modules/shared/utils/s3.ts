@@ -42,7 +42,7 @@ export const s3upload = async (file, { bucket_name, filename }) => {
 
     const upload = await s3.send(new PutObjectCommand(params));
 
-    console.log('Success', upload);
+    console.log(`Upload success:  ${filename}`);
   } catch (error) {
     console.log(error);
   }
@@ -91,14 +91,12 @@ export const s3deleteMany = async (bucket_name: string, objects: { Key: string }
 export const generatePresignedUrl = async (filesrc: string): Promise<string> => {
   const s3 = getS3()
 
-  const params: {
-    Bucket: string;
-    Key: string;
-  } = {
+  const command = new GetObjectCommand({
     Bucket: process.env.S3_FILES_BUCKET_NAME,
     Key: filesrc,
-  };
+  })
 
-  return await getSignedUrl(s3, new GetObjectCommand(params), { expiresIn: defaults.s3UrlExpiresIn })
+  const url = await getSignedUrl(s3, command, { expiresIn: defaults.s3UrlExpiresIn })
 
+  return url;
 }

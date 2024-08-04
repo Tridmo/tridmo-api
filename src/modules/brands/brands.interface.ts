@@ -9,6 +9,7 @@ export interface IBrand {
   site_link: string;
   phone: string;
   email: string;
+  instagram: string;
   address: string;
   styles?: any[];
   image_id: string;
@@ -20,6 +21,7 @@ export interface ICreateBrand {
   name: string;
   phone: string;
   email: string;
+  instagram: string;
   address: string;
   description: string;
   site_link: string;
@@ -72,6 +74,7 @@ export interface IUpdateBrand {
   slug?: string;
   phone?: string;
   email?: string;
+  instagram?: string;
   address?: string;
   description?: string;
   site_link?: string;

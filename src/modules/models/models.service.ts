@@ -63,8 +63,8 @@ export default class ModelService {
     // upload and create file
     const uploadedFile = await uploadFile({
       files: file,
-      folder: `files/${modelValues['slug']}`,
-      fileName: file.name,
+      folder: `files/models`,
+      fileName: modelValues['slug'],
       bucketName: s3Vars.filesBucket
     })
     const newFile = await this.fileService.create({ ...uploadedFile[0] })
@@ -94,7 +94,7 @@ export default class ModelService {
     // upload and create cover image
     const uploadedCover = await uploadFile({
       files: cover,
-      folder: `images/models/${modelValues['slug']}`,
+      folder: `images/models/${model?.slug}`,
       bucketName: s3Vars.imagesBucket,
       fileName: 'cover',
       dimensions: fileDefaults.model_cover
@@ -103,7 +103,8 @@ export default class ModelService {
     await this.modelImageService.create({
       model_id: model.id,
       image_id: cover_image.id,
-      is_main: true
+      is_main: true,
+      index: 0
     })
 
     // upload and create other images
@@ -113,12 +114,13 @@ export default class ModelService {
       bucketName: s3Vars.imagesBucket,
       dimensions: fileDefaults.model,
     })
-    Promise.all(uploadedImages.map(async i => {
+    await Promise.all(uploadedImages.map(async (i, index) => {
       const image = await this.imageService.create(i)
       await this.modelImageService.create({
         model_id: model.id,
         image_id: image.id,
-        is_main: false
+        is_main: false,
+        index: index + 1,
       })
     }))
 
@@ -155,8 +157,8 @@ export default class ModelService {
     if (file) {
       const uploadedFile = await uploadFile({
         files: file,
-        folder: `files/${model.slug}`,
-        fileName: file.name,
+        folder: `files/models`,
+        fileName: model.slug,
         bucketName: s3Vars.filesBucket
       })
       const newFile = await this.fileService.create({ ...uploadedFile[0] })
@@ -180,7 +182,8 @@ export default class ModelService {
       await this.modelImageService.create({
         model_id: model.id,
         image_id: cover_image.id,
-        is_main: true
+        is_main: true,
+        index: 0
       })
     }
     if (removed_images && removed_images?.length) {
@@ -189,6 +192,9 @@ export default class ModelService {
       }
     }
     if (images) {
+      const otherImages = await this.modelImageService.findByModel(id)
+      const maxIndex = Math.max(...otherImages.map(item => item.index));
+      const startIndex = maxIndex ? maxIndex + 1 : 1;
       // upload and create other images
       const uploadedImages = await uploadFile({
         files: images,
@@ -196,12 +202,13 @@ export default class ModelService {
         bucketName: s3Vars.imagesBucket,
         dimensions: fileDefaults.model,
       })
-      Promise.all(uploadedImages.map(async (i, ind) => {
+      await Promise.all(uploadedImages.map(async (i, index) => {
         const image = await this.imageService.create(i)
         await this.modelImageService.create({
           model_id: model.id,
           image_id: image.id,
-          is_main: false
+          is_main: false,
+          index: startIndex + index,
         })
       }))
     }
@@ -362,13 +369,17 @@ export default class ModelService {
       await this.modelImageService.create({
         model_id,
         image_id: cover_image.id,
-        is_main: true
+        is_main: true,
+        index: 0
       })
 
       result.cover = cover_image
     }
 
     if (images) {
+      const otherImages = await this.modelImageService.findByModel(model_id)
+      const maxIndex = Math.max(...otherImages.map(item => item.index));
+      const startIndex = maxIndex ? maxIndex + 1 : 1;
       const uploadedImages = await uploadFile({
         files: images,
         folder: `images/models/${model.slug}`,
@@ -376,21 +387,22 @@ export default class ModelService {
         dimensions: fileDefaults.model,
       })
       if (uploadedImages.length > 1) {
-        Promise.all(uploadedImages.map(async i => {
+        await Promise.all(uploadedImages.map(async (i, index) => {
           const image = await this.imageService.create(i)
           await this.modelImageService.create({
-            model_id,
+            model_id: model.id,
             image_id: image.id,
-            is_main: false
+            is_main: false,
+            index: startIndex + index,
           })
-          result.images.push(image)
         }))
       } else {
         const image = await this.imageService.create(uploadedImages[0])
         await this.modelImageService.create({
-          model_id,
+          model_id: model.id,
           image_id: image.id,
-          is_main: false
+          is_main: false,
+          index: startIndex,
         })
         result.images.push(image)
       }
@@ -413,8 +425,8 @@ export default class ModelService {
     // upload new file and create add to db
     const uploadedFile = await uploadFile({
       files: file,
-      folder: `files/${foundModel.slug}`,
-      fileName: file.name,
+      folder: `files/models`,
+      fileName: foundModel.slug,
       bucketName: s3Vars.filesBucket
     })
     const newFile = await this.fileService.update(foundModel.file_id, { ...uploadedFile[0] })
@@ -493,7 +505,7 @@ export default class ModelService {
     const file = await this.fileService.findOne(model.file_id)
     if (!file) throw new ErrorResponse(404, reqT('file_404'));
 
-    const presignedUrl = generatePresignedUrl(file.key)
+    const presignedUrl = await generatePresignedUrl(file.src)
 
     const isAdmin = user.roles.find(e => e.role_id == authVariables.roles.admin || e.role_id == authVariables.roles.brand)
 

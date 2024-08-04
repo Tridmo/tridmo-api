@@ -74,6 +74,14 @@ export default class CommentsDAO {
     )
   }
 
+
+  async getByNotificationId(id: string): Promise<IComment> {
+    return getFirst(
+      await KnexService('comments')
+        .where({ notification_id: id })
+    )
+  }
+
   async delete(where: IFilterComment): Promise<number> {
     return await KnexService('comments')
       .where(where)
@@ -89,7 +97,7 @@ export default class CommentsDAO {
     return insert
   }
 
-  async removeLike(values: ICreateCommentLike) {
+  async removeLike(values: IFilterCommentLike) {
     await KnexService('comment_likes').where(values).delete()
   }
 

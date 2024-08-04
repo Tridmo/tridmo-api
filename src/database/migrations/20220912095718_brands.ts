@@ -11,6 +11,7 @@ export async function up(knex: Knex): Promise<void> {
             site_link varchar(1024) not null,
             phone VARCHAR(48),
             email VARCHAR(256),
+            instagram VARCHAR(256),
             address VARCHAR(256),
             image_id uuid references images(id) on delete no action,
             created_at timestamp with time zone not null default current_timestamp,

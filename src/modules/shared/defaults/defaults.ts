@@ -18,7 +18,7 @@ export const defaults = {
   reqPresentationName: 'presentation',
   recentViewsLimit: 5,
   defaultLimit: 12,
-  s3UrlExpiresIn: 60,
+  s3UrlExpiresIn: 5 * 60,
 }
 
 

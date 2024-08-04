@@ -1,5 +1,6 @@
-import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDefined, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ICreateCommentBody, IUpdateComment } from './comments.interface';
+import { IsOneOf } from '../shared/custom/validators';
 
 export class CreateCommentDTO implements ICreateCommentBody {
   @IsString()
@@ -14,7 +15,8 @@ export class CreateCommentDTO implements ICreateCommentBody {
   @IsString()
   @IsDefined()
   @IsNotEmpty()
-  entity_source: string;
+  @IsOneOf(['interiors', 'models'])
+  entity_source: 'interiors' | 'models';
 
   @IsString()
   @IsDefined()

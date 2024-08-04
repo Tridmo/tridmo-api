@@ -26,7 +26,7 @@ export default class BrandService {
   private usersService = new UsersService()
 
   async create(
-    { name, site_link, description, username, password, phone, email, address, styles }: ICreateBrand & IBrandAuth,
+    { name, site_link, description, username, password, phone, email, address, styles, instagram }: ICreateBrand & IBrandAuth,
     brand_image: IRequestFile
   ): Promise<{
     brand: IBrand,
@@ -49,12 +49,13 @@ export default class BrandService {
       email,
       address,
       site_link,
-      description
+      description,
+      instagram
     })
 
     let image_src = null;
     if (!!brand) {
-      const upload = await uploadFile({ files: brand_image, folder: "images/brands", bucketName: s3Vars.imagesBucket })
+      const upload = await uploadFile({ files: brand_image, folder: `images/brands/`, fileName: slug, bucketName: s3Vars.imagesBucket })
       const newImage = await this.imagesService.create(upload[0])
       await this.brandsDao.update(brand.id, {
         image_id: newImage.id
@@ -63,7 +64,7 @@ export default class BrandService {
     }
 
     const admin = await this.authService.createVerifiedUser({
-      email: email || `${username}@${username}.mail`,
+      email: email || `${username.toLowerCase()}@${username.toLocaleLowerCase()}.mail`,
       full_name: name,
       username: username,
       company_name: name,
@@ -115,7 +116,9 @@ export default class BrandService {
     let brand: IBrand = Object.keys(otherValues).length ? await this.brandsDao.update(brand_id, otherValues) : foundBrand
 
     if (brand_image) {
+      let brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
       brand = await this.updateImage(brand_id, brand_image);
+      if (brandAdmin) await this.usersService.update(brandAdmin.id, {}, brand_image);
     }
 
     if (styles && styles.length > 0) {

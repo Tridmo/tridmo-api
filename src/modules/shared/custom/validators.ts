@@ -1,4 +1,10 @@
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+} from 'class-validator';
 
 export function IsNumberOrStringifiedNumber(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
@@ -90,6 +96,28 @@ export function IsArrayOrStringifiedArray(
           return `${args.property} is invalid`;
         }
       }
+    });
+  };
+}
+
+export function IsOneOf(allowedValues: any[], validationOptions?: ValidationOptions) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'isOneOf',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [allowedValues],
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          const [allowedValues] = args.constraints;
+          return allowedValues.includes(value);
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [allowedValues] = args.constraints;
+          return `${args.property} must be one of the following values: ${allowedValues.join(', ')}`;
+        },
+      },
     });
   };
 }

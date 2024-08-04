@@ -151,7 +151,6 @@ export default class AuthService {
   async signIn({ email, username, password, role_name }: ISignin) {
 
     if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
-
     const profile = email ? await this.usersService.getByEmail_min(email) : await this.usersService.getByUsername_min(username)
 
     if (!profile) throw new ErrorResponse(400, reqT('user_404'));

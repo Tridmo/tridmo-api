@@ -97,12 +97,36 @@ export default class NotificationsController {
         ...filters,
         recipient_id: req.user.profile.id,
       })
+      const unreadCount = await this.service.count({
+        ...filters,
+        seen: false,
+        recipient_id: req.user.profile.id,
+      })
 
       res.status(200).json({
         success: true,
         data: {
+          unread_count: unreadCount,
           notifications: data,
           pagination: buildPagination(count, sorts)
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public counts = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const unreadCount = await this.service.count({
+        seen: false,
+        recipient_id: req.user.profile.id,
+      })
+
+      res.status(200).json({
+        success: true,
+        data: {
+          unread_count: unreadCount,
         }
       })
     } catch (error) {

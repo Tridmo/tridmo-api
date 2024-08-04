@@ -19,22 +19,25 @@ export default class CommentsService {
     values: ICreateCommentBody,
     user: IUser
   ) {
+    let notification_id = null;
     if (values.entity_source == 'models') {
       await this.modelsDao.getByIdMinimal(values.entity_id)
     }
     else if (values.entity_source == 'interiors') {
       const interior = await this.interiorsDao.getByIdMinimal(values.entity_id)
-      await this.notificationsService.create({
+      const notification = await this.notificationsService.create({
         interior_id: values.entity_id,
         action_id: 'new_interior_comment',
         notifier_id: user.id,
         recipient_id: interior.user_id,
       })
+      notification_id = notification?.id || null
     }
 
     const data = await this.dao.create({
       ...values,
-      user_id: user.id
+      user_id: user.id,
+      notification_id
     })
 
     return data
@@ -53,16 +56,19 @@ export default class CommentsService {
     if (!comment) return false;
     const existing = (await this.dao.findLike({ comment_id, user_id })).length > 0;
     if (existing) return false;
-    await this.dao.createLike({ comment_id, user_id });
-    await this.notificationsService.create({
+    const notification = await this.notificationsService.create({
       interior_id: comment.entity_id,
       action_id: 'new_comment_like',
       notifier_id: user_id,
       recipient_id: comment.user_id,
     })
+    await this.dao.createLike({ comment_id, user_id, notification_id: notification?.id });
     return true;
   }
   async removeLike({ comment_id, user_id }: IFilterCommentLike): Promise<void> {
+    const like = await this.dao.findLike({ comment_id, user_id })
+    if (!like) return;
+    if (like?.[0]?.notification_id) await new NotificationsService().deleteById(like?.[0]?.notification_id);
     await this.dao.removeLike({ comment_id, user_id });
   }
 

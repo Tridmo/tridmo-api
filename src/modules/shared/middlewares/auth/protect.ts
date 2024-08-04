@@ -29,9 +29,7 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
     if (!decodedToken) throw new ErrorResponse(401, req.t.unauthorized())
 
     const { data: { user }, error } = await supabase.auth.getUser(authToken)
-
     if (!user) throw new ErrorResponse(404, req.t.user_404())
-    if (error) throw new ErrorResponse(error.status, error.message, error.message == 'jwt expired' ? 'token_expired' : '')
 
     const profile = await new UsersDAO().getByUserId(user?.id)
     if (!profile) throw new ErrorResponse(403, req.t.access_denied())
@@ -49,8 +47,15 @@ const protect = async (req: CustomRequest, res: Response, next: NextFunction) =>
 
     next()
 
+
   } catch (error) {
-    next(error)
+    next(
+      new ErrorResponse(
+        401,
+        error.message,
+        error.name == 'TokenExpiredError' ? 'token_expired' : 'unauthorized'
+      )
+    )
   }
 }
 

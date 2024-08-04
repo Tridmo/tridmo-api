@@ -175,16 +175,19 @@ export default class InteriorService {
     const interior = await this.findById(interior_id)
     const existing = (await this.interiorsDao.findLike({ interior_id, user_id })).length > 0;
     if (existing) return false;
-    await this.interiorsDao.createLike(interior.interaction_id, { interior_id, user_id });
-    await this.notificationsService.create({
+    const notification = await this.notificationsService.create({
       interior_id,
       action_id: 'new_interior_like',
       notifier_id: user_id,
       recipient_id: interior.user_id,
     })
+    await this.interiorsDao.createLike(interior.interaction_id, { interior_id, user_id, notification_id: notification?.id });
     return true;
   }
   async removeLike({ interior_id, user_id }: IFilterInteriorLike): Promise<void> {
+    const like = await this.interiorsDao.findLike({ interior_id, user_id })
+    if (!like) return;
+    if (like?.[0]?.notification_id) await new NotificationsService().deleteById(like?.[0]?.notification_id);
     const interior = await this.findById(interior_id)
     await this.interiorsDao.removeLike(interior.interaction_id, { interior_id, user_id });
   }

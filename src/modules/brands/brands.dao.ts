@@ -162,6 +162,7 @@ export default class BrandsDAO {
           "brands.slug",
           "brands.site_link",
           "brands.address",
+          "brands.instagram",
           "brands.email",
           "brands.phone",
           "brands.description",

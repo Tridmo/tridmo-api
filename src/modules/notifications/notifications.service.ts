@@ -1,6 +1,7 @@
+import CommentsDAO from '../comments/comments.dao';
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import NotificationsDAO from './notifications.dao';
-import { ICreateNotification, IFilterNotifications, INotification, IUpdateNotification } from './notifications.interface';
+import { ICreateNotification, IFilterNotifications, INotification, IUpdateNotification, NotificationAction } from './notifications.interface';
 import flat from 'flat';
 
 export default class NotificationsService {
@@ -29,25 +30,43 @@ export default class NotificationsService {
 
     const data = await this.dao.getBy(filters, sorts)
 
-    data.forEach((el, i) => {
-      let e = flat.unflatten(el)
-      const { model, interior, ...other } = e
-      if (!interior?.id) {
-        e = {
-          product: { entity: 'models', ...model },
-          ...other
-        }
-      }
-      else if (!model?.id) {
-        e = {
-          product: { entity: 'interiors', ...interior },
-          ...other
-        }
-      }
-      data[i] = e;
-    })
+    const result = await Promise.all(
+      data.map(async (el) => {
+        let e = flat.unflatten(el);
 
-    return data
+        // Destructure model and interior from the unflattened object
+        const { model, interior, ...other } = e;
+
+        // Check if the interior or model object is present and valid
+        if (interior && !interior.id) {
+          e = {
+            product: { entity: 'models', ...model },
+            ...other
+          };
+        } else if (model && !model.id) {
+          e = {
+            product: { entity: 'interiors', ...interior },
+            ...other
+          };
+        }
+
+        // Handle specific action_id cases
+        if (e?.action_id == 'new_interior_comment') {
+          const comment = await new CommentsDAO().getByNotificationId(e?.id);
+          if (comment) e.message = comment.text;
+        } else if (e?.action_id == 'new_comment_like') {
+          const likes = await new CommentsDAO().findLike({ notification_id: e?.id });
+          if (likes?.[0]) {
+            const comment = await new CommentsDAO().getById(likes?.[0].comment_id);
+            if (comment) e.message = comment.text;
+          }
+        }
+
+        return e
+      })
+    )
+
+    return result
   }
   async count(filters: IFilterNotifications) {
     return await this.dao.count(filters)

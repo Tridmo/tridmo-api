@@ -29,10 +29,11 @@ export class CreateBrandDTO implements ICreateBrand {
   @IsString()
   phone: string;
 
-  @IsDefined()
-  @IsNotEmpty()
   @IsString()
   email: string;
+
+  @IsString()
+  instagram: string;
 
   @IsDefined()
   @IsNotEmpty()
@@ -70,6 +71,10 @@ export class UpdateBrandDTO implements IUpdateBrand {
   @IsOptional()
   @IsString()
   email: string;
+
+  @IsOptional()
+  @IsString()
+  instagram: string;
 
   @IsOptional()
   @IsString()

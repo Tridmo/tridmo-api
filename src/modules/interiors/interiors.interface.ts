@@ -74,17 +74,20 @@ export interface IAddImageResult {
 export interface IInteriorLike {
   id: string;
   interior_id: string;
+  notification_id: string | null,
   user_id: string;
   created_at: Date;
 }
 
 export interface ICreateInteriorLike {
   interior_id: string,
+  notification_id?: string | null,
   user_id: string,
 }
 
 export interface IFilterInteriorLike {
   interior_id?: string,
+  notification_id?: string,
   user_id?: string,
 }
 
