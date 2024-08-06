@@ -6,6 +6,7 @@ export interface ICategory {
   description: string;
   parent_id: number | null;
   type: string;
+  section: string;
   created_at: Date;
   children: ICategory[];
 }
@@ -14,6 +15,7 @@ export interface ICreateCategory {
   name: string;
   description: string;
   type: string;
+  section: string;
   parent_id: number;
 }
 
@@ -21,6 +23,7 @@ export interface IUpdateCategory {
   name?: string;
   description?: string;
   type?: string;
+  section?: string;
   parent_id?: number;
 }
 

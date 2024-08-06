@@ -4,15 +4,10 @@ import { getFirst } from "../shared/utils/utils";
 import { ICategory, ICreateCategory, IGetCategoriesQuery, IUpdateCategory } from "./categories.interface";
 
 export default class CategoriesDAO {
-  async create({ name, description, parent_id, type }: ICreateCategory) {
+  async create(values: ICreateCategory) {
     return getFirst(
       await KnexService('categories')
-        .insert({
-          name,
-          description,
-          parent_id,
-          type
-        })
+        .insert(values)
         .returning("*")
     )
   }
@@ -82,14 +77,14 @@ export default class CategoriesDAO {
   async getByName(name: string) {
     return getFirst(
       await KnexService('categories')
-        .select(["id", "name", "description"])
+        .select(["id", "name", "section", "description"])
         .where({ name: name })
     )
   }
 
   async searchByName(keyword: string) {
     return await KnexService('brands')
-      .select(["id", "name", "description"])
+      .select(["id", "name", "section", "description"])
       .whereILike('name', `${keyword}%`)
       .orWhereILike('name', `%${keyword}%`)
   }
@@ -109,6 +104,7 @@ export default class CategoriesDAO {
         "categories.id as id",
         "categories.name as name",
         "categories.type as type",
+        "categories.section as section",
         KnexService.raw(`jsonb_agg(distinct cat) as children`),
       ])
       .leftJoin(function () {
@@ -116,6 +112,7 @@ export default class CategoriesDAO {
           "categories.id as id",
           "categories.name as name",
           "categories.type as type",
+          "categories.section as section",
           "categories.parent_id as parent_id",
           ...(models_count ? [KnexService.raw(`count(distinct "models"."id") as models_count`)] : [])
         ])
@@ -136,20 +133,20 @@ export default class CategoriesDAO {
 
   async getChildren() {
     return await KnexService('categories')
-      .select(["id", "name", "description", "parent_id", 'type'])
+      .select(["id", "name", "description", "parent_id", 'type', 'section'])
       .whereNotNull("parent_id")
   }
 
   async getByParent(parentId: string | number) {
     return await KnexService('categories')
-      .select(["id", "name", "description", 'type'])
+      .select(["id", "name", "description", 'type', 'section'])
       .where({ parent_id: parentId })
   }
 
   async getByNameAndParent(name: string, parentId: any = null) {
     return getFirst(
       await KnexService('categories')
-        .select(["id", "name", "description", 'type'])
+        .select(["id", "name", "description", 'type', 'section'])
         .where({ name: name, parent_id: parentId })
     )
   }
@@ -157,7 +154,7 @@ export default class CategoriesDAO {
   async getById(categoryId: string | number) {
     return getFirst(
       await KnexService('categories')
-        .select(["id", "name", "type", "description", "parent_id"])
+        .select(["id", "name", "type", "section", "description", "parent_id"])
         .where({ id: categoryId })
     )
   }
@@ -171,6 +168,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.parent_id",
         KnexService.raw(`count(distinct models.id) as models_count`),
         ...(downloads_count ? [KnexService.raw(`count(distinct downloads.id) as downloads_count`)] : []),
@@ -196,6 +194,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.description",
         "categories.parent_id",
         KnexService.raw('COUNT(downloads.id) as downloads_count')
@@ -214,6 +213,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.description",
         "categories.parent_id"
       ])
@@ -226,6 +226,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.description",
         "categories.parent_id",
         KnexService.raw('COUNT(interior_models.id) as tags_count')
@@ -239,6 +240,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.description",
         "categories.parent_id"
       ]);
@@ -250,6 +252,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.description",
         "categories.parent_id",
       ])
@@ -261,6 +264,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.section",
         "categories.description",
         "categories.parent_id"
       ]);

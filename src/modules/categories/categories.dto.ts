@@ -1,4 +1,4 @@
-import { IsDefined, IsNotEmpty, IsNumber, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsDefined, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { ICreateCategory } from "./categories.interface";
 import { IsNumberOrStringifiedNumber } from "../shared/custom/validators";
 
@@ -8,11 +8,15 @@ export class CreateCategoryDTO implements ICreateCategory {
   @IsString()
   name: string;
 
-
   @IsDefined()
   @IsNotEmpty()
   @IsString()
   type: string;
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  section: string;
 
   @IsString()
   @MaxLength(1024)
@@ -23,15 +27,23 @@ export class CreateCategoryDTO implements ICreateCategory {
 }
 export class UpdateCategoryDTO implements ICreateCategory {
   @IsString()
+  @IsOptional()
   name: string;
 
   @IsString()
+  @IsOptional()
   @MaxLength(1024)
   description: string;
 
   @IsString()
+  @IsOptional()
   type: string;
 
+  @IsString()
+  @IsOptional()
+  section: string;
+
+  @IsOptional()
   @IsNumberOrStringifiedNumber()
   parent_id: number;
 }

@@ -8,18 +8,14 @@ import { IDefaultQuery } from '../shared/interface/query.interface';
 export default class CategoryService {
   private categoriesDao = new CategoriesDAO()
 
-  async create({ name, description, parent_id, type }: ICreateCategory) {
+  async create(values: ICreateCategory) {
+    const { name, parent_id } = values
     const foundCategory = await this.categoriesDao.getByNameAndParent(name, parent_id || null);
     if (foundCategory) {
       throw new ErrorResponse(400, "This category already exists");
     }
 
-    const category: ICategory = await this.categoriesDao.create({
-      name,
-      description,
-      parent_id,
-      type
-    })
+    const category: ICategory = await this.categoriesDao.create(values)
 
     return category
   }

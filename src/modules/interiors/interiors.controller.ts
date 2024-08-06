@@ -21,6 +21,8 @@ import { processValue } from '../shared/utils/processObject';
 import UserRoleService from '../users/user_roles/user_roles.service';
 import { authVariables } from '../auth/variables';
 import InteractionService from '../interactions/interactions.service';
+import InteriorViewsDAO from './interior_views/dao';
+import requestIp from 'request-ip';
 
 export default class InteriorsController {
   private interiorsService = new InteriorService()
@@ -162,6 +164,12 @@ export default class InteriorsController {
       const data = await this.interiorsService.findOne(req.params.identifier, req.user?.profile)
 
       // update views
+      await new InteriorViewsDAO().create({
+        interior_id: data.id,
+        user_id: req?.user?.profile?.id,
+        ip_address: requestIp.getClientIp(req),
+        client_agent: req.headers['user-agent']
+      })
       await this.interactionsService.increment(data?.interaction_id, 'views')
 
       res.status(200).json({
