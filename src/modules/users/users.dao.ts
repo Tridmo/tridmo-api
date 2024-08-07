@@ -110,18 +110,24 @@ export default class UsersDAO {
     const query = KnexService('profiles')
       .select([
         "profiles.*",
-        "user_roles.role_id as role.id",
-        "role_name as role.name",
-        "roles_id as role.id",
+        "user_roles.role_id as role_id",
+        "role_name as role_name",
+        "roles_id as role_id",
         KnexService.raw(`jsonb_agg(distinct user_bans) as bans`),
         ...(isDesigner ? [
           KnexService.raw(`count(distinct "interiors"."id") as designs_count`),
           KnexService.raw(`count(distinct interior_models.id) as tags_count`),
           KnexService.raw(`count(distinct downloads.id) as downloads_count`),
         ] : []),
-        ...(downloaded_model ? ['downloads.created_at as downloaded_at'] : [])
+        ...(downloaded_model ? ['downloads.created_at as downloaded_at'] : []),
+        ...(downloads_from_brand ? [
+          'downloads.created_at as downloaded_at',
+          'models.id as model_id',
+          'models.name as model_name',
+          'models.slug as model_slug',
+          'models.model_cover as model_cover'
+        ] : [])
       ])
-      .distinct('profiles.id')
       .leftJoin('user_bans', function () {
         this.on('user_bans.user_id', '=', 'profiles.id')
           .andOn('user_bans.permanent', KnexService.raw('?', [true]))
@@ -134,16 +140,6 @@ export default class UsersDAO {
           .whereNot("role_id", 1)
           .groupBy("user_roles.id", "roles.id");
       }, { "profiles.id": "user_roles.user_id" })
-      .limit(limit)
-      .offset(offset)
-      .groupBy([
-        "profiles.id",
-        "user_roles.id",
-        "user_roles.role_id",
-        "role_name",
-        "roles_id",
-        ...(downloaded_model ? ['downloads.created_at'] : [])
-      ])
       .modify((q) => {
         if (isDesigner) {
           if (!downloads_from_brand && !downloaded_model) {
@@ -165,29 +161,82 @@ export default class UsersDAO {
         }
 
         if (downloads_from_brand || downloaded_model) {
-          q.innerJoin(function () {
-            this.select('user_id', 'model_id', 'downloads.created_at')
-              .from('downloads')
-              .groupBy('user_id', 'model_id', 'downloads.created_at')
-              .as('downloads');
-          }, { 'profiles.id': 'downloads.user_id' })
-            .modify(d_query => {
-              if (downloads_from_brand) {
-                d_query.innerJoin('models', { 'downloads.model_id': 'models.id' })
-                  .where('models.brand_id', '=', downloads_from_brand)
-              }
-              if (downloaded_model) {
-                d_query.where('downloads.model_id', '=', downloaded_model)
-                q.orderBy(`downloads.created_at`, order)
-              }
-            })
+
+          if (downloads_from_brand) {
+            q.innerJoin(function () {
+              this.select([
+                'id', 'user_id', 'model_id', 'downloads.created_at',
+              ])
+                .from('downloads')
+                .as('downloads');
+            }, { 'profiles.id': 'downloads.user_id' })
+              .innerJoin(function () {
+                this.select([
+                  'models.id',
+                  'models.name',
+                  'models.slug',
+                  'models.brand_id',
+                  'image_src as model_cover',
+                ])
+                  .from('models')
+                  .as('models')
+                  .leftJoin(function () {
+                    this.select([
+                      'model_images.id',
+                      'model_images.is_main',
+                      'model_images.image_id',
+                      'model_images.model_id',
+                      'images.src as image_src'
+                    ])
+                      .from('model_images')
+                      .as('model_images')
+                      .where('model_images.is_main', '=', true)
+                      .leftJoin("images", { 'model_images.image_id': 'images.id' })
+                      .groupBy('model_images.id', 'images.id')
+                  }, { 'models.id': 'model_images.model_id' })
+                  .groupBy('models.id', 'model_images.image_src')
+              }, { 'downloads.model_id': 'models.id' })
+              .where('models.brand_id', '=', downloads_from_brand)
+            q.groupBy([
+              "profiles.id",
+              "user_roles.id",
+              "user_roles.role_id",
+              "role_name",
+              "roles_id",
+              'downloads.id',
+              "downloads.created_at",
+              'models.id',
+              'models.name',
+              'models.slug',
+              'models.model_cover'
+            ])
+          }
+          if (downloaded_model) {
+            q.innerJoin(function () {
+              this.select([
+                'id', 'user_id', 'model_id', 'downloads.created_at',
+              ])
+                .from('downloads')
+                .as('downloads');
+            }, { 'profiles.id': 'downloads.user_id' })
+              .where('downloads.model_id', '=', downloaded_model)
+            q.orderBy(`downloads.created_at`, order)
+              .groupBy([
+                "profiles.id",
+                "user_roles.id",
+                "user_roles.role_id",
+                "role_name",
+                "roles_id",
+                'downloads.created_at'
+              ])
+          }
         }
 
         if (Object.entries(otherFilters).length) q.andWhere(otherFilters);
 
         if (key) {
           q.whereILike('full_name', `%${key}%`)
-          q.whereILike('username', `%${key}%`)
+          q.orWhereILike('username', `%${key}%`)
         }
 
         if (role_id) {
@@ -200,15 +249,13 @@ export default class UsersDAO {
             : `profiles.${orderBy}`,
           order
         )
-      });
-
-    console.log(query.toSQL().toNative());
+      })
+      .limit(limit)
+      .offset(offset);
 
     const res = await query;
     return res;
   }
-
-
 
 
   async count(filters) {

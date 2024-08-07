@@ -71,6 +71,7 @@ export default class ModelsDAO {
         'models.*',
         'brands.id as brand.id',
         'brands.name as brand.name',
+        'brands.slug as brand.slug',
         'brands.description as brand.description',
 
         'style.id as style.id',
@@ -112,8 +113,6 @@ export default class ModelsDAO {
           'model_images.image_id',
           'model_images.model_id',
           'model_images.created_at',
-
-          // 'images.id as images.id',
           'images.src as image_src'
         ])
           .from('model_images')
@@ -121,7 +120,6 @@ export default class ModelsDAO {
           .where('model_images.is_main', '=', true)
           .leftJoin("images", { 'model_images.image_id': 'images.id' })
           .groupBy('model_images.id', 'images.id')
-          .orderBy(`model_images.created_at`, 'asc')
       }, { 'models.id': 'model_images.model_id' })
       .limit(limit)
       .offset(offset)
