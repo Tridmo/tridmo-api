@@ -107,7 +107,7 @@ export default class UsersDAO {
 
     const isDesigner = role_id && role_id == authVariables.roles.designer;
 
-    return await KnexService('profiles')
+    const query = KnexService('profiles')
       .select([
         "profiles.*",
         "user_roles.role_id as role.id",
@@ -117,7 +117,7 @@ export default class UsersDAO {
         ...(isDesigner ? [
           KnexService.raw(`count(distinct "interiors"."id") as designs_count`),
           KnexService.raw(`count(distinct interior_models.id) as tags_count`),
-          KnexService.raw(`downloads.count as downloads_count`),
+          KnexService.raw(`count(distinct downloads.id) as downloads_count`),
         ] : []),
         ...(downloaded_model ? ['downloads.created_at as downloaded_at'] : [])
       ])
@@ -142,18 +142,12 @@ export default class UsersDAO {
         "user_roles.role_id",
         "role_name",
         "roles_id",
-        ...(isDesigner ? ['downloads.count'] : []),
         ...(downloaded_model ? ['downloads.created_at'] : [])
       ])
       .modify((q) => {
         if (isDesigner) {
           if (!downloads_from_brand && !downloaded_model) {
-            q.leftJoin(function () {
-              this.select('user_id', KnexService.raw('count(distinct id) as count'))
-                .from('downloads')
-                .groupBy('user_id')
-                .as('downloads');
-            }, { 'profiles.id': 'downloads.user_id' });
+            q.leftJoin('downloads', { 'profiles.id': 'downloads.user_id' });
           }
           q.leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
           q.leftJoin(function () {
@@ -172,7 +166,7 @@ export default class UsersDAO {
 
         if (downloads_from_brand || downloaded_model) {
           q.innerJoin(function () {
-            this.select('user_id', 'model_id', 'downloads.created_at', KnexService.raw('count(distinct downloads.id) as count'))
+            this.select('user_id', 'model_id', 'downloads.created_at')
               .from('downloads')
               .groupBy('user_id', 'model_id', 'downloads.created_at')
               .as('downloads');
@@ -201,13 +195,17 @@ export default class UsersDAO {
         }
 
         q.orderBy(
-          ['designs_count', 'tags_count', 'downloads_count'].includes(orderBy)
-            && !downloaded_model
+          ['designs_count', 'tags_count', 'downloads_count'].includes(orderBy) && !downloaded_model
             ? orderBy
             : `profiles.${orderBy}`,
           order
         )
       });
+
+    console.log(query.toSQL().toNative());
+
+    const res = await query;
+    return res;
   }
 
 
