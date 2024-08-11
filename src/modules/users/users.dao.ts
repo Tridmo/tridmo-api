@@ -103,7 +103,7 @@ export default class UsersDAO {
 
   async getAll_admin(filters, sorts) {
     const { limit, offset, order, orderBy } = sorts;
-    const { key, keyword, role_id, downloads_from_brand, downloaded_model, ...otherFilters } = filters;
+    const { key, keyword, role_id, downloads_from_brand, downloaded_model, as_download, ...otherFilters } = filters;
 
     const isDesigner = role_id && role_id == authVariables.roles.designer;
 
@@ -142,7 +142,7 @@ export default class UsersDAO {
       }, { "profiles.id": "user_roles.user_id" })
       .modify((q) => {
         if (isDesigner) {
-          if (!downloads_from_brand && !downloaded_model) {
+          if (!downloads_from_brand && !downloaded_model && !as_download) {
             q.leftJoin('downloads', { 'profiles.id': 'downloads.user_id' });
           }
           q.leftJoin('interiors', { 'profiles.id': 'interiors.user_id' })
@@ -160,7 +160,7 @@ export default class UsersDAO {
           }, { 'interiors.id': 'interior_models.interior_id' })
         }
 
-        if (downloads_from_brand || downloaded_model) {
+        if (downloads_from_brand || downloaded_model || as_download) {
 
           if (downloads_from_brand) {
             q.innerJoin(function () {
@@ -230,6 +230,54 @@ export default class UsersDAO {
                 'downloads.created_at'
               ])
           }
+          if (as_download) {
+            q.innerJoin(function () {
+              this.select([
+                'id', 'user_id', 'model_id', 'downloads.created_at',
+              ])
+                .from('downloads')
+                .as('downloads');
+            }, { 'profiles.id': 'downloads.user_id' })
+              .innerJoin(function () {
+                this.select([
+                  'models.id',
+                  'models.name',
+                  'models.slug',
+                  'models.brand_id',
+                  'image_src as model_cover',
+                ])
+                  .from('models')
+                  .as('models')
+                  .leftJoin(function () {
+                    this.select([
+                      'model_images.id',
+                      'model_images.is_main',
+                      'model_images.image_id',
+                      'model_images.model_id',
+                      'images.src as image_src'
+                    ])
+                      .from('model_images')
+                      .as('model_images')
+                      .where('model_images.is_main', '=', true)
+                      .leftJoin("images", { 'model_images.image_id': 'images.id' })
+                      .groupBy('model_images.id', 'images.id')
+                  }, { 'models.id': 'model_images.model_id' })
+                  .groupBy('models.id', 'model_images.image_src')
+              }, { 'downloads.model_id': 'models.id' })
+            q.groupBy([
+              "profiles.id",
+              "user_roles.id",
+              "user_roles.role_id",
+              "role_name",
+              "roles_id",
+              'downloads.id',
+              "downloads.created_at",
+              'models.id',
+              'models.name',
+              'models.slug',
+              'models.model_cover'
+            ])
+          }
         }
 
         if (Object.entries(otherFilters).length) q.andWhere(otherFilters);
@@ -259,7 +307,7 @@ export default class UsersDAO {
 
 
   async count(filters) {
-    const { full_name, key, keyword, role_id, downloads_from_brand, downloaded_model, ...otherFilters } = filters;
+    const { full_name, key, keyword, role_id, downloads_from_brand, downloaded_model, as_download, ...otherFilters } = filters;
 
     const query = KnexService('profiles')
       .count('profiles.id')
