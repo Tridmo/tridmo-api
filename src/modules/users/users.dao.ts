@@ -120,7 +120,7 @@ export default class UsersDAO {
           KnexService.raw(`count(distinct downloads.id) as downloads_count`),
         ] : []),
         ...(downloaded_model ? ['downloads.created_at as downloaded_at'] : []),
-        ...(downloads_from_brand ? [
+        ...(downloads_from_brand || as_download ? [
           'downloads.created_at as downloaded_at',
           'models.id as model_id',
           'models.name as model_name',
@@ -320,6 +320,10 @@ export default class UsersDAO {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.innerJoin('models', { 'downloads.model_id': 'models.id' })
           q.where('models.brand_id', '=', downloads_from_brand)
+        }
+        if (isDefined(as_download)) {
+          q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
+          q.innerJoin('models', { 'downloads.model_id': 'models.id' })
         }
         if (isDefined(downloaded_model)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
