@@ -164,6 +164,7 @@ export default class ModelsDAO {
           'brands.description as brand.description',
           'brands.address as brand.address',
           'brands.phone as brand.phone',
+          "brand_admin_user_id as brand.admin_user_id",
 
           'file.id as file.id',
           'file.name as file.name',
@@ -223,9 +224,7 @@ export default class ModelsDAO {
             .leftJoin("materials", { 'model_materials.material_id': 'materials.id' })
             .groupBy('model_materials.id', "materials.id")
         }, { 'models.id': 'model_materials.model_id' })
-
         .leftJoin({ style: "styles" }, { "models.style_id": "style.id" })
-
         .leftJoin({ model_platforms: "platforms" }, {
           "models.model_platform_id": "model_platforms.id",
           "model_platforms.type": 1
@@ -234,16 +233,17 @@ export default class ModelsDAO {
           "models.render_platform_id": "render_platforms.id",
           "render_platforms.type": 2
         })
-
         .leftJoin(function () {
           this.select([
             "brands.*",
-            "images.key as brand_logo"
+            "images.key as brand_logo",
+            "brand_admins.profile_id as brand_admin_user_id"
           ])
             .from('brands')
             .as('brands')
             .leftJoin('images', { 'images.id': 'brands.image_id' })
-            .groupBy('brands.id', 'images.key')
+            .leftJoin('brand_admins', { 'brand_admins.brand_id': 'brands.id' })
+            .groupBy('brands.id', 'brand_admins.profile_id', 'images.key')
         }, { 'models.brand_id': 'brands.id' })
         .leftJoin(function () {
           this.select([
@@ -357,6 +357,7 @@ export default class ModelsDAO {
           'brands.phone',
           'brands.brand_logo',
           'brands.description',
+          'brands.brand_admin_user_id',
           'style.id',
           'model_platforms.name',
           'render_platforms.name',

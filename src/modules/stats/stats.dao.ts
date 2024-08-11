@@ -70,9 +70,12 @@ export default class StatsDao {
   }
   async getRegistersCount() {
     const result = await knexInstance('profiles')
-      .count('profiles.id AS count')
+      .countDistinct('profiles.id AS count')
       .innerJoin(function () {
-        this.select('id', 'role_id', 'user_id').from('user_roles').as('user_roles').where('role_id', '=', authVariables.roles.designer)
+        this.select('id', 'role_id', 'user_id')
+          .from('user_roles')
+          .as('user_roles')
+          .where('role_id', '=', authVariables.roles.designer)
       }, { 'user_roles.user_id': 'profiles.id' })
 
     return result?.[0]?.count;
