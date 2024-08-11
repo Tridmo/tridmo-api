@@ -15,7 +15,7 @@ export interface IModel {
   top: boolean;
   description: string;
   slug?: string;
-  furniture_cost: number;
+  furniture_cost: string;
   availability: number;
   length: number;
   height: number;
@@ -41,7 +41,7 @@ export interface ICreateModel {
   top?: boolean;
   description: string;
   slug?: string;
-  furniture_cost: number;
+  furniture_cost: string;
   availability: number;
   length: number;
   height: number;
@@ -57,7 +57,7 @@ export interface ICreateModelBody {
   name: string;
   top?: boolean;
   description: string;
-  furniture_cost: number;
+  furniture_cost: string;
   availability: number;
   length: number;
   height: number;
@@ -79,7 +79,7 @@ export interface IUpdateModel {
   top?: boolean;
   description?: string;
   slug?: string;
-  furniture_cost?: number;
+  furniture_cost?: string;
   availability?: number;
   length?: number;
   height?: number;

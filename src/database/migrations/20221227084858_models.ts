@@ -16,7 +16,7 @@ export async function up(knex: Knex): Promise<void> {
         description text not null,
         slug varchar(256),
         top bool not null default false,
-        furniture_cost int,
+        furniture_cost varchar,
         availability int not null,
         length int,
         height int,

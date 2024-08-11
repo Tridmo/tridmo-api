@@ -244,7 +244,7 @@ export default class UsersDAO {
         }
 
         q.orderBy(
-          ['designs_count', 'tags_count', 'downloads_count', 'downloaded_at'].includes(orderBy) && !downloaded_model
+          ['designs_count', 'tags_count', 'downloads_count', 'downloaded_at'].includes(orderBy)
             ? orderBy
             : `profiles.${orderBy}`,
           order

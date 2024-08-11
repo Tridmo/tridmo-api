@@ -44,7 +44,7 @@ export class CreateModelDTO implements ICreateModelBody {
   description: string;
 
   @IsOptional()
-  furniture_cost: number;
+  furniture_cost: string;
 
   @IsDefined()
   @IsNotEmpty()
@@ -121,7 +121,7 @@ export class UpdateModelDTO implements IUpdateModel {
   description: string;
 
   @IsOptional()
-  furniture_cost: number;
+  furniture_cost: string;
 
   @IsOptional()
   @IsNotEmpty()
