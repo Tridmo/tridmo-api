@@ -43,7 +43,7 @@ export class CreateModelDTO implements ICreateModelBody {
   @IsNotEmpty()
   description: string;
 
-  @IsNumberOrStringifiedNumber()
+  @IsOptional()
   furniture_cost: number;
 
   @IsDefined()
@@ -121,7 +121,6 @@ export class UpdateModelDTO implements IUpdateModel {
   description: string;
 
   @IsOptional()
-  @IsNumberOrStringifiedNumber()
   furniture_cost: number;
 
   @IsOptional()
