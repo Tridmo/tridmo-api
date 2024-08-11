@@ -103,7 +103,7 @@ export default class UsersDAO {
 
   async getAll_admin(filters, sorts) {
     const { limit, offset, order, orderBy } = sorts;
-    const { key, keyword, role_id, downloads_from_brand, downloaded_model, as_download, ...otherFilters } = filters;
+    const { key, keyword, role_id, downloads_from_brand, downloaded_model, as_download, model_name, ...otherFilters } = filters;
 
     const isDesigner = role_id && role_id == authVariables.roles.designer;
 
@@ -158,6 +158,14 @@ export default class UsersDAO {
                 }
               })
           }, { 'interiors.id': 'interior_models.interior_id' })
+            .groupBy([
+              "profiles.id",
+              "user_roles.id",
+              "user_roles.role_id",
+              "role_name",
+              "roles_id",
+              'downloads.id',
+            ])
         }
 
         if (downloads_from_brand || downloaded_model || as_download) {
@@ -263,6 +271,11 @@ export default class UsersDAO {
                       .groupBy('model_images.id', 'images.id')
                   }, { 'models.id': 'model_images.model_id' })
                   .groupBy('models.id', 'model_images.image_src')
+                  .modify(mq => {
+                    if (model_name) {
+                      mq.whereILike('models.name', `%${model_name}%`)
+                    }
+                  })
               }, { 'downloads.model_id': 'models.id' })
             q.groupBy([
               "profiles.id",
@@ -278,6 +291,16 @@ export default class UsersDAO {
               'models.model_cover'
             ])
           }
+        }
+        else {
+          q.groupBy([
+            "profiles.id",
+            "user_roles.id",
+            "user_roles.role_id",
+            "role_name",
+            "roles_id",
+            'downloads.id',
+          ])
         }
 
         if (Object.entries(otherFilters).length) q.andWhere(otherFilters);
@@ -307,12 +330,16 @@ export default class UsersDAO {
 
 
   async count(filters) {
-    const { full_name, key, keyword, role_id, downloads_from_brand, downloaded_model, as_download, ...otherFilters } = filters;
+    const { full_name, key, keyword, role_id, downloads_from_brand, downloaded_model, as_download, model_name, ...otherFilters } = filters;
 
     const query = KnexService('profiles')
-      .count('profiles.id')
+      .countDistinct('profiles.id')
       .innerJoin('user_roles', 'profiles.id', 'user_roles.user_id')
       .modify((q) => {
+        if (key) {
+          q.whereILike('full_name', `%${key}%`)
+          q.orWhereILike('username', `%${key}%`)
+        }
         if (isDefined(role_id)) q.where('user_roles.role_id', role_id)
         if (isDefined(full_name)) q.whereILike(`full_name`, `%${full_name}%`)
         if (Object.entries(otherFilters).length) q.andWhere(otherFilters)
@@ -320,14 +347,43 @@ export default class UsersDAO {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.innerJoin('models', { 'downloads.model_id': 'models.id' })
           q.where('models.brand_id', '=', downloads_from_brand)
+          q.groupBy([
+            "profiles.id",
+            "user_roles.id",
+            'downloads.id',
+            'models.id',
+          ])
         }
         if (isDefined(as_download)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.innerJoin('models', { 'downloads.model_id': 'models.id' })
+          q.modify(q => {
+            if (model_name) {
+              q.whereILike('models.name', `%${model_name}%`)
+            }
+          })
+          q.groupBy([
+            "profiles.id",
+            "user_roles.id",
+            'downloads.id',
+            'models.id',
+          ])
         }
         if (isDefined(downloaded_model)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.where('downloads.model_id', '=', downloaded_model)
+          q.groupBy([
+            "profiles.id",
+            "user_roles.id",
+            'downloads.id',
+          ])
+        }
+        else {
+          q.groupBy([
+            "profiles.id",
+            "user_roles.id",
+            'downloads.id',
+          ])
         }
       })
 
