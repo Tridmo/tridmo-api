@@ -60,7 +60,7 @@ export default class ProjectsDAO {
             WHERE project_models.project_id = projects.id
           ) as models_count`),
           KnexService.raw(`(
-            SELECT SUM(models.furniture_cost)
+            SELECT COALESCE(SUM(models.furniture_cost::int), 0)
             FROM project_models
             LEFT JOIN models ON project_models.model_id = models.id
             WHERE project_models.project_id = projects.id
