@@ -382,7 +382,6 @@ export default class UsersDAO {
           q.groupBy([
             "profiles.id",
             "user_roles.id",
-            'downloads.id',
           ])
         }
       })
