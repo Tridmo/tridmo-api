@@ -37,8 +37,8 @@ export default class ModelsDAO {
     )
   }
 
-  async count(filters) {
-    const { categories, styles, name, ...otherFilters } = filters
+  async count(filters: IGetModelsQuery) {
+    const { categories, exclude_models, styles, name, ...otherFilters } = filters
 
     return (
       await KnexService('models')
@@ -51,6 +51,7 @@ export default class ModelsDAO {
         }, { 'models.id': 'model_colors.model_id' })
         .where({ is_deleted: false })
         .modify((query) => {
+          if (exclude_models && exclude_models.length > 0) query.whereNotIn("models.id", Array.isArray(exclude_models) ? exclude_models : [exclude_models])
           if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
           if (styles && styles.length > 0) query.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
           if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
@@ -64,7 +65,7 @@ export default class ModelsDAO {
     sorts: IDefaultQuery
   ): Promise<IModel[]> {
     const { limit, offset, order, orderBy } = sorts
-    const { categories, styles, name, ...otherFilters } = filters
+    const { categories, exclude_models, styles, name, ...otherFilters } = filters
 
     return await KnexService("models")
       .select([
@@ -134,6 +135,7 @@ export default class ModelsDAO {
             query.orderByRaw('CASE WHEN models.availability = 2 THEN 1 ELSE 0 END ASC')
               .orderBy(`models.${orderBy}`, order)
         }
+        if (exclude_models && exclude_models.length > 0) query.whereNotIn("models.id", Array.isArray(exclude_models) ? exclude_models : [exclude_models])
         if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
         if (styles && styles.length > 0) query.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
         if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)

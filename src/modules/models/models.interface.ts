@@ -101,6 +101,7 @@ export interface IGetModelsQuery extends IDefaultQuery {
   styles?: string[];
   categories?: string[];
   colors?: string[];
+  exclude_models?: string[];
   is_deleted?: boolean;
 }
 

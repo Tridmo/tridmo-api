@@ -378,16 +378,9 @@ export default class UsersDAO {
             'downloads.id',
           ])
         }
-        else {
-          q.groupBy([
-            "profiles.id",
-            "user_roles.id",
-          ])
-        }
       })
 
     const result = await query;
-
     return (result)[0].count
   }
 
