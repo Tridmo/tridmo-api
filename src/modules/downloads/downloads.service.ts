@@ -11,6 +11,10 @@ export default class DownloadsService {
     return product
   }
 
+  async findAll(filters: IFilterDownload): Promise<any[]> {
+    const product = await this.downloadsDao.getAll(filters)
+    return product
+  }
   async findBy(filters: IFilterDownload): Promise<any[]> {
     const product = await this.downloadsDao.getAll(filters)
     return product

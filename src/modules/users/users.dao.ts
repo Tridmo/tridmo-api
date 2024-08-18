@@ -347,12 +347,6 @@ export default class UsersDAO {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.innerJoin('models', { 'downloads.model_id': 'models.id' })
           q.where('models.brand_id', '=', downloads_from_brand)
-          q.groupBy([
-            "profiles.id",
-            "user_roles.id",
-            'downloads.id',
-            'models.id',
-          ])
         }
         if (isDefined(as_download)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
@@ -362,21 +356,10 @@ export default class UsersDAO {
               q.whereILike('models.name', `%${model_name}%`)
             }
           })
-          q.groupBy([
-            "profiles.id",
-            "user_roles.id",
-            'downloads.id',
-            'models.id',
-          ])
         }
         if (isDefined(downloaded_model)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.where('downloads.model_id', '=', downloaded_model)
-          q.groupBy([
-            "profiles.id",
-            "user_roles.id",
-            'downloads.id',
-          ])
         }
       })
 
