@@ -45,6 +45,16 @@ export default class CategoryService {
     return categories
   }
 
+  async findAllNonParents(filters?, sorts?: IDefaultQuery) {
+    const categories = await this.categoriesDao.getNonParents(filters, sorts);
+    for (let i = 0; i < categories.length; i++) {
+      if (categories[i]?.children && (!categories[i]?.children[0] || categories[i]?.children[0] == null)) {
+        categories[i].children = []
+      }
+    }
+    return categories
+  }
+
   async findAllChildren() {
     const categories = await this.categoriesDao.getChildren();
     return categories

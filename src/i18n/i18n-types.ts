@@ -107,6 +107,10 @@ type RootTranslation = {
 	 */
 	model_in_project: string
 	/**
+	 * N​o​t​ ​f​o​u​n​d
+	 */
+	not_found: string
+	/**
 	 * U​s​e​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
 	user_404: string
@@ -114,6 +118,10 @@ type RootTranslation = {
 	 * I​n​t​e​r​i​o​r​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
 	interior_404: string
+	/**
+	 * T​a​g​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	interior_model_404: string
 	/**
 	 * I​m​a​g​e​ ​w​a​s​ ​n​o​t​ ​f​o​u​n​d
 	 */
@@ -234,6 +242,10 @@ export type TranslationFunctions = {
 	 */
 	model_in_project: () => LocalizedString
 	/**
+	 * Not found
+	 */
+	not_found: () => LocalizedString
+	/**
 	 * User was not found
 	 */
 	user_404: () => LocalizedString
@@ -241,6 +253,10 @@ export type TranslationFunctions = {
 	 * Interior was not found
 	 */
 	interior_404: () => LocalizedString
+	/**
+	 * Tag was not found
+	 */
+	interior_model_404: () => LocalizedString
 	/**
 	 * Image was not found
 	 */

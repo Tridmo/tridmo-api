@@ -130,6 +130,28 @@ export default class CategoriesDAO {
       .where(filterBy)
       .groupBy("categories.id")
   }
+  async getNonParents(filters?: { type: string; models_count?: boolean; }, sorts?: IDefaultQuery): Promise<ICategory[]> {
+    const { limit, offset, order, orderBy } = sorts
+    const { models_count } = filters;
+    let filterBy = {}
+    if (filters.type) {
+      filterBy = {
+        'categories.type': filters.type
+      }
+    }
+
+    return await KnexService('categories')
+      .select([
+        "categories.id as id",
+        "categories.name as name",
+        "categories.type as type",
+        "categories.section as section",
+      ])
+      .orderBy(`categories.${orderBy}`, order)
+      .whereNotNull("categories.parent_id")
+      .where(filterBy)
+      .groupBy("categories.id")
+  }
 
   async getChildren() {
     return await KnexService('categories')

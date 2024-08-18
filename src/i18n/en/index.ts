@@ -27,8 +27,10 @@ const en = {
   same_name_exists: 'Record with the same name already exists',
   model_in_project: 'This model was already added to project',
 
+  not_found: 'Not found',
   user_404: "User was not found",
   interior_404: 'Interior was not found',
+  interior_model_404: 'Tag was not found',
   image_404: 'Image was not found',
   file_404: 'File was not found',
   brand_404: 'Brand was not found',

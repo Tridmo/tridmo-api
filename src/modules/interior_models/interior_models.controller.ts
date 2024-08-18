@@ -4,9 +4,13 @@ import { reqT } from '../shared/utils/language';
 import { CustomRequest } from "../shared/interface/routes.interface";
 import extractQuery from "../shared/utils/extractQuery";
 import buildPagination from "../shared/utils/paginationBuilder";
+import { authVariables } from "../auth/variables";
+import InteriorService from "../interiors/interiors.service";
+import ErrorResponse from "../shared/utils/errorResponse";
 
 export default class InteriorModelsController {
   private service = new InteriorModelsService()
+  private interiors = new InteriorService()
 
   public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -93,8 +97,17 @@ export default class InteriorModelsController {
   }
 
 
-  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const tag = await this.service.findById(req.params.id)
+      if (!tag) throw new ErrorResponse(403, req.t.interior_model_404(), 'not_found');
+      const interior = await this.interiors.findById(tag.interior_id)
+      if (!interior) throw new ErrorResponse(403, req.t.interior_404(), 'not_found');
+
+      if (req.user.profile.role_id != authVariables.roles.admin || req.user.profile.id != interior.user_id) {
+        throw new ErrorResponse(403, req.t.access_denied(), 'access_denied')
+      }
+
       await this.service.deleteBy({ id: req.params.id })
 
       res.status(200).json({
@@ -108,6 +121,13 @@ export default class InteriorModelsController {
 
   public deleteByInterior = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const interior = await this.interiors.findById(req.params.interior_id)
+      if (!interior) throw new ErrorResponse(403, req.t.interior_404(), 'not_found');
+
+      if (req.user.profile.role_id != authVariables.roles.admin || req.user.profile.id != interior.user_id) {
+        throw new ErrorResponse(403, req.t.access_denied(), 'access_denied')
+      }
+
       await this.service.deleteBy({
         interior_id: req.params.interior_id
       })

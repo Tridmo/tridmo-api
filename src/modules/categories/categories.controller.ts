@@ -145,6 +145,23 @@ export default class CategoriesController {
     }
   }
 
+  public getAllNonParents = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+
+      const { query } = req;
+      const { filters, sorts } = extractQuery(query)
+
+      const data = await this.categoriesService.findAllNonParents(filters, sorts)
+
+      res.status(200).json({
+        success: true,
+        data
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public getChildrenOfCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params

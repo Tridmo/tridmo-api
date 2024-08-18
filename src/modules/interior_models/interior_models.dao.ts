@@ -61,8 +61,6 @@ export default class InteriorModelsDAO {
           'models.slug as model.slug',
           'models.brand_id as model.brand.id',
           'models.brand_name as model.brand.name',
-          'models.style_id as model.style.id',
-          'models.style_name as model.style.name',
           'models.cover as model.cover',
         ])
         .leftJoin(function () {
@@ -71,15 +69,12 @@ export default class InteriorModelsDAO {
             'models.name',
             'models.slug',
             'models.brand_id',
-            'models.style_id',
             'brands.name as brand_name',
-            'style.name as style_name',
             KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
           ])
             .from('models')
             .as('models')
             .leftJoin("brands", { 'models.brand_id': 'brands.id' })
-            .leftJoin({ style: "styles" }, { "models.style_id": "style.id" })
             .leftJoin(function () {
               this.select([
                 'model_images.id',
@@ -107,8 +102,6 @@ export default class InteriorModelsDAO {
           'models.slug',
           'models.brand_id',
           'models.brand_name',
-          'models.style_id',
-          'models.style_name',
           'models.cover',
         )
         .where('interior_models.id', '=', id)
@@ -123,8 +116,6 @@ export default class InteriorModelsDAO {
         'models.slug as model.slug',
         'models.brand_id as model.brand.id',
         'models.brand_name as model.brand.name',
-        'models.style_id as model.style.id',
-        'models.style_name as model.style.name',
         'models.cover as model.cover',
       ])
       .leftJoin(function () {
@@ -133,15 +124,12 @@ export default class InteriorModelsDAO {
           'models.name',
           'models.slug',
           'models.brand_id',
-          'models.style_id',
           'brands.name as brand_name',
-          'style.name as style_name',
           KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
         ])
           .from('models')
           .as('models')
           .leftJoin("brands", { 'models.brand_id': 'brands.id' })
-          .leftJoin({ style: "styles" }, { "models.style_id": "style.id" })
           .leftJoin(function () {
             this.select([
               'model_images.id',
@@ -169,8 +157,6 @@ export default class InteriorModelsDAO {
         'models.slug',
         'models.brand_id',
         'models.brand_name',
-        'models.style_id',
-        'models.style_name',
         'models.cover',
       )
       .where(filters)
@@ -255,9 +241,110 @@ export default class InteriorModelsDAO {
   async getAll(filters: IFilterInteriorModel, sorts: IDefaultQuery): Promise<IInteriorModel[]> {
     const { order, orderBy, limit, offset } = sorts
     return await KnexService('interior_models')
-      .select('*')
+      .select([
+        'interior_models.id',
+        'interior_models.interior_id',
+        'interior_models.model_id',
+        'interior_models.created_at',
+        'models.id as model.id',
+        'models.name as model.name',
+        'models.slug as model.slug',
+        'models.brand_id as model.brand_id',
+        'models.brand_name as model.brand_name',
+        'model_cover as model.cover',
+        'interiors.id as interior.id',
+        'interiors.name as interior.name',
+        'interiors.slug as interior.slug',
+        'interior_cover as interior.cover',
+        'interiors_author_id as interior.author.id',
+        'interiors_author_full_name as interior.author.full_name',
+        'interiors_author_username as interior.author.username',
+        'interiors_author_company_name as interior.author.company_name',
+        'interiors_author_image_src as interior.author.image_src',
+      ])
+      .innerJoin(function () {
+        this.select([
+          'interiors.id',
+          'interiors.name',
+          'interiors.slug',
+          'cover_image_src as interior_cover',
+          'profiles.id as interiors_author_id',
+          'profiles.full_name as interiors_author_full_name',
+          'profiles.username as interiors_author_username',
+          'profiles.company_name as interiors_author_company_name',
+          'profiles.image_src as interiors_author_image_src',
+          // KnexService.raw('jsonb_agg(distinct "interior_images") as cover'),
+        ])
+          .from('interiors')
+          .as('interiors')
+          .leftJoin('profiles', { 'profiles.id': 'interiors.user_id' })
+          .leftJoin(function () {
+            this.select([
+              'interior_images.id',
+              'interior_images.is_main',
+              'interior_images.image_id',
+              'interior_images.interior_id',
+              'images.src as cover_image_src'
+            ])
+              .from('interior_images')
+              .as('interior_images')
+              .where('interior_images.is_main', '=', true)
+              .leftJoin("images", { 'interior_images.image_id': 'images.id' })
+              .groupBy('interior_images.id', 'images.id')
+          }, { 'interiors.id': 'interior_images.interior_id' })
+      }, { 'interiors.id': 'interior_models.interior_id' })
+      .innerJoin(function () {
+        this.select([
+          'models.id',
+          'models.name',
+          'models.slug',
+          'models.brand_id',
+          'brands.name as brand_name',
+          'cover_image_src as model_cover',
+          // KnexService.raw('jsonb_agg(distinct "model_images") as cover'),
+        ])
+          .from('models')
+          .as('models')
+          .leftJoin("brands", { 'models.brand_id': 'brands.id' })
+          .leftJoin(function () {
+            this.select([
+              'model_images.id',
+              'model_images.is_main',
+              'model_images.image_id',
+              'model_images.model_id',
+              'model_images.created_at',
+              'images.src as cover_image_src'
+            ])
+              .from('model_images')
+              .as('model_images')
+              .where('model_images.is_main', '=', true)
+              .leftJoin("images", { 'model_images.image_id': 'images.id' })
+              .groupBy('model_images.id', 'images.id')
+              .orderBy(`model_images.created_at`, 'asc')
+          }, { 'models.id': 'model_images.model_id' })
+          .groupBy('models.id', 'brands.id', "model_images.cover_image_src")
+      }, { 'models.id': 'interior_models.model_id' })
       .offset(offset)
       .limit(limit)
+      .groupBy(
+        'interior_models.id',
+        'models.id',
+        'models.name',
+        'models.slug',
+        'models.brand_id',
+        'models.brand_name',
+        'models.model_cover',
+        'interiors.id',
+        'interiors.id',
+        'interiors.name',
+        'interiors.slug',
+        'interiors.interior_cover',
+        'interiors.interiors_author_id',
+        'interiors.interiors_author_full_name',
+        'interiors.interiors_author_username',
+        'interiors.interiors_author_company_name',
+        'interiors.interiors_author_image_src',
+      )
       .orderBy(`interior_models.${orderBy}`, order)
       .where(filters)
   }
