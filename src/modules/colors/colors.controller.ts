@@ -4,11 +4,12 @@ import ColorService from "./colors.service";
 
 import { CreateColorDTO, UpdateColorDTO } from "./colors.dto";
 import { ISearchQuery } from "../shared/interface/query.interface";
+import { CustomRequest } from "../shared/interface/routes.interface";
 
 export default class ColorsController {
   private colorsService = new ColorService()
 
-  public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const colorData: CreateColorDTO = req.body
       const data = await this.colorsService.create(colorData)
@@ -16,14 +17,14 @@ export default class ColorsController {
       res.status(201).json({
         success: true,
         data,
-        message: "Color created successfully"
+        message: req.t.created_successfully()
       })
     } catch (error) {
       next(error)
     }
   }
 
-  public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const colorData: UpdateColorDTO = req.body
       const id: number = Number(req.params.id)
@@ -32,14 +33,14 @@ export default class ColorsController {
       res.status(200).json({
         success: true,
         data,
-        message: "Color updated successfully"
+        message: req.t.saved_successfully()
       })
     } catch (error) {
       next(error)
     }
   }
 
-  public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getAll = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { query } = req
       const { keyword }: ISearchQuery = query
@@ -54,7 +55,7 @@ export default class ColorsController {
     }
   }
 
-  public getOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getOne = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id: number = Number(req.params.id)
       const data = await this.colorsService.findOne(id)
@@ -68,14 +69,14 @@ export default class ColorsController {
     }
   }
 
-  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id: number = Number(req.params.id)
       await this.colorsService.delete(id)
 
       res.status(200).json({
         success: true,
-        message: "Color deleted successfully"
+        message: req.t.deleted_successfully()
       })
     } catch (error) {
       next(error)

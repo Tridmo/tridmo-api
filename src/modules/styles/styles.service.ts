@@ -2,16 +2,17 @@ import { isEmpty } from "class-validator";
 import ErrorResponse from "../shared/utils/errorResponse";
 import StylesDAO from "./styles.dao";
 import { IStyle, ICreateStyle } from "./styles.interface";
+import { reqT } from "../shared/utils/language";
 
 export default class StyleService {
   private stylesDao = new StylesDAO()
 
-  async create({ name }: ICreateStyle) {
-    const foundStyle: IStyle = await this.stylesDao.getByName(name);
+  async create(values: ICreateStyle) {
+    const foundStyle: IStyle = await this.stylesDao.getByName(values.name);
     if (foundStyle) {
-      throw new ErrorResponse(400, "This style already exists");
+      throw new ErrorResponse(400, reqT('same_name_exists'));
     }
-    const data: IStyle = await this.stylesDao.create({ name })
+    const data: IStyle = await this.stylesDao.create(values)
 
     return data
   }

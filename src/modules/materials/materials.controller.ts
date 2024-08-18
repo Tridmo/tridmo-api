@@ -4,11 +4,12 @@ import MaterialService from "./materials.service";
 
 import { CreateMaterialDTO, UpdateMaterialDTO } from "./materials.dto";
 import { ISearchQuery } from "../shared/interface/query.interface";
+import { CustomRequest } from "../shared/interface/routes.interface";
 
 export default class MaterialsController {
   private materialsService = new MaterialService()
 
-  public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const materialData: CreateMaterialDTO = req.body
       const data = await this.materialsService.create(materialData)
@@ -16,14 +17,14 @@ export default class MaterialsController {
       res.status(201).json({
         success: true,
         data,
-        message: "Material created successfully"
+        message: req.t.created_successfully()
       })
     } catch (error) {
       next(error)
     }
   }
 
-  public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const materialData: UpdateMaterialDTO = req.body
       const { id } = req.params
@@ -32,14 +33,14 @@ export default class MaterialsController {
       res.status(200).json({
         success: true,
         data,
-        message: "Material updated successfully"
+        message: req.t.saved_successfully()
       })
     } catch (error) {
       next(error)
     }
   }
 
-  public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getAll = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { query } = req
       const { keyword }: ISearchQuery = query
@@ -54,7 +55,7 @@ export default class MaterialsController {
     }
   }
 
-  public getOne = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getOne = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params
       const data = await this.materialsService.findOne(Number(id))
@@ -68,14 +69,14 @@ export default class MaterialsController {
     }
   }
 
-  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params
       await this.materialsService.delete(Number(id))
 
       res.status(200).json({
         success: true,
-        message: "Material deleted successfully"
+        message: req.t.deleted_successfully()
       })
     } catch (error) {
       next(error)

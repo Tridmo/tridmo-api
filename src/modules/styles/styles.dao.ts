@@ -3,12 +3,10 @@ import { getFirst } from "../shared/utils/utils";
 import { ICreateStyle } from "./styles.interface";
 
 export default class StylesDAO {
-  async create({ name }: ICreateStyle) {
+  async create(values: ICreateStyle) {
     return getFirst(
       await KnexService('styles')
-        .insert({
-          name
-        })
+        .insert(values)
         .returning("*")
     )
   }

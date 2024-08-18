@@ -26,8 +26,8 @@ export default class MaterialsRoute implements Routes {
     // Create new
     this.router.post(`${this.path}/`, protect, check_access("create_material"), validate(CreateMaterialDTO, "body", true), this.materialsController.create);
     // Update one
-    this.router.put(`${this.path}/:id`, protect, check_access("update_material"), validate(UpdateMaterialDTO, "body", true), validate(ValidateUuidDTO, "params"), this.materialsController.update);
+    this.router.put(`${this.path}/:id`, protect, check_access("update_material"), validate(UpdateMaterialDTO, "body", true), this.materialsController.update);
     // Delete one
-    this.router.delete(`${this.path}/:id`, protect, check_access("delete_material"), validate(ValidateUuidDTO, "params"), this.materialsController.delete);
+    this.router.delete(`${this.path}/:id`, protect, check_access("delete_material"), this.materialsController.delete);
   }
 }

@@ -4,11 +4,12 @@ import StyleService from "./styles.service";
 
 import { CreateStyleDTO, UpdateStyleDTO } from "./styles.dto";
 import { ISearchQuery } from "../shared/interface/query.interface";
+import { CustomRequest } from "../shared/interface/routes.interface";
 
 export default class StylesController {
   private stylesService = new StyleService()
 
-  public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const styleData: CreateStyleDTO = req.body
       const data = await this.stylesService.create(styleData)
@@ -16,14 +17,14 @@ export default class StylesController {
       res.status(201).json({
         success: true,
         data,
-        message: "Style created successfully"
+        message: req.t.created_successfully()
       })
     } catch (error) {
       next(error)
     }
   }
 
-  public update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const styleData: UpdateStyleDTO = req.body
       const id: number = Number(req.params.id)
@@ -32,7 +33,7 @@ export default class StylesController {
       res.status(200).json({
         success: true,
         data,
-        message: "Style updated successfully"
+        message: req.t.saved_successfully()
       })
     } catch (error) {
       next(error)
@@ -68,14 +69,14 @@ export default class StylesController {
     }
   }
 
-  public delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id: number = Number(req.params.id)
       await this.stylesService.delete(id)
 
       res.status(200).json({
         success: true,
-        message: "Style deleted successfully"
+        message: req.t.deleted_successfully()
       })
     } catch (error) {
       next(error)

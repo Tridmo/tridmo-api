@@ -7,9 +7,15 @@ export class CreateStyleDTO implements ICreateStyle {
   @IsString()
   @MaxLength(1024)
   name: string;
+
+  @IsString()
+  type: string;
 }
 export class UpdateStyleDTO implements ICreateStyle {
   @IsString()
   @MaxLength(1024)
   name: string;
+
+  @IsString()
+  type: string;
 }
