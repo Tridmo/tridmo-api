@@ -238,59 +238,6 @@ export default class UsersDAO {
                 'downloads.created_at'
               ])
           }
-          if (as_download) {
-            q.innerJoin(function () {
-              this.select([
-                'id', 'user_id', 'model_id', 'downloads.created_at',
-              ])
-                .from('downloads')
-                .as('downloads');
-            }, { 'profiles.id': 'downloads.user_id' })
-              .innerJoin(function () {
-                this.select([
-                  'models.id',
-                  'models.name',
-                  'models.slug',
-                  'models.brand_id',
-                  'image_src as model_cover',
-                ])
-                  .from('models')
-                  .as('models')
-                  .leftJoin(function () {
-                    this.select([
-                      'model_images.id',
-                      'model_images.is_main',
-                      'model_images.image_id',
-                      'model_images.model_id',
-                      'images.src as image_src'
-                    ])
-                      .from('model_images')
-                      .as('model_images')
-                      .where('model_images.is_main', '=', true)
-                      .leftJoin("images", { 'model_images.image_id': 'images.id' })
-                      .groupBy('model_images.id', 'images.id')
-                  }, { 'models.id': 'model_images.model_id' })
-                  .groupBy('models.id', 'model_images.image_src')
-                  .modify(mq => {
-                    if (model_name) {
-                      mq.whereILike('models.name', `%${model_name}%`)
-                    }
-                  })
-              }, { 'downloads.model_id': 'models.id' })
-            q.groupBy([
-              "profiles.id",
-              "user_roles.id",
-              "user_roles.role_id",
-              "role_name",
-              "roles_id",
-              'downloads.id',
-              "downloads.created_at",
-              'models.id',
-              'models.name',
-              'models.slug',
-              'models.model_cover'
-            ])
-          }
         }
         else {
           q.groupBy([
@@ -299,7 +246,6 @@ export default class UsersDAO {
             "user_roles.role_id",
             "role_name",
             "roles_id",
-            'downloads.id',
           ])
         }
 
@@ -347,15 +293,6 @@ export default class UsersDAO {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
           q.innerJoin('models', { 'downloads.model_id': 'models.id' })
           q.where('models.brand_id', '=', downloads_from_brand)
-        }
-        if (isDefined(as_download)) {
-          q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
-          q.innerJoin('models', { 'downloads.model_id': 'models.id' })
-          q.modify(q => {
-            if (model_name) {
-              q.whereILike('models.name', `%${model_name}%`)
-            }
-          })
         }
         if (isDefined(downloaded_model)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })

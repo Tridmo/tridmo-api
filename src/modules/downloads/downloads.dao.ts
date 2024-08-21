@@ -50,7 +50,7 @@ export default class DownloadsDao {
 
   async getAllWithModel(filters: IFilterDownload & IGetModelsQuery, sorts: IDefaultQuery) {
     const { order, orderBy, limit, offset } = sorts
-    const { categories, styles, name, user_id, model_id, user_name, model_name, ...otherFilters } = filters
+    const { categories, styles, name, user_id, brand_id, model_id, user_name, model_name, ...otherFilters } = filters
 
     return await KnexService('downloads')
       .select([
@@ -139,6 +139,7 @@ export default class DownloadsDao {
         if (user_name) q.whereILike('profiles.full_name', `${user_name}%`)
         if (model_name) q.whereILike('models.name', `${model_name}%`)
         if (model_id) q.where({ 'downloads.model_id': model_id })
+        if (brand_id) q.where('models.brand_id', '=', brand_id)
         if (orderBy) q.orderBy(orderBy != 'created_at' ? `models.${orderBy}` : `downloads.${orderBy}`, order)
       })
   }
