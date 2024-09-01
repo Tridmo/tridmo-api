@@ -148,7 +148,7 @@ export default class InteriorModelsDAO {
               .groupBy('model_images.id', 'images.id')
               .orderBy(`model_images.created_at`, 'asc')
           }, { 'models.id': 'model_images.model_id' })
-          .groupBy('models.id', 'brands.id', 'style.id')
+          .groupBy('models.id', 'brands.id')
       }, { 'models.id': 'interior_models.model_id' })
       .groupBy(
         'interior_models.id',
