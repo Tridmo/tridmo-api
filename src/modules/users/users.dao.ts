@@ -164,7 +164,6 @@ export default class UsersDAO {
               "user_roles.role_id",
               "role_name",
               "roles_id",
-              'downloads.id',
             ])
         }
 
