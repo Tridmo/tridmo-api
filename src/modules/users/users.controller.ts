@@ -229,7 +229,7 @@ class UsersController {
       if (!profile) throw new ErrorResponse(404, req.t.user_404())
 
       const downloads = await downloadService.findWithModelBy({ ...filters, user_id: profile.id }, sorts)
-      const count = await downloadService.count({ user_id: profile.id })
+      const count = await downloadService.count({ ...filters, user_id: profile.id })
 
       res.status(200).json({
         success: true,
