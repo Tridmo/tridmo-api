@@ -189,6 +189,8 @@ export default class ModelsDAO {
           'interactions.likes as likes',
           'interactions.saves as saves',
 
+          'model_images.cover_image_src as cover',
+
           KnexService.raw('count(distinct downloads.id) as downloads_count'),
           KnexService.raw('jsonb_agg(distinct "model_materials") as materials'),
           KnexService.raw('jsonb_agg(distinct "model_colors") as colors'),
@@ -208,7 +210,7 @@ export default class ModelsDAO {
             )
             from "model_images"
             left join "images" on "model_images"."image_id" = "images"."id"
-            where "model_images"."model_id" = "models"."id"
+            where "model_images"."model_id" = "models"."id" and "is_main" = false
             ) as images
           `),
 
@@ -260,24 +262,17 @@ export default class ModelsDAO {
             .groupBy("categories.id", "parent.id")
         }, { "models.category_id": "categories.id" })
         .leftJoin({ file: "files" }, { "models.file_id": "file.id" })
-        // .innerJoin(function () {
-        //   this.select([
-        //     'model_images.id',
-        //     'model_images.is_main',
-        //     'model_images.image_id',
-        //     'model_images.model_id',
-        //     'model_images.created_at',
-
-        //     // 'images.id as images.id',
-        //     'images.src as image_src'
-        //   ])
-        //     .from('model_images')
-        //     .as('model_images')
-        //     // .where('model_images.is_main', '=', false)
-        //     .leftJoin("images", { 'model_images.image_id': 'images.id' })
-        //     .groupBy('model_images.id', 'images.id')
-        //     .orderBy(`model_images.is_main`, 'desc')
-        // }, { 'models.id': 'model_images.model_id' })
+        .innerJoin(function () {
+          this.select([
+            'model_images.model_id',
+            'images.src as cover_image_src'
+          ])
+            .from('model_images')
+            .as('model_images')
+            .where('model_images.is_main', '=', true)
+            .leftJoin("images", { 'model_images.image_id': 'images.id' })
+            .groupBy('model_images.id', 'images.id')
+        }, { 'models.id': 'model_images.model_id' })
         .leftJoin(function () {
           this.select([
             'model_colors.id',
@@ -367,7 +362,9 @@ export default class ModelsDAO {
           'categories.id',
           'categories.name',
           'categories.parent_id',
-          'categories.parent_name')
+          'categories.parent_name',
+          'model_images.cover_image_src'
+        )
 
         .where({
           [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier

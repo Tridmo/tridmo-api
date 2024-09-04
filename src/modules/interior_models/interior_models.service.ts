@@ -5,6 +5,7 @@ import InteriorModelsDAO from "./interior_models.dao";
 import { IDefaultQuery } from "../shared/interface/query.interface";
 import flat from 'flat';
 import { IGetInteriorsQuery, IInterior } from "../interiors/interiors.interface";
+import { reqT } from "../shared/utils/language";
 
 export default class InteriorModelsService {
   private dao = new InteriorModelsDAO()
@@ -27,7 +28,7 @@ export default class InteriorModelsService {
 
   async findById(id: string): Promise<IInteriorModel> {
     const data = await this.dao.getById(id);
-    if (!data) throw new ErrorResponse(400, "Image text was not found");
+    if (!data) throw new ErrorResponse(404, reqT('not_found'));
 
     return data
   }

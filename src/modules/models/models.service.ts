@@ -267,10 +267,11 @@ export default class ModelService {
     }
     if (model.images?.length && !model.images[0]) {
       model.images = [];
-    } else {
-      model['cover'] = model.images.find(i => i?.is_main == true)
-      model['images'] = model.images.filter(i => i?.is_main == false)
     }
+    // else {
+    // model['cover'] = model.images.find(i => i?.is_main == true)
+    // model['images'] = model.images.filter(i => i?.is_main == false)
+    // }
 
     const file = await this.fileService.findOne(model.file_id)
 
