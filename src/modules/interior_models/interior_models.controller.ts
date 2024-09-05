@@ -104,16 +104,20 @@ export default class InteriorModelsController {
       const interior = await this.interiors.findById(tag.interior_id)
       if (!interior) throw new ErrorResponse(403, req.t.interior_404(), 'not_found');
 
-      if (req.user.profile.role_id != authVariables.roles.admin || req.user.profile.id != interior.user_id) {
-        throw new ErrorResponse(403, req.t.access_denied(), 'access_denied')
+      console.log(interior);
+      console.log(req.user.profile);
+
+      if (req.user.profile.role_id == authVariables.roles.admin || req.user.profile.id == interior.user_id) {
+        await this.service.deleteBy({ id: req.params.id })
+
+        res.status(200).json({
+          success: true,
+          message: reqT('deleted_successfully')
+        })
       }
 
-      await this.service.deleteBy({ id: req.params.id })
+      throw new ErrorResponse(403, req.t.access_denied(), 'access_denied')
 
-      res.status(200).json({
-        success: true,
-        message: reqT('deleted_successfully')
-      })
     } catch (error) {
       next(error)
     }
