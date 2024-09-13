@@ -29,9 +29,11 @@ export class CreateBrandDTO implements ICreateBrand {
   @IsString()
   phone: string;
 
+  @IsOptional()
   @IsString()
   email: string;
 
+  @IsOptional()
   @IsString()
   instagram: string;
 
