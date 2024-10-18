@@ -286,7 +286,7 @@ export default class UsersDAO {
           q.orWhereILike('username', `%${key}%`)
         }
         if (isDefined(role_id)) q.where('user_roles.role_id', role_id)
-        if (isDefined(full_name)) q.whereILike(`full_name`, `%${full_name}%`)
+        if (isDefined(full_name)) q.whereILike(`full_name`, `%${full_name}%`).orWhereILike('username', `%${full_name}%`)
         if (Object.entries(otherFilters).length) q.andWhere(otherFilters)
         if (isDefined(downloads_from_brand)) {
           q.innerJoin('downloads', { 'profiles.id': 'downloads.user_id' })
