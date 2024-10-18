@@ -281,7 +281,6 @@ export default class UsersDAO {
       .modify((q) => {
         if (key) {
           q.whereILike('full_name', `%${key}%`)
-          q.orWhereILike('username', `%${key}%`)
         }
         if (isDefined(role_id)) q.where('user_roles.role_id', role_id)
         if (isDefined(full_name)) q.whereILike(`full_name`, `%${full_name}%`)
