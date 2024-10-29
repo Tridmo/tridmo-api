@@ -1,5 +1,5 @@
 import ModelImagesDAO from "./dao/model_images.dao";
-import { ICreateModelImage, IModelImage } from "./interface/model_images.interface";
+import { ICreateModelImage, IModelImage, IModelImageWithImage } from "./interface/model_images.interface";
 
 export default class ModelImageService {
   private modelImagesDao = new ModelImagesDAO()
@@ -23,6 +23,9 @@ export default class ModelImageService {
   }
   async findByModel(model_id: string): Promise<IModelImage[]> {
     return await this.modelImagesDao.getByModel(model_id)
+  }
+  async findByModelWithImage(model_id: string): Promise<IModelImageWithImage[]> {
+    return await this.modelImagesDao.getByModelWithImageObj(model_id)
   }
   async delete(id: string) {
     await this.modelImagesDao.deleteById(id)

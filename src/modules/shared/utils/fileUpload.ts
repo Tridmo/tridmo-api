@@ -11,6 +11,7 @@ interface FileUploadArgs {
   folder: string,
   bucketName: string,
   fileName?: string,
+  extension?: string,
   dimensions?,
   useIndexPrefix?: boolean,
   useIndexAsName?: boolean,
@@ -19,18 +20,18 @@ interface FileUploadArgs {
 }
 
 export const uploadFile = async (
-  { files, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix }: FileUploadArgs
+  { files, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix }: FileUploadArgs
 ): Promise<Array<IImage | IFile>> => {
   try {
     const arr = []
 
     if (Array.isArray(files)) {
       for await (let [index, file] of files.entries()) {
-        const f = await processFile({ files: file, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix, index })
+        const f = await processFile({ files: file, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix, index })
         arr.push(f)
       }
     } else {
-      const f = await processFile({ files, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix })
+      const f = await processFile({ files, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix })
       arr.push(f)
     }
 
@@ -41,12 +42,12 @@ export const uploadFile = async (
 }
 
 async function processFile(
-  { files, folder, bucketName, fileName, dimensions, useIndexAsName, useIndexPrefix, prefix, index }: FileUploadArgs
+  { files, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix, index }: FileUploadArgs
 ) {
   let file = files
   if (dimensions) file = await processImage(file, dimensions);
 
-  const ext = mimeTypes.extension(file.mimetype) || getExtension(file.name)
+  const ext = extension || mimeTypes.extension(file.mimetype) || getExtension(file.name)
   const filename = `${folder}/${(fileName || uuidv4())}`
   const fileNameWithExt = filename + '.' + ext
 
@@ -59,7 +60,7 @@ async function processFile(
     ext,
     name: file.name,
     size: file.size,
-    mimetype: file.mimetype
+    mimetype: ext == 'webp' ? 'image/webp' : file.mimetype
   }
 
   return f;

@@ -210,8 +210,7 @@ export default class InteriorsDAO {
             where "interior_images"."interior_id" = "interiors"."id"
             and "interior_images"."is_main" = false
             ) as images
-          `),
-          KnexService.raw(`jsonb_agg(distinct interior_models) as used_models`),
+          `)
 
         ])
         .join({ author: 'profiles' }, 'author.id', 'interiors.user_id')
@@ -229,31 +228,6 @@ export default class InteriorsDAO {
             .as("categories")
             .groupBy("categories.id", "parent.id")
         }, { "interiors.category_id": "categories.id" })
-        .leftJoin(function () {
-          this.select([
-            'interior_models.id',
-            'interior_models.model_id',
-            'interior_models.interior_id'
-          ])
-            .from('interior_models')
-            .as('interior_models')
-            .leftJoin("models", { 'interior_models.model_id': 'models.id' })
-            .groupBy('interior_models.id')
-        }, { 'interiors.id': 'interior_models.interior_id' })
-        // .leftJoin(function () {
-        //   this.select([
-        //     'interior_images.id',
-        //     'interior_images.is_main',
-        //     'interior_images.image_id',
-        //     'interior_images.interior_id',
-        //     'images.src as image_src'
-        //   ])
-        //     .from('interior_images')
-        //     .as('interior_images')
-        //     .leftJoin("images", { 'interior_images.image_id': 'images.id' })
-        //     .where('interior_images.is_main', '=', false)
-        //     .groupBy('interior_images.id', 'images.id')
-        // }, { 'interiors.id': 'interior_images.interior_id' })
         .groupBy(
           'interiors.id',
           'interactions.id',

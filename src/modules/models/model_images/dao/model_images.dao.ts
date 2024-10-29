@@ -34,6 +34,13 @@ export default class ModelImagesDAO {
       .where({ model_id })
   }
 
+  async getByModelWithImageObj(model_id: string) {
+    return await KnexService('model_images')
+      .select(['*', 'images.*'])
+      .join('images', { 'images.id': 'model_images.image_id' })
+      .where({ model_id })
+  }
+
   async getNonCoverByModel(model_id: string) {
     return await KnexService('model_images')
       .where({ model_id, is_main: false })

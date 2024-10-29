@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ICreateFile, ICreateImage, IImage } from "../../interface/files.interface";
+import { ICreateFile, ICreateImage, IFilterImage, IImage, IUpdateFile } from "../../interface/files.interface";
 import ImagesDAO from "./dao/images.dao";
 import { s3Vars } from "../../../../config/conf";
 import { deleteFile } from "../../utils/fileUpload";
@@ -10,9 +10,14 @@ export default class ImageService {
     const image = await this.imagesDao.create({
       src, key, ext, name, mimetype, size
     })
-
     return image
   }
+
+  async update(id: string, values: IUpdateFile): Promise<any> {
+    const image = await this.imagesDao.update(id, { ...values })
+    return image
+  }
+
   async findOne(id: string): Promise<IImage> {
     return await this.imagesDao.getById(id)
   }

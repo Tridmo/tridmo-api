@@ -34,11 +34,16 @@ export interface IImage {
   name: string;
   src: string;
   key: string;
-  size: string;
+  size: string | string;
   ext: string;
   mimetype: string;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface IFilterImage {
+  id?: string;
+  key?: string;
 }
 
 export interface ICreateFile {

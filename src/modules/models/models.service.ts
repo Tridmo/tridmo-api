@@ -15,7 +15,7 @@ import ImageService from '../shared/modules/images/images.service';
 import ModelImageService from './model_images/model_images.service';
 import flat from 'flat'
 import { IModelColor } from './model_colors/interface/model_colors.interface';
-import { checkObject, generatePresignedUrl } from '../shared/utils/s3';
+import { checkObject, generatePresignedUrl, getFile } from '../shared/utils/s3';
 import { IModelMaterial } from './model_materials/interface/model_materials.interface';
 import DownloadsService from '../downloads/downloads.service';
 import InteractionService from '../interactions/interactions.service';
@@ -26,6 +26,10 @@ import { reqT } from '../shared/utils/language';
 import NotificationsService from '../notifications/notifications.service';
 import { IReqUser } from '../shared/interface/routes.interface';
 import { authVariables } from '../auth/variables';
+import fs from 'fs'
+import path from 'path';
+import sharp from 'sharp';
+import compressFile from '../shared/utils/compressFile';
 
 export default class ModelService {
   private modelsDao = new ModelsDAO()
@@ -39,6 +43,55 @@ export default class ModelService {
   private savedModelsService = new SavedModelsService()
   private notificationsService = new NotificationsService()
   private brandsDao = new BrandsDAO()
+
+  async compressModelsImages(alreadyDoneIds?: string[], limit?: number) {
+    const models = await this.modelsDao.getAll({ exclude_models: alreadyDoneIds }, { limit: limit || 10, orderBy: 'created_at' });
+
+    const done = []
+    const largeImages = []
+
+    for (const model of models) {
+      const images = await this.modelImageService.findByModelWithImage(model.id)
+      for (const image of images) {
+        // if ((typeof image.size == 'string' ? Number(image.size) : image.size) > 100000) {}
+        const fileName = image.key.split('/').pop().split('.')[0]
+        const fetchedFile = await getFile(s3Vars.imagesBucket, image.key)
+        const compressedFile = await compressFile(fetchedFile)
+
+        const uploadedImage = await uploadFile({
+          files: compressedFile,
+          fileName: fileName,
+          extension: 'webp',
+          folder: `images/models/${model.slug}`,
+          bucketName: s3Vars.imagesBucket,
+        })
+
+        const updated = await this.imageService.update(image.id, {
+          name: `${image.name.split('.')[0]}.${uploadedImage[0].ext}`,
+          size: uploadedImage[0].size,
+          src: uploadedImage[0].src,
+          key: uploadedImage[0].key,
+          ext: uploadedImage[0].ext,
+          mimetype: uploadedImage[0].mimetype,
+        })
+
+        await deleteFile(s3Vars.imagesBucket, image.key)
+
+        console.log('______________________________________');
+        console.log(image);
+        console.log(uploadedImage);
+        console.log(updated);
+        console.log('______________________________________');
+      }
+      done.push(model.id)
+    }
+
+    addIdsToJsonArray(done)
+    return {
+      largeImages,
+      done
+    }
+  }
 
   async create(
     data: ICreateModelBody,
@@ -531,3 +584,40 @@ export default class ModelService {
     return await this.modelsDao.deleteByBrandId(brand_id);
   }
 }
+
+const addIdsToJsonArray = (arr: string[]) => {
+  const filePath = path.join(__dirname, 'data.json');
+  // Step 1: Read the file
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) {
+      console.error("Error reading the file:", err);
+      return;
+    }
+
+    try {
+      // Step 2: Parse JSON
+      const jsonData = JSON.parse(data);
+
+      // Step 3: Push new id into the array (assuming the array is named 'ids')
+      jsonData.ids = jsonData.ids || []; // Ensure array exists
+
+      arr.map(el => {
+        if (!jsonData.ids.includes(el)) {
+          jsonData.ids.push(el);
+        }
+      })
+
+      // Step 4: Write the updated JSON back to the file
+      fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+        if (err) {
+          console.error("Error writing to the file:", err);
+        } else {
+          console.log("ID added successfully.");
+        }
+      });
+      return jsonData
+    } catch (parseErr) {
+      console.error("Error parsing JSON:", parseErr);
+    }
+  });
+};

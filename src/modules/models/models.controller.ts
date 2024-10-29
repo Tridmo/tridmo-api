@@ -1,5 +1,5 @@
 import { isEmpty, isUUID } from "class-validator";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, query, Request, Response } from "express";
 import buildPagination from "../shared/utils/paginationBuilder";
 import extractQuery from "../shared/utils/extractQuery";
 import { ICounts, IGetCountsQuery, IGetModelsQuery } from "./models.interface";
@@ -17,6 +17,20 @@ export default class ModelsController {
   private modelsService = new ModelService()
   private modelImageService = new ModelImageService()
   private interactionsService = new InteractionService()
+
+  public compress = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { sorts } = extractQuery(req.query)
+      const data = await this.modelsService.compressModelsImages(req.body.alreadyDoneIds, sorts.limit);
+      res.status(200).json({
+        data
+      })
+    } catch (error) {
+      console.log('COMPRESS: ', error);
+
+      next(error)
+    }
+  }
 
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

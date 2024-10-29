@@ -1,6 +1,6 @@
 import { getFirst } from "../../../utils/utils";
 import KnexService from '../../../../../database/connection';
-import { ICreateFile, ICreateImage } from "../../../interface/files.interface";
+import { ICreateFile, ICreateImage, IFilterImage, IUpdateFile } from "../../../interface/files.interface";
 
 export default class ImagesDAO {
   async create({ src, key, ext, name, mimetype, size }: ICreateImage) {
@@ -16,6 +16,12 @@ export default class ImagesDAO {
         })
         .returning("*")
     )
+  }
+  async update(id: string, values: IUpdateFile) {
+    return await KnexService("images")
+      .update(values)
+      .returning("*")
+      .where({ id })
   }
 
   async getById(id: string) {

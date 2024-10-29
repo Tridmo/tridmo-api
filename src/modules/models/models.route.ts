@@ -24,6 +24,7 @@ export default class ModelsRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.post(`${this.path}/compress`, this.modelsController.compress);
     // Get all
     this.router.get(`${this.path}/`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getAll);
     this.router.get(`${this.path}/count`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getCount);

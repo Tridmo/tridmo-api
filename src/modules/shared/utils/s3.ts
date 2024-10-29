@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { defaults } from "../defaults/defaults";
 import { s3Vars } from "../../../config/conf";
@@ -12,6 +12,20 @@ function getS3() {
       secretAccessKey: s3Vars.secretAccessKey
     }
   });
+}
+
+export const getFile = async (bucket, key): Promise<Uint8Array> => {
+  try {
+    const s3 = getS3();
+
+    const file = await s3.send(new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    }));
+    return file.Body.transformToByteArray()
+  } catch (err) {
+    console.log('GET_FILE_ERROR: ', err.code);
+  }
 }
 
 export const checkObject = async (bucket, key): Promise<boolean> => {
