@@ -211,8 +211,8 @@ export default class InteriorsDAO {
             where "interior_images"."interior_id" = "interiors"."id"
             and "interior_images"."is_main" = false
             ) as images
-          `)
-
+          `),
+          KnexService.raw(`jsonb_agg(distinct interior_models) as used_models`),
         ])
         .join({ author: 'profiles' }, 'author.id', 'interiors.user_id')
         .leftJoin({ style: "styles" }, "style.id", "interiors.style_id")
@@ -229,6 +229,17 @@ export default class InteriorsDAO {
             .as("categories")
             .groupBy("categories.id", "parent.id")
         }, { "interiors.category_id": "categories.id" })
+        .leftJoin(function () {
+          this.select([
+            'interior_models.id',
+            'interior_models.model_id',
+            'interior_models.interior_id'
+          ])
+            .from('interior_models')
+            .as('interior_models')
+            .leftJoin("models", { 'interior_models.model_id': 'models.id' })
+            .groupBy('interior_models.id')
+        }, { 'interiors.id': 'interior_models.interior_id' })
         .groupBy(
           'interiors.id',
           'interactions.id',
