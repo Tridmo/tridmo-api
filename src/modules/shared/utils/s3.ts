@@ -56,7 +56,7 @@ export const s3upload = async (file, { bucket_name, filename }) => {
 
     const upload = await s3.send(new PutObjectCommand(params));
 
-    console.log(`Upload success:  ${filename}`);
+    // console.log(`Upload success:  ${filename}`);
   } catch (error) {
     console.log(error);
   }
@@ -76,7 +76,7 @@ export const s3delete = async (bucket_name: string, filename: string) => {
 
     const deleted = await s3.send(new DeleteObjectCommand(params));
 
-    console.log('Deleted', deleted);
+    // console.log('Deleted', deleted);
   } catch (error) {
     console.log(error);
   }

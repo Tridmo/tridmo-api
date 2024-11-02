@@ -73,7 +73,7 @@ export default class InteriorsDAO {
   ): Promise<IInterior[]> {
 
     const { limit, offset, order, orderBy } = sorts
-    const { status, styles, categories, platforms, author, name, has_models_of_brand, ...otherFilters } = filters
+    const { exclude_interiors, status, styles, categories, platforms, author, name, has_models_of_brand, ...otherFilters } = filters
 
     return await KnexService("interiors")
       .select([
@@ -134,6 +134,7 @@ export default class InteriorsDAO {
           }
           else q.orderBy(`interiors.${orderBy}`, order)
         }
+        if (isDefined(exclude_interiors) && exclude_interiors.length > 0) q.whereNotIn("interiors.id", Array.isArray(exclude_interiors) ? exclude_interiors : [exclude_interiors])
         if (isDefined(status)) q.whereIn("interiors.status", Array.isArray(status) ? status : [status])
         if (isDefined(categories) && categories.length > 0) q.whereIn("interiors.category_id", Array.isArray(categories) ? categories : [categories])
         if (isDefined(styles) && styles.length > 0) q.whereIn("interiors.style_id", Array.isArray(styles) ? styles : [styles])

@@ -5,6 +5,7 @@ import processImage from "./compressFile";
 import { s3Vars } from "../../../config/conf";
 import { IFile, IImage } from "../interface/files.interface";
 import mimeTypes from 'mime-types';
+import compressFile from "./compressFile";
 
 interface FileUploadArgs {
   files,
@@ -15,23 +16,24 @@ interface FileUploadArgs {
   dimensions?,
   useIndexPrefix?: boolean,
   useIndexAsName?: boolean,
+  compress?: number,
   prefix?: string,
   index?: number,
 }
 
 export const uploadFile = async (
-  { files, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix }: FileUploadArgs
+  { files, folder, bucketName, fileName, extension, dimensions, compress, useIndexAsName, useIndexPrefix, prefix }: FileUploadArgs
 ): Promise<Array<IImage | IFile>> => {
   try {
     const arr = []
 
     if (Array.isArray(files)) {
       for await (let [index, file] of files.entries()) {
-        const f = await processFile({ files: file, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix, index })
+        const f = await processFile({ files: file, compress, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix, index })
         arr.push(f)
       }
     } else {
-      const f = await processFile({ files, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix })
+      const f = await processFile({ files, folder, compress, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix })
       arr.push(f)
     }
 
@@ -42,10 +44,10 @@ export const uploadFile = async (
 }
 
 async function processFile(
-  { files, folder, bucketName, fileName, extension, dimensions, useIndexAsName, useIndexPrefix, prefix, index }: FileUploadArgs
+  { files, folder, bucketName, fileName, extension, dimensions, compress }: FileUploadArgs
 ) {
   let file = files
-  if (dimensions) file = await processImage(file, dimensions);
+  if (dimensions || compress) file = await processImage(file, dimensions || undefined, { quality: compress });
 
   const ext = extension || mimeTypes.extension(file.mimetype) || getExtension(file.name)
   const filename = `${folder}/${(fileName || uuidv4())}`

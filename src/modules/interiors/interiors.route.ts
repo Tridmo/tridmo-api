@@ -11,16 +11,20 @@ import check_access from '../shared/middlewares/auth/check_access';
 const { reqCoverName, reqFilesName, reqImagesName, reqPresentationName } = defaults
 import checkUser from '../../modules/shared/middlewares/auth/check_user';
 import modelsFilterMiddleware from '../../modules/shared/middlewares/models/filter';
+import { ParserMiddleware } from '../shared/middlewares/parser';
 export default class InteriorsRoute implements Routes {
   public path = '/interiors';
   public router = Router();
   public interiorsController = new InteriorsController();
+  public parser = new ParserMiddleware();
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
+    this.router.post(`${this.path}/compress`, this.interiorsController.compress);
+
     this.router.get(`${this.path}/counts`, this.interiorsController.getCounts);
     this.router.get(`${this.path}/images/cover/:id`, this.interiorsController.getCoverImage);
     this.router.post(`${this.path}/images/:id`, protect, check_access("update_interior"), validate(ValidateUuidDTO, "params"), this.interiorsController.addImages);
@@ -70,6 +74,7 @@ export default class InteriorsRoute implements Routes {
       check_access("update_interior"),
       validate(ValidateUuidDTO, "params"),
       validate(UpdateInteriorDTO, "body", true),
+      this.parser.parse(),
       this.interiorsController.update
     );
     this.router.delete(`${this.path}/images/:image_id`, protect, check_access("update_interior"), this.interiorsController.deleteImage);

@@ -23,6 +23,8 @@ import { authVariables } from '../auth/variables';
 import InteractionService from '../interactions/interactions.service';
 import InteriorViewsDAO from './interior_views/dao';
 import requestIp from 'request-ip';
+import path from 'path';
+import fs from 'fs';
 
 export default class InteriorsController {
   private interiorsService = new InteriorService()
@@ -30,6 +32,19 @@ export default class InteriorsController {
   private interactionsService = new InteractionService()
   private usersService = new UsersService()
   private interiorModelsService = new InteriorModelsService()
+
+  public compress = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { sorts } = extractQuery(req.query)
+      const data = await this.interiorsService.compressInteriorsImages(req.body.alreadyDoneIds, sorts.limit);
+      res.status(200).json({
+        data
+      })
+    } catch (error) {
+      console.error('COMPRESS ERROR: ', error);
+      next(error)
+    }
+  }
 
   public create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {

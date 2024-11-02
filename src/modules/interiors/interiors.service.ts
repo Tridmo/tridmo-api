@@ -22,6 +22,10 @@ import SavedInteriorsService from '../saved_interiors/saved_interiors.service';
 import { reqT } from '../shared/utils/language';
 import { authVariables } from '../auth/variables';
 import NotificationsService from '../notifications/notifications.service';
+import path from 'path';
+import fs from 'fs';
+import { getFile } from '../shared/utils/s3';
+import compressFile from '../shared/utils/compressFile';
 
 export default class InteriorService {
   private interiorsDao = new InteriorsDAO()
@@ -31,6 +35,64 @@ export default class InteriorService {
   private interactionService = new InteractionService()
   private savedInteriorsService = new SavedInteriorsService()
   private notificationsService = new NotificationsService()
+
+  async compressInteriorsImages(alreadyDoneIds?: string[], limit?: number) {
+    const interiors = await this.interiorsDao.getAll({ exclude_interiors: alreadyDoneIds }, { limit: limit || 10, orderBy: 'created_at' });
+
+    const done = []
+    const largeImages = []
+
+    for (const interior of interiors) {
+      console.log('-------------------START--------------------');
+      console.log(`${interior.id} | ${interior.slug}`)
+
+      const images = await this.interiorImageService.findByModelWithImage(interior.id)
+      for (const image of images) {
+        // if ((typeof image.size == 'string' ? Number(image.size) : image.size) > 100000) {}
+        const fileName = image.key.split('/').pop().split('.')[0]
+        const fetchedFile = await getFile(s3Vars.imagesBucket, image.key)
+        const compressedFile = await compressFile(fetchedFile)
+
+        const uploadedImage = await uploadFile({
+          files: compressedFile,
+          fileName: fileName,
+          extension: 'webp',
+          folder: `images/interiors/${interior.slug}`,
+          bucketName: s3Vars.imagesBucket,
+        })
+
+        const updated = await this.imageService.update(image.id, {
+          name: `${image.name.split('.')[0]}.${uploadedImage[0].ext}`,
+          size: uploadedImage[0].size,
+          src: uploadedImage[0].src,
+          key: uploadedImage[0].key,
+          ext: uploadedImage[0].ext,
+          mimetype: uploadedImage[0].mimetype,
+        })
+
+        await deleteFile(s3Vars.imagesBucket, image.key)
+
+        var imageActionInfo = `${image.key}: ${image.size} -> ${uploadedImage[0].size}`;
+        console.log(imageActionInfo);
+      }
+      done.push(interior.id)
+      addIdsToJsonArray(interior.id)
+      console.log('--------------------END---------------------');
+
+      const action = `
+      -------------------START--------------------
+      ${interior.id} | ${interior.slug}
+      ${imageActionInfo}
+      --------------------END---------------------
+      `
+      writeActionToFile(action)
+    }
+
+    return {
+      largeImages,
+      done
+    }
+  }
 
   async create(
     data: ICreateInteriorBody,
@@ -75,6 +137,7 @@ export default class InteriorService {
       files: images,
       folder: `images/interiors/${interior.slug}`,
       bucketName: s3Vars.imagesBucket,
+      compress: 30
     })
     await Promise.all(uploadedImages.map(async (i, index) => {
       const image = await this.imageService.create(i)
@@ -116,8 +179,9 @@ export default class InteriorService {
         fileName: 'cover',
         dimensions: fileDefaults.interior_cover
       })
+
       const cover_image = await this.imageService.create({ ...uploadedCover[0] })
-      await this.interiorImageService.create({
+      const i = await this.interiorImageService.create({
         interior_id: interior.id,
         image_id: cover_image.id,
         is_main: true,
@@ -138,6 +202,7 @@ export default class InteriorService {
         files: images,
         folder: `images/interiors/${interior.slug}`,
         bucketName: s3Vars.imagesBucket,
+        compress: 30
       })
       await Promise.all(uploadedImages.map(async (i, index) => {
         const image = await this.imageService.create(i)
@@ -335,3 +400,66 @@ export default class InteriorService {
     return deleted
   }
 }
+
+const addIdsToJsonArray = (arr: string[] | string) => {
+  const filePath = path.join(__dirname, 'data.json');
+  // Step 1: Read the file
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) {
+      console.error("Error reading the file:", err);
+      return;
+    }
+
+    try {
+      // Step 2: Parse JSON
+      const jsonData = JSON.parse(data);
+
+      // Step 3: Push new id into the array (assuming the array is named 'ids')
+      jsonData.ids = jsonData.ids || []; // Ensure array exists
+
+      if (typeof arr == 'string') {
+        if (!jsonData.ids.includes(arr)) jsonData.ids.push(arr);
+      }
+      else if (Array.isArray(arr)) {
+        arr.map(el => {
+          if (!jsonData.ids.includes(el)) {
+            jsonData.ids.push(el);
+          }
+        })
+      }
+
+      // Step 4: Write the updated JSON back to the file
+      fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+        if (err) {
+          console.error("Error writing to the file:", err);
+        } else {
+          console.log("ID added successfully.");
+        }
+      });
+      return jsonData
+    } catch (parseErr) {
+      console.error("Error parsing JSON:", parseErr);
+    }
+  });
+};
+
+const writeActionToFile = (action: string) => {
+  const filePath = path.join(__dirname, 'action.txt');
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) {
+      console.error("Error reading the file:", err);
+      return;
+    }
+    try {
+      fs.writeFile(filePath, `${data} \n ${action}`, 'utf-8', (err) => {
+        if (err) {
+          console.error("Error writing to the file:", err);
+        } else {
+          console.log("Action written successfully.");
+        }
+      });
+    } catch (parseErr) {
+      console.error("Error parsing JSON:", parseErr);
+    }
+  })
+};

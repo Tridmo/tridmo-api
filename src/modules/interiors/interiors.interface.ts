@@ -52,7 +52,7 @@ export interface IUpdateInterior {
   slug?: string;
   name?: string;
   is_deleted?: boolean;
-  removed_images?: string[];
+  removed_images?: string[] | string;
 }
 
 export interface IGetInteriorsQuery extends IDefaultQuery {
@@ -63,6 +63,7 @@ export interface IGetInteriorsQuery extends IDefaultQuery {
   platforms?: string[];
   author?: string;
   is_deleted?: boolean;
+  exclude_interiors?: string[];
   has_models_of_brand?: string;
 }
 

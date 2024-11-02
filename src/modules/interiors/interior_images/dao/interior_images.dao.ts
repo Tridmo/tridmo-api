@@ -29,6 +29,13 @@ export default class InteriorImagesDAO {
       .where({ interior_id })
   }
 
+  async getByInteriorWithImageObj(interior_id: string) {
+    return await KnexService('interior_images')
+      .select(['*', 'images.*'])
+      .join('images', { 'images.id': 'interior_images.image_id' })
+      .where({ interior_id })
+  }
+
   async getInteriorCover(interior_id: string) {
     return getFirst(
       await KnexService('interior_images')

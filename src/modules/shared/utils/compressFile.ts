@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 
-export default async (data, dimensions?: { width: number; height: number }) => {
+export default async (data, dimensions?: { width: number; height: number }, options?: { quality?: number }) => {
 
   const sizes = dimensions || {}
 
@@ -11,15 +11,17 @@ export default async (data, dimensions?: { width: number; height: number }) => {
       fit: 'cover',
       ...sizes
     })
-    .webp({ quality: 30 })
+    .webp({ quality: options.quality || 30 })
     .toBuffer();
 
   const resizedInfo = await sharp(resized).metadata();
 
-  return {
+  const result = {
     ...data,
     data: resized,
     size: resizedInfo.size,
     mimetype: `image/${resizedInfo.format}`
-  };
+  }
+
+  return result;
 }; 
