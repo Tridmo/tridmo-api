@@ -13,6 +13,7 @@ export interface IModel {
   style_id: number;
   name: string;
   top: boolean;
+  for_sale: boolean;
   description: string;
   slug?: string;
   furniture_cost: string;
@@ -39,6 +40,7 @@ export interface ICreateModel {
   style_id: number;
   name: string;
   top?: boolean;
+  for_sale?: boolean;
   description: string;
   slug?: string;
   furniture_cost: string;
@@ -56,6 +58,7 @@ export interface ICreateModelBody {
   style_id: number;
   name: string;
   top?: boolean;
+  for_sale?: boolean;
   description: string;
   furniture_cost: string;
   availability: number;
@@ -77,6 +80,7 @@ export interface IUpdateModel {
   style_id?: number;
   name?: string;
   top?: boolean;
+  for_sale?: boolean;
   description?: string;
   slug?: string;
   furniture_cost?: string;
@@ -92,6 +96,7 @@ export interface IUpdateModel {
 export interface IGetModelsQuery extends IDefaultQuery {
   name?: string;
   top?: boolean;
+  for_sale?: boolean;
   orderBy?: string;
   availability?: number;
   brand_id?: string;
@@ -108,6 +113,7 @@ export interface IGetModelsQuery extends IDefaultQuery {
 export interface IGetCountsQuery {
   all?: boolean;
   top?: boolean;
+  for_sale?: boolean;
   available?: boolean;
   not_available?: boolean;
   deleted?: boolean;
@@ -116,6 +122,7 @@ export interface ICounts {
   count?: number;
   all?: number;
   top?: number;
+  for_sale?: boolean;
   available?: number;
   not_available?: number;
   deleted?: number;
