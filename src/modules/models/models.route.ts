@@ -3,7 +3,7 @@ import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { Routes } from '../shared/interface/routes.interface';
 import validate from '../shared/middlewares/validate';
 import ModelsController from './models.controller';
-import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetCountsQueryDTO, GetModelsQueryDTO, UpdateModelDTO } from './models.dto';
+import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetCartModelsQueryDTO, GetCountsQueryDTO, GetModelsQueryDTO, UpdateModelDTO } from './models.dto';
 import validateFiles from '../shared/middlewares/validateFiles';
 import { defaults } from "../shared/defaults/defaults"
 import protect from '../shared/middlewares/auth/protect';
@@ -27,6 +27,7 @@ export default class ModelsRoute implements Routes {
     this.router.post(`${this.path}/compress`, this.modelsController.compress);
     // Get all
     this.router.get(`${this.path}/`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getAll);
+    this.router.get(`${this.path}/cart`, validate(GetCartModelsQueryDTO, "query", true), this.modelsController.getCartModels);
     this.router.get(`${this.path}/count`, validate(GetModelsQueryDTO, "query", true), this.modelsController.getCount);
     this.router.get(`${this.path}/counts`, validate(GetCountsQueryDTO, "query", true), this.modelsController.getCounts);
     // get by filters

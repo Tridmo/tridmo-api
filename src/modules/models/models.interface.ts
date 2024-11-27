@@ -107,7 +107,12 @@ export interface IGetModelsQuery extends IDefaultQuery {
   categories?: string[];
   colors?: string[];
   exclude_models?: string[];
+  in?: string[];
   is_deleted?: boolean;
+}
+
+export interface IGetCartModelsQuery extends IDefaultQuery {
+  in?: string[];
 }
 
 export interface IGetCountsQuery {

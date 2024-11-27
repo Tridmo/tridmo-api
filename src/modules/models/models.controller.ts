@@ -96,6 +96,24 @@ export default class ModelsController {
     }
   }
 
+  public getCartModels = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { filters, sorts } = extractQuery(req.query)
+
+      const data = await this.modelsService.findForCart(filters, sorts)
+
+      res.status(200).json({
+        success: true,
+        data: {
+          models: data,
+          count: data.length
+        },
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public getCount = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { filters } = extractQuery(req.query)

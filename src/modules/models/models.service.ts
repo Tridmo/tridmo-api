@@ -3,7 +3,7 @@ import ErrorResponse from '../shared/utils/errorResponse';
 import { defaults, fileDefaults } from '../shared/defaults/defaults';
 import { IDefaultQuery } from './../shared/interface/query.interface';
 import ModelsDAO from "./models.dao";
-import { IAddImageResult, ICreateModel, ICreateModelBody, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
+import { IAddImageResult, ICreateModel, ICreateModelBody, IGetCartModelsQuery, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import FileService from '../shared/modules/files/files.service';
 import { isEmpty } from 'lodash';
@@ -293,6 +293,18 @@ export default class ModelService {
     )
 
     return models
+  }
+
+  async findForCart(
+    filters: IGetCartModelsQuery,
+    sorts: IDefaultQuery
+  ): Promise<IModel[]> {
+
+    const models = await this.modelsDao.getForCart(filters, sorts);
+
+    models.forEach((m, i) => models[i] = flat.unflatten(m));
+
+    return models || []
   }
 
   async count(filters: IGetModelsQuery): Promise<number> {

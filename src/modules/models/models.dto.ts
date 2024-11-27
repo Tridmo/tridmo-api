@@ -1,7 +1,7 @@
 import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../shared/custom/validators";
 import { DefaultQueryDTO } from "../shared/dto/query.dto";
-import { ICreateModel, ICreateModelBody, IGetCountsQuery, IGetModelsQuery, IUpdateModel } from "./models.interface";
+import { ICreateModel, ICreateModelBody, IGetCartModelsQuery, IGetCountsQuery, IGetModelsQuery, IUpdateModel } from "./models.interface";
 
 export class CreateModelDTO implements ICreateModelBody {
   @IsString()
@@ -205,6 +205,11 @@ export class GetModelsQueryDTO extends DefaultQueryDTO implements IGetModelsQuer
 
   @IsBooleanOrStringifiedBoolean()
   is_deleted?: boolean;
+}
+
+export class GetCartModelsQueryDTO extends DefaultQueryDTO implements IGetCartModelsQuery {
+  @IsDefined()
+  in?: string[];
 }
 
 export class GetCountsQueryDTO implements IGetCountsQuery {

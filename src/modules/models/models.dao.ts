@@ -1,6 +1,6 @@
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import { getFirst } from "../shared/utils/utils";
-import { ICreateModel, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
+import { ICreateModel, IGetCartModelsQuery, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
 import KnexService from "../../database/connection";
 import { isUUID } from 'class-validator';
 import { availabilityData } from './constants';
@@ -150,6 +150,49 @@ export default class ModelsDAO {
         'categories.name',
         'categories.parent_id',
         'categories.parent_name'
+      )
+  }
+
+  async getForCart(
+    filters: IGetCartModelsQuery,
+    sorts: IDefaultQuery
+  ): Promise<IModel[]> {
+    const { limit, offset, order, orderBy } = sorts
+    const { in: IN } = filters
+
+    return await KnexService("models")
+      .select([
+        'models.id',
+        'models.name',
+        'models.slug',
+        'models.furniture_cost as price',
+        'brands.id as brand.id',
+        'brands.name as brand.name',
+        'model_images.cover_image_src as cover',
+      ])
+      .leftJoin("brands", { 'models.brand_id': 'brands.id' })
+      .innerJoin(function () {
+        this.select([
+          'model_images.model_id',
+          'images.src as cover_image_src'
+        ])
+          .from('model_images')
+          .as('model_images')
+          .where('model_images.is_main', '=', true)
+          .leftJoin("images", { 'model_images.image_id': 'images.id' })
+          .groupBy('model_images.id', 'images.id')
+      }, { 'models.id': 'model_images.model_id' })
+      .limit(limit)
+      .offset(offset)
+      .where({ is_deleted: false })
+      .modify((query) => {
+        if (orderBy) query.orderBy(`models.${orderBy}`, order);
+        if (IN && IN.length > 0) query.whereIn("models.id", Array.isArray(IN) ? IN : [IN])
+      })
+      .groupBy(
+        'models.id',
+        'brands.id',
+        'model_images.cover_image_src'
       )
   }
 
