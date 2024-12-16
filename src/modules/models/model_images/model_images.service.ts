@@ -3,12 +3,13 @@ import { ICreateModelImage, IModelImage, IModelImageWithImage } from "./interfac
 
 export default class ModelImageService {
   private modelImagesDao = new ModelImagesDAO()
-  async create({ model_id, image_id, is_main, index }: ICreateModelImage) {
+  async create({ model_id, image_id, is_main, index, type }: ICreateModelImage) {
     const data = await this.modelImagesDao.create({
       model_id,
       image_id,
       is_main,
       index,
+      type
     })
     return data
   }

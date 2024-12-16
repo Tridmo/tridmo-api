@@ -97,6 +97,7 @@ export default class ModelService {
     data: ICreateModelBody,
     cover: IRequestFile,
     images: IRequestFile[],
+    infoimages: IRequestFile[],
     file: IRequestFile
   ): Promise<IModel> {
     // const yamoIdExist = await this.findByFilters({yamo_id});
@@ -176,6 +177,25 @@ export default class ModelService {
         index: index + 1,
       })
     }))
+
+    if (infoimages) {
+      const uploadedInfoImages = await uploadFile({
+        files: infoimages,
+        folder: `images/models/${modelValues['slug']}`,
+        bucketName: s3Vars.imagesBucket,
+        dimensions: fileDefaults.model,
+      })
+      await Promise.all(uploadedInfoImages.map(async (i, index) => {
+        const image = await this.imageService.create(i)
+        await this.modelImageService.create({
+          model_id: model.id,
+          image_id: image.id,
+          is_main: false,
+          index: index + 1,
+          type: 'info_image'
+        })
+      }))
+    }
 
     return model
   }
