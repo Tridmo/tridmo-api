@@ -95,6 +95,21 @@ export default class CategoriesController {
     }
   }
 
+  public getByDownloadsCount = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { filters } = extractQuery(req.query)
+
+      const data = await this.categoriesService.findByDownloadsCount(filters)
+
+      res.status(200).json({
+        success: true,
+        data
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
 
   public getByUserInteriors = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {

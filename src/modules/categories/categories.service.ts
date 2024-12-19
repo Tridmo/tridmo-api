@@ -86,6 +86,11 @@ export default class CategoryService {
     return categories
   }
 
+  async findByDownloadsCount(filters?: any): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByDownloadsCount(filters);
+    return categories
+  }
+
   async findByUserInteriors(user_id: string): Promise<ICategory[]> {
     const categories = await this.categoriesDao.getByUserInteriors(user_id);
     return categories
