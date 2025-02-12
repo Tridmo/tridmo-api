@@ -36,7 +36,8 @@
     "src/**/*.ts",
     "src/**/*.json",
     ".env",
-    "src/modules/landing_page/dao.ts"
+    "src/modules/landing_page/dao.ts",
+    "src/modules/products/products.dto.ts"
   ],
   "exclude": [
     "node_modules",

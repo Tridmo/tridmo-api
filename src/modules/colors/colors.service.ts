@@ -40,7 +40,7 @@ export default class ColorService {
     return colors
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<IColor> {
     const color = await this.colorsDao.getById(id);
     if (!color) {
       throw new ErrorResponse(400, "Color was not found");

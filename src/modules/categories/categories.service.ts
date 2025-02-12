@@ -2,32 +2,57 @@ import { isEmpty } from "lodash";
 import ErrorResponse from "../shared/utils/errorResponse";
 import CategoriesDAO from "./categories.dao";
 import { UpdateCategoryDTO } from "./categories.dto";
-import { ICategory, ICreateCategory, IGetCategoriesQuery } from "./categories.interface";
+import { ICategory, ICreateCategory, IGetCategoriesQuery, IUpdateCategory } from "./categories.interface";
 import { IDefaultQuery } from '../shared/interface/query.interface';
+import { IRequestFile } from "../shared/interface/files.interface";
+import { uploadFile } from "../shared/utils/fileUpload";
+import { s3Vars } from "../../config/conf";
+import { fileDefaults } from "../shared/defaults/defaults";
+import { v4 as uuid } from 'uuid';
 
 export default class CategoryService {
   private categoriesDao = new CategoriesDAO()
 
-  async create(values: ICreateCategory) {
+  async create(values: ICreateCategory, image?: IRequestFile) {
     const { name, parent_id } = values
     const foundCategory = await this.categoriesDao.getByNameAndParent(name, parent_id || null);
     if (foundCategory) {
       throw new ErrorResponse(400, "This category already exists");
     }
 
-    const category: ICategory = await this.categoriesDao.create(values)
+    if (image) {
+      const uploadedImage = (await uploadFile({
+        files: image,
+        folder: `images/categories`,
+        bucketName: s3Vars.imagesBucket,
+        fileName: uuid(),
+        dimensions: fileDefaults.category_image
+      }))[0];
+      values.image = uploadedImage.src;
+    }
 
-    return category
+    return await this.categoriesDao.create(values)
   }
 
-  async update(id: string | number, values: UpdateCategoryDTO) {
+  async update(id: string | number, values: IUpdateCategory, image?: IRequestFile) {
     const foundCategory = await this.categoriesDao.getById(id);
     if (isEmpty(foundCategory)) {
       throw new ErrorResponse(400, "Category was not found");
     }
-    const category: ICategory = await this.categoriesDao.update(id, values)
+    console.log(image);
 
-    return category
+    if (image) {
+      const uploadedImage = (await uploadFile({
+        files: image,
+        folder: `images/categories`,
+        bucketName: s3Vars.imagesBucket,
+        fileName: foundCategory.image,
+        dimensions: fileDefaults.category_image
+      }))[0];
+      values.image = uploadedImage.src;
+    }
+
+    return await this.categoriesDao.update(id, values)
   }
 
   async findAll(filters?) {

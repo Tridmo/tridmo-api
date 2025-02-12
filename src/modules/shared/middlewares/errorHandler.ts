@@ -7,13 +7,14 @@ const errorHandler = (error: ErrorResponse, req: CustomRequest, res: Response, n
 
   const { reason, ...x } = error
 
+  console.error(error);
+
   const ErrorObject = {
     error: x,
     reason: reason || 'not_specified',
     message: error.message || req.t.sth_went_wrong(),
     success: false
   }
-  console.log(ErrorObject);
 
   res.status(error.status || 500).send(ErrorObject)
 }

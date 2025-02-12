@@ -1,5 +1,3 @@
-import { Knex } from 'knex';
-import { filter, isEmpty } from 'lodash';
 import KnexService from '../../database/connection';
 import { getFirst } from '../shared/utils/utils';
 import { ICreateUser, IUpdateUser, IUser } from './users.interface';

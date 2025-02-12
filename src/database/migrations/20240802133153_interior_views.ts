@@ -1,10 +1,10 @@
-import { Knex } from "knex";
+import { type Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
   await knex.raw(`
         create table if not exists interior_views (
-            id uuid primary key default uuid_generate_v4(),
+            id uuid primary key default gen_random_uuid(),
             interior_id uuid references interiors(id) on delete cascade not null,
             user_id uuid references profiles(id) on delete no action,
             ip_address varchar(256),

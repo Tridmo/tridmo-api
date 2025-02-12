@@ -1,7 +1,7 @@
-import { Knex } from "knex";
+import { type Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
     create table if not exists interactions ( 
         id uuid primary key default uuid_generate_v4(), 
         views int default 0,
@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
         drop table if exists interactions;
     `)
 }

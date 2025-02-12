@@ -1,19 +1,20 @@
 import type { Knex } from 'knex';
-import { pg } from '../config/conf';
+import { config as envConfig } from 'dotenv';
+import path from 'path';
 
-const {
-  connectionString,
-  maxPool,
-  minPool,
-} = pg;
+envConfig({
+  path: path.join('..', '..', '.env')
+});
+
+const { env } = process;
 
 const config: { [key: string]: Knex.Config } = {
   development: {
     client: 'postgresql',
-    connection: connectionString,
+    connection: env.DB_URL,
     pool: {
-      min: minPool,
-      max: maxPool,
+      min: 2,
+      max: 75,
     },
     migrations: {
       tableName: "migrations",
@@ -21,10 +22,10 @@ const config: { [key: string]: Knex.Config } = {
   },
   staging: {
     client: 'postgresql',
-    connection: connectionString,
+    connection: env.DB_URL,
     pool: {
-      min: minPool,
-      max: maxPool,
+      min: 2,
+      max: 75,
     },
     migrations: {
       tableName: "migrations",
@@ -32,10 +33,10 @@ const config: { [key: string]: Knex.Config } = {
   },
   production: {
     client: 'postgresql',
-    connection: connectionString,
+    connection: env.DB_URL,
     pool: {
-      min: minPool,
-      max: maxPool,
+      min: 2,
+      max: 75,
     },
     migrations: {
       tableName: "migrations",

@@ -1,5 +1,3 @@
-import { Knex } from 'knex';
-import { isEmpty } from 'lodash';
 import KnexService from '../../../database/connection';
 import { getFirst } from '../../shared/utils/utils';
 import { ICreateUserRole, IUserRole } from './user_roles.interface';

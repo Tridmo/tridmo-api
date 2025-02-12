@@ -97,7 +97,6 @@ export default class ModelService {
     data: ICreateModelBody,
     cover: IRequestFile,
     images: IRequestFile[],
-    infoimages: IRequestFile[],
     file: IRequestFile
   ): Promise<IModel> {
     // const yamoIdExist = await this.findByFilters({yamo_id});
@@ -177,25 +176,6 @@ export default class ModelService {
         index: index + 1,
       })
     }))
-
-    if (infoimages) {
-      const uploadedInfoImages = await uploadFile({
-        files: infoimages,
-        folder: `images/models/${modelValues['slug']}`,
-        bucketName: s3Vars.imagesBucket,
-        dimensions: fileDefaults.model,
-      })
-      await Promise.all(uploadedInfoImages.map(async (i, index) => {
-        const image = await this.imageService.create(i)
-        await this.modelImageService.create({
-          model_id: model.id,
-          image_id: image.id,
-          is_main: false,
-          index: index + 1,
-          type: 'info_image'
-        })
-      }))
-    }
 
     return model
   }
@@ -353,10 +333,6 @@ export default class ModelService {
     if (model.images?.length && !model.images[0]) {
       model.images = [];
     }
-    // else {
-    // model['cover'] = model.images.find(i => i?.is_main == true)
-    // model['images'] = model.images.filter(i => i?.is_main == false)
-    // }
 
     const file = await this.fileService.findOne(model.file_id)
 
@@ -368,16 +344,6 @@ export default class ModelService {
     }
 
     model.file = filePublicData
-
-    // model.images.sort((a, b) => {
-    //   if (a['is_main'] && !b['is_main']) {
-    //     return -1; // a comes before b
-    //   } else if (!a['is_main'] && b['is_main']) {
-    //     return 1; // b comes before a
-    //   } else {
-    //     return 0; // order remains unchanged
-    //   }
-    // });
 
     return flat.unflatten(model)
   }
