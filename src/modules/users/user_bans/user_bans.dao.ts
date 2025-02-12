@@ -1,5 +1,3 @@
-import { Knex } from 'knex';
-import { isEmpty } from 'lodash';
 import KnexService from '../../../database/connection';
 import { getFirst } from '../../shared/utils/utils';
 import { ICreateUserBan, IUpdateUserBan, IUserBan } from './user_bans.interface'

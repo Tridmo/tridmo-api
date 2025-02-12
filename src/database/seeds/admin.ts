@@ -1,4 +1,4 @@
-import { Knex } from "knex";
+import { type Knex } from "knex";
 import { getFirst } from "../../modules/shared/utils/utils";
 import supabase from "../../database/supabase/supabase";
 

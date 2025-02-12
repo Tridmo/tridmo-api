@@ -44,7 +44,7 @@ export default class CategoriesDAO {
 
   async getAll(filters?) {
     return await KnexService('categories')
-      .select(["id", "name", "description", 'type'])
+      .select(["id", "name", "image", "description", 'type'])
       .where(filters)
   }
 
@@ -77,14 +77,14 @@ export default class CategoriesDAO {
   async getByName(name: string) {
     return getFirst(
       await KnexService('categories')
-        .select(["id", "name", "section", "description"])
+        .select(["id", "name", "image", "section", "description"])
         .where({ name: name })
     )
   }
 
   async searchByName(keyword: string) {
     return await KnexService('brands')
-      .select(["id", "name", "section", "description"])
+      .select(["id", "name", "image", "section", "description"])
       .whereILike('name', `${keyword}%`)
       .orWhereILike('name', `%${keyword}%`)
   }
@@ -103,6 +103,7 @@ export default class CategoriesDAO {
       .select([
         "categories.id as id",
         "categories.name as name",
+        "categories.image as image",
         "categories.type as type",
         "categories.section as section",
         KnexService.raw(`jsonb_agg(distinct cat) as children`),
@@ -111,6 +112,7 @@ export default class CategoriesDAO {
         this.select([
           "categories.id as id",
           "categories.name as name",
+          "categories.image as image",
           "categories.type as type",
           "categories.section as section",
           "categories.parent_id as parent_id",
@@ -144,6 +146,7 @@ export default class CategoriesDAO {
       .select([
         "categories.id as id",
         "categories.name as name",
+        "categories.image as image",
         "categories.type as type",
         "categories.section as section",
       ])
@@ -155,28 +158,28 @@ export default class CategoriesDAO {
 
   async getChildren() {
     return await KnexService('categories')
-      .select(["id", "name", "description", "parent_id", 'type', 'section'])
+      .select(["id", "name", "image", "description", "parent_id", 'type', 'section'])
       .whereNotNull("parent_id")
   }
 
   async getByParent(parentId: string | number) {
     return await KnexService('categories')
-      .select(["id", "name", "description", 'type', 'section'])
+      .select(["id", "name", "image", "description", 'type', 'section'])
       .where({ parent_id: parentId })
   }
 
   async getByNameAndParent(name: string, parentId: any = null) {
     return getFirst(
       await KnexService('categories')
-        .select(["id", "name", "description", 'type', 'section'])
+        .select(["id", "name", "image", "description", 'type', 'section'])
         .where({ name: name, parent_id: parentId })
     )
   }
 
-  async getById(categoryId: string | number) {
+  async getById(categoryId: string | number): Promise<ICategory> {
     return getFirst(
       await KnexService('categories')
-        .select(["id", "name", "type", "section", "description", "parent_id"])
+        .select(["id", "name", "image", "type", "section", "description", "parent_id"])
         .where({ id: categoryId })
     )
   }
@@ -190,6 +193,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.parent_id",
         KnexService.raw(`count(distinct models.id) as models_count`),
@@ -216,6 +220,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id",
@@ -235,6 +240,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id"
@@ -280,6 +286,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id",
@@ -294,6 +301,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id"
@@ -306,6 +314,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id",
@@ -318,6 +327,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id"

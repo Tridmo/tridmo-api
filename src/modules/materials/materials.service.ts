@@ -32,7 +32,7 @@ export default class MaterialService {
     return materials
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<IMaterial> {
     const material = await this.materialsDao.getById(id);
     if (!material) {
       throw new ErrorResponse(404, "Material was not found");

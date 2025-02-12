@@ -10,6 +10,8 @@ import ErrorResponse from '../shared/utils/errorResponse';
 import { CustomRequest } from '../shared/interface/routes.interface';
 import ModelService from '../models/models.service';
 import ModelsDAO from '../models/models.dao';
+import { IRequestFile } from '../shared/interface/files.interface';
+import { defaults } from '../shared/defaults/defaults';
 
 export default class CategoriesController {
   private categoriesService = new CategoryService()
@@ -17,7 +19,7 @@ export default class CategoriesController {
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const categoryData: CreateCategoryDTO = req.body
-      const data = await this.categoriesService.create(categoryData)
+      const data = await this.categoriesService.create(categoryData, req.files[defaults.reqImageName] as IRequestFile)
 
       res.status(201).json({
         success: true,
@@ -33,7 +35,7 @@ export default class CategoriesController {
     try {
       const categoryData: UpdateCategoryDTO = req.body
       const { id } = req.params
-      const data = await this.categoriesService.update(id, categoryData)
+      const data = await this.categoriesService.update(id, categoryData, req?.files?.[defaults.reqImageName] as IRequestFile)
 
       res.status(200).json({
         success: true,

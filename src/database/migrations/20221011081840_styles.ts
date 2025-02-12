@@ -1,8 +1,8 @@
-import { Knex } from "knex";
+import { type Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
         create table if not exists style_types (
             id serial not null primary key,
             name varchar(64) not null
@@ -20,7 +20,7 @@ export async function up(knex: Knex): Promise<void> {
 
 
 export async function down(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
         drop table if exists styles;
     `);
 }

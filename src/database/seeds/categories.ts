@@ -1,5 +1,5 @@
 import { categoriesData } from "../catsData";
-import { Knex } from "knex";
+import { type Knex } from "knex";
 import { ICategory } from "../../modules/categories/categories.interface";
 import { getFirst } from "../../modules/shared/utils/utils";
 

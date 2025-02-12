@@ -232,6 +232,8 @@ export default class ModelsDAO {
           'interactions.likes as likes',
           'interactions.saves as saves',
 
+          'products.slug as product_slug',
+
           'model_images.cover_image_src as cover',
 
           KnexService.raw('count(distinct downloads.id) as downloads_count'),
@@ -258,6 +260,7 @@ export default class ModelsDAO {
           `),
 
         ])
+        .leftJoin("products", { 'models.product_id': 'products.id' })
         .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
         .leftJoin("downloads", { 'models.id': 'downloads.model_id' })
         .leftJoin(function () {
@@ -390,6 +393,7 @@ export default class ModelsDAO {
         .groupBy(
           'models.id',
           'interactions.id',
+          'products.slug',
           'brands.id',
           'brands.name',
           'brands.slug',

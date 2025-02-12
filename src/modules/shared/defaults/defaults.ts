@@ -44,4 +44,8 @@ export const fileDefaults = {
     width: 500,
     height: 500
   },
+  category_image: {
+    width: 100,
+    height: 100
+  },
 };
