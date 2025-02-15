@@ -11,6 +11,7 @@ import { usersVariables } from './variables';
 import { reqT } from '../shared/utils/language';
 import supabase from '../../database/supabase/supabase';
 import { fileDefaults } from '../shared/defaults/defaults';
+import { User } from '@supabase/supabase-js';
 
 export default class UsersService {
   private usersDao = new UsersDAO();
@@ -46,6 +47,15 @@ export default class UsersService {
     }
 
     return updatedUser || user;
+  }
+
+  async updateUserPassword_admin(user_id: string, password: string): Promise<User> {
+    const { data, error } = await supabase.auth.admin.updateUserById(user_id, { password });
+    if (error) {
+      console.error(error);
+      throw new ErrorResponse(error.status, error.message)
+    }
+    return data.user
   }
 
   async getAll(filters, sorts): Promise<IUser> {

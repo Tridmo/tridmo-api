@@ -1,7 +1,7 @@
 import flat from 'flat';
 import { NextFunction, Request, Response } from 'express';
 import UsersService from './users.service';
-import { IGetUsersQuery, IUpdateUser, IUser } from './users.interface';
+import { IGetUsersQuery, IUpdateUser, IUpdateUserPassword_admin, IUser } from './users.interface';
 import { CustomRequest } from '../shared/interface/routes.interface';
 import { isEmpty } from 'class-validator';
 import { defaults } from '../shared/defaults/defaults';
@@ -271,6 +271,16 @@ class UsersController {
         req.files && req.files[defaults.reqImageName] ? req.files[defaults.reqImageName] as UploadedFile : null,
 
       )
+
+      res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public updateUserPassword_admin = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.usersService.updateUserPassword_admin(req.params.id, req.body.password)
 
       res.status(200).json({ success: true, data: data, message: reqT('saved_successfully') });
     } catch (error) {

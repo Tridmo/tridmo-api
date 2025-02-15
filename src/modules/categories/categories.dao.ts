@@ -255,6 +255,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id",
@@ -273,6 +274,7 @@ export default class CategoriesDAO {
         "categories.id",
         "categories.name",
         "categories.type",
+        "categories.image",
         "categories.section",
         "categories.description",
         "categories.parent_id"
