@@ -28,7 +28,7 @@ export default class CategoryService {
         fileName: uuid(),
         dimensions: fileDefaults.category_image
       }))[0];
-      
+
       values.image = uploadedImage?.src;
     }
 
@@ -40,7 +40,6 @@ export default class CategoryService {
     if (isEmpty(foundCategory)) {
       throw new ErrorResponse(400, "Category was not found");
     }
-    console.log(image);
 
     if (image) {
       const uploadedImage = (await uploadFile({
@@ -53,7 +52,7 @@ export default class CategoryService {
       values.image = uploadedImage.src;
     }
 
-    return await this.categoriesDao.update(id, values)
+    return Object.keys(values).length ? await this.categoriesDao.update(id, values) : foundCategory;
   }
 
   async findAll(filters?) {
