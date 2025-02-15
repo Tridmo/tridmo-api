@@ -27,6 +27,10 @@ export interface IUpdateUser {
   linkedin?: string;
   portfolio_link?: string;
 }
+
+export interface IUpdateUserPassword_admin {
+  password: string;
+}
 export interface IUserMetadata {
   full_name: string;
   username: string;

@@ -19,7 +19,7 @@ export default class CategoriesController {
   public create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const categoryData: CreateCategoryDTO = req.body
-      const data = await this.categoriesService.create(categoryData, req.files[defaults.reqImageName] as IRequestFile)
+      const data = await this.categoriesService.create(categoryData, req.files?.[defaults.reqImageName] as IRequestFile)
 
       res.status(201).json({
         success: true,

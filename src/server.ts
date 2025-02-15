@@ -7,6 +7,7 @@ import expressFileUpload from 'express-fileupload';
 import path from "path";
 import consoleStamp from 'console-stamp'
 import requestLang from './middleware/requestLang';
+import { generateHash } from "./modules/shared/utils/bcrypt";
 
 consoleStamp(console, {
   format: ':date(HH:MM:ss)'
