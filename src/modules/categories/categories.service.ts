@@ -28,6 +28,7 @@ export default class CategoryService {
         fileName: uuid(),
         dimensions: fileDefaults.category_image
       }))[0];
+      
       values.image = uploadedImage?.src;
     }
 
@@ -108,6 +109,11 @@ export default class CategoryService {
 
   async findByUserDownloads(user_id: string, filters?: any): Promise<ICategory[]> {
     const categories = await this.categoriesDao.getByUserDownloads(user_id, filters);
+    return categories
+  }
+
+  async findByDownloadsCount(filters?: any): Promise<ICategory[]> {
+    const categories = await this.categoriesDao.getByDownloadsCount(filters);
     return categories
   }
 

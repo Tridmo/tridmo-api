@@ -248,6 +248,40 @@ export default class CategoriesDAO {
       .orderBy('downloads_count', 'desc')
   }
 
+  async getByDownloadsCount(filters: any = {}) {
+    const { brand_id } = filters
+    return await KnexService('categories')
+      .select([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.image",
+        "categories.section",
+        "categories.description",
+        "categories.parent_id",
+        KnexService.raw('COUNT(downloads.id) as downloads_count')
+      ])
+      .distinct()
+      .from('categories')
+      .innerJoin('models', 'categories.id', 'models.category_id')
+      .innerJoin('downloads', 'downloads.model_id', 'models.id')
+      .modify(q => {
+        if (brand_id) {
+          q.where('models.brand_id', '=', brand_id)
+        }
+      })
+      .groupBy([
+        "categories.id",
+        "categories.name",
+        "categories.type",
+        "categories.image",
+        "categories.section",
+        "categories.description",
+        "categories.parent_id"
+      ])
+      .orderBy('downloads_count', 'desc')
+  }
+
   async getByModelInteriors(model_id: string) {
     return await KnexService('categories')
       .select([
