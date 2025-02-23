@@ -28,7 +28,6 @@ export default class CategoryService {
         fileName: uuid(),
         dimensions: fileDefaults.category_image
       }))[0];
-
       values.image = uploadedImage?.src;
     }
 
