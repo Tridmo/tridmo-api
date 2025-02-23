@@ -5,7 +5,7 @@ import UsersService from "../../users/users.service";
 import ErrorResponse from "../../shared/utils/errorResponse";
 import { reqT } from "../../shared/utils/language";
 import { secondsDiff } from "../../shared/utils/utils";
-import { chatApi } from "../../../config/conf";
+import { chatApi } from "../../../config";
 
 export default class ChatTokenService {
   private dao = new ChatDao()

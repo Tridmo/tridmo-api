@@ -3,7 +3,7 @@ import SessionDAO from "../../../auth/dao/sessions.dao";
 import UsersDAO from "../../../users/users.dao";
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
-import { server } from "../../../../config/conf";
+import { server } from "../../../../config";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
 import supabase from "../../../../database/supabase/supabase";
 import UserRoleService from "../../../users/user_roles/user_roles.service";

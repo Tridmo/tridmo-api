@@ -6,7 +6,7 @@ import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
 import InteriorImageService from './interior_images/interior_images.service';
 import { fileDefaults } from '../shared/defaults/defaults';
-import { s3Vars } from '../../config/conf';
+import { s3Vars } from '../../config';
 import ImageService from '../shared/modules/images/images.service';
 import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
 import InteriorModelsService from './interior_models/interior_models.service';
@@ -379,7 +379,7 @@ export default class InteriorService {
     return deleted
   }
 
-  async deleteById(id: string, user: IUser): Promise<number> {
+  async deleteById(id: string, user: IUser): Promise<void> {
     const interior = await this.interiorsDao.getByIdMinimal(id)
     if (!interior) throw new ErrorResponse(404, reqT('interior_404'));
 
@@ -396,8 +396,6 @@ export default class InteriorService {
     const deleted = await this.interiorsDao.deleteById(id)
 
     await this.interactionService.delete(interior.interaction_id)
-
-    return deleted
   }
 }
 

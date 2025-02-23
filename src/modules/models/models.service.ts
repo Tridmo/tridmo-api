@@ -7,7 +7,7 @@ import { IAddImageResult, ICreateModel, ICreateModelBody, IGetCartModelsQuery, I
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import FileService from '../shared/modules/files/files.service';
 import { isEmpty } from 'lodash';
-import { s3Vars } from '../../config/conf';
+import { s3Vars } from '../../config';
 import { IFile, IFilePublic, IImage, IRequestFile } from '../shared/interface/files.interface';
 import ModelMaterialService from './model_materials/model_materials.service';
 import ModelColorService from './model_colors/model_colors.service';

@@ -6,7 +6,7 @@ import { IBrand, IBrandAuth, ICreateBrand, IGetBrandsQuery, IUpdateBrand } from 
 import ModelService from "../models/models.service";
 import { uploadFile } from "../shared/utils/fileUpload";
 import { IImage, IRequestFile } from "../shared/interface/files.interface";
-import { s3Vars } from "../../config/conf";
+import { s3Vars } from "../../config";
 import ImageService from "../shared/modules/images/images.service";
 import AuthService from "../auth/auth.service";
 import { IUser } from "../users/users.interface";

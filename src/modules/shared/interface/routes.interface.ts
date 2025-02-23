@@ -22,4 +22,7 @@ export interface CustomRequest extends Request {
   user: IReqUser;
   lang: string;
   t: TranslationFunctions;
+  headers: Request['headers'] & {
+    'x-user-company-name'?: string;
+  }
 }

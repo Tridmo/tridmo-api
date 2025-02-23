@@ -2,7 +2,7 @@ import { CustomRequest, RequestWithUser } from "../../interface/routes.interface
 import UsersDAO from "../../../users/users.dao";
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
-import { server } from "../../../../config/conf";
+import { server } from "../../../../config";
 import ErrorResponse from "../../utils/errorResponse";
 import { IDecodedToken } from "../../../auth/interface/auth.interface";
 import supabase from "../../../../database/supabase/supabase";

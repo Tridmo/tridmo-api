@@ -6,7 +6,7 @@ import ProductsDAO from "./products.dao";
 import { ICreateProduct, ICreateProductFromModel, IGetProductsQuery, IProduct, IUpdateProduct } from "./products.interface";
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
-import { s3Vars } from '../../config/conf';
+import { s3Vars } from '../../config';
 import { IRequestFile } from '../shared/interface/files.interface';
 import ProductImageService from './product_images/product_images.service';
 import flat from 'flat'
@@ -147,6 +147,8 @@ export default class ProductService {
     const product: IProduct = Object.keys(otherValues).length ? await this.dao.update(id, otherValues) : found
 
     if (cover) {
+      console.log("COVER: ", cover);
+
       const uploadedCover = (await uploadFile({
         files: cover,
         folder: `images/products/${product.slug}`,
@@ -158,7 +160,7 @@ export default class ProductService {
     }
 
     if (removed_images && removed_images?.length) {
-      for (const i of removed_images) {
+      for await (const i of removed_images) {
         await this.productImagesService.delete(i)
       }
     }
@@ -167,6 +169,8 @@ export default class ProductService {
       const otherImages = await this.productImagesService.findByProduct(id)
       const maxIndex = Math.max(...otherImages.map(item => item.index));
       const startIndex = maxIndex ? maxIndex + 1 : 1;
+
+      console.log("IMAGES: ", images);
 
       const uploadedImages = await uploadFile({
         files: images,
@@ -228,10 +232,10 @@ export default class ProductService {
     return data;
   }
 
-  async deleteById(product_id: string): Promise<number> {
+  async deleteById(product_id: string): Promise<void> {
     const product = await this.dao.getByIdMinimal(product_id);
     if (!product) throw new ErrorResponse(404, reqT('model_404'));
-    return await this.dao.deleteById(product_id)
+    await this.dao.deleteById(product_id)
   }
 
 }

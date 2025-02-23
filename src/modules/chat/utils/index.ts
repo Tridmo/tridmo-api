@@ -1,5 +1,5 @@
 import axios from "axios";
-import { chatApi, s3Vars } from "../../../config/conf";
+import { chatApi, s3Vars } from "../../../config";
 import { IUser } from "../../users/users.interface";
 import { IRequestFile } from "../../shared/interface/files.interface";
 import ErrorResponse from "../../shared/utils/errorResponse";

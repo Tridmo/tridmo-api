@@ -116,19 +116,16 @@ export class CreateProductFromModelDTO implements ICreateProductFromModel {
 }
 
 export class UpdateProductDTO implements IUpdateProduct {
-  @IsDefined()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumberOrStringifiedNumber()
   category_id: number;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   name: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   description: string;
 
   @IsOptional()
@@ -147,9 +144,8 @@ export class UpdateProductDTO implements IUpdateProduct {
   @IsBooleanOrStringifiedBoolean()
   has_delivery?: boolean;
 
-  @IsDefined()
+  @IsOptional()
   @IsNumberOrStringifiedNumber()
-  @IsNotEmpty()
   price: string;
 
   @IsOptional()
@@ -168,16 +164,14 @@ export class UpdateProductDTO implements IUpdateProduct {
   @IsNumberOrStringifiedNumber()
   width: number;
 
-  @IsDefined()
-  @IsNotEmpty()
+  @IsOptional()
   @IsArrayOrStringifiedArray({
     allowEmptyArray: false,
     typeOfArrayItems: ['string']
   })
   materials: string[];
 
-  @IsDefined()
-  @IsNotEmpty()
+  @IsOptional()
   @IsArrayOrStringifiedArray({
     allowEmptyArray: false,
     typeOfArrayItems: ['string']
@@ -198,10 +192,6 @@ export class GetProductsQueryDTO extends DefaultQueryDTO implements IGetProducts
   name: string;
 
   @IsOptional()
-  @IsArrayOrStringifiedArray({
-    allowEmptyArray: true,
-    typeOfArrayItems: ['number', 'string']
-  })
   categories: any[];
 
   @IsOptional()
@@ -209,24 +199,12 @@ export class GetProductsQueryDTO extends DefaultQueryDTO implements IGetProducts
   is_deleted: boolean;
 
   @IsOptional()
-  @IsArrayOrStringifiedArray({
-    allowEmptyArray: true,
-    typeOfArrayItems: ['string']
-  })
   colors: string[];
 
   @IsOptional()
-  @IsArrayOrStringifiedArray({
-    allowEmptyArray: true,
-    typeOfArrayItems: ['string']
-  })
   materials: string[];
 
   @IsOptional()
-  @IsArrayOrStringifiedArray({
-    allowEmptyArray: true,
-    typeOfArrayItems: ['string']
-  })
   exclude_products: string[];
 
   @IsOptional()

@@ -414,7 +414,8 @@ export default class ModelsDAO {
         )
 
         .where({
-          [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+          [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
+          is_deleted: false
         })
     )
   }
@@ -424,7 +425,8 @@ export default class ModelsDAO {
       await KnexService('models')
         .select('models.*')
         .where({
-          [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+          [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
+          is_deleted: false
         })
     )
   }
@@ -433,13 +435,14 @@ export default class ModelsDAO {
     return await KnexService('models')
       .select(['slug'])
       .whereILike('slug', `${slug}%`)
+      .where({ is_deleted: false })
   }
 
   async getByBrandId(brand_id: string) {
     return getFirst(
       await KnexService('models')
         .select('*')
-        .where({ brand_id })
+        .where({ brand_id, is_deleted: false })
     )
   }
 
@@ -447,7 +450,7 @@ export default class ModelsDAO {
     return getFirst(
       await KnexService('models')
         .select('*')
-        .where({ id: model_id })
+        .where({ id: model_id, is_deleted: false })
     )
   }
 
@@ -472,20 +475,20 @@ export default class ModelsDAO {
           .groupBy('model_images.id', 'images.id')
           .where({ 'is_main': true })
       }, { 'models.id': 'model_images.model_id' })
-      .where(Object.keys(filters).length ? filters : undefined)
+      .where(Object.keys(filters).length ? { ...filters, is_deleted: false } : undefined)
       .whereILike('models.name', `%${keyword || ''}%`)
   }
 
   async deleteById(model_id: string): Promise<number> {
     return await KnexService('models')
-      .where({ id: model_id })
-      .delete()
+      .update({ is_deleted: true })
+      .where({ id: model_id, is_deleted: false })
   }
 
   async deleteByBrandId(brand_id: string): Promise<number> {
     return await KnexService('models')
-      .where({ brand_id })
-      .delete()
+      .update({ is_deleted: true })
+      .where({ brand_id, is_deleted: false })
   }
 
 }

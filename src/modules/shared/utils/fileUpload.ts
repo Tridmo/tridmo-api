@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { s3delete, s3upload } from "./s3";
 import { getExtension } from "./getExtension";
 import processImage from "./compressFile";
-import { s3Vars } from "../../../config/conf";
+import { s3Vars } from "../../../config";
 import { IFile, IImage } from "../interface/files.interface";
 import mimeTypes from 'mime-types';
 import compressFile from "./compressFile";

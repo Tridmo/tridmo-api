@@ -166,7 +166,7 @@ export default class InteriorsDAO {
     return getFirst(
       await KnexService('interiors')
         .select('*')
-        .where({ id: id })
+        .where({ id: id, is_deleted: false })
     )
   }
 
@@ -251,7 +251,8 @@ export default class InteriorsDAO {
           'categories.parent_name'
         )
         .where({
-          [`interiors.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+          [`interiors.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
+          is_deleted: false
         })
 
     )
@@ -310,11 +311,12 @@ export default class InteriorsDAO {
     return await KnexService('interiors')
       .select(['slug'])
       .whereILike('slug', `${slug}%`)
+      .where({ is_deleted: false })
   }
 
-  async deleteById(id: string) {
-    return await KnexService('interiors')
-      .where({ id: id })
-      .delete()
+  async deleteById(id: string): Promise<void> {
+    await KnexService('interiors')
+      .update({ is_deleted: true })
+      .where({ id: id, is_deleted: false })
   }
 }
