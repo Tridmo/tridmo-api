@@ -6,7 +6,7 @@ import ProductsDAO from "./products.dao";
 import { ICreateProduct, ICreateProductFromModel, IGetProductsQuery, IProduct, IUpdateProduct } from "./products.interface";
 import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
-import { s3Vars } from '../../config/conf';
+import { s3Vars } from '../../config';
 import { IRequestFile } from '../shared/interface/files.interface';
 import ProductImageService from './product_images/product_images.service';
 import flat from 'flat'

@@ -1,4 +1,4 @@
-import { adminUsername } from "../../config/conf"
+import { adminUsername } from "../../config"
 import knexInstance from "../../database/connection"
 import { authVariables } from "../auth/variables"
 import { IFilterDownload } from "../downloads/downloads.interface"

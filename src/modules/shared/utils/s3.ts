@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { defaults } from "../defaults/defaults";
-import { s3Vars } from "../../../config/conf";
+import { s3Vars } from "../../../config";
 
 function getS3() {
   return new S3Client({

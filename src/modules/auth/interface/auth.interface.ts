@@ -13,6 +13,7 @@ export interface ISignin {
   username?: string;
   password: string;
   role_name?: string;
+  company?: string;
 }
 
 export interface ISignup {

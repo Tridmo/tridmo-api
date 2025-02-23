@@ -6,7 +6,7 @@ import { ICategory, ICreateCategory, IGetCategoriesQuery, IUpdateCategory } from
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import { IRequestFile } from "../shared/interface/files.interface";
 import { uploadFile } from "../shared/utils/fileUpload";
-import { s3Vars } from "../../config/conf";
+import { s3Vars } from "../../config";
 import { fileDefaults } from "../shared/defaults/defaults";
 import { v4 as uuid } from 'uuid';
 

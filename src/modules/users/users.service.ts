@@ -1,4 +1,4 @@
-import { s3Vars } from '../../config/conf';
+import { s3Vars } from '../../config';
 import { authVariables } from '../auth/variables';
 import { ChatUtils } from '../chat/utils';
 import { IRequestFile } from '../shared/interface/files.interface';

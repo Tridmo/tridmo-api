@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PAYMENT } from "./../../../config/conf";
+import { PAYMENT } from "../../../config";
 
 
 export async function createPaymentProduct(productId: string, order: any) {

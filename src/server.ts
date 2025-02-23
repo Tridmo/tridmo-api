@@ -1,6 +1,5 @@
-
 import cors from "cors";
-import express, { Express, Router } from 'express';
+import express, { Express, Router, RequestHandler } from 'express';
 import errorHandler from "./modules/shared/middlewares/errorHandler";
 import morgan from 'morgan';
 import expressFileUpload from 'express-fileupload';
@@ -29,14 +28,12 @@ class App {
   }
 
   private initializeMiddlewares() {
-    this.app.use(
-      cors({ origin: "*" }),
-      express.json(),
-      express.urlencoded({ extended: true }),
-      expressFileUpload(),
-      express.static(path.join(__dirname, "public", "uploads")),
-      morgan("tiny")
-    );
+    this.app.use(cors({ origin: "*" }));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(expressFileUpload() as unknown as RequestHandler);
+    this.app.use(express.static(path.join(__dirname, "public", "uploads")));
+    this.app.use(morgan("tiny"));
   }
 
   private initializeRoutes(router: Router) {

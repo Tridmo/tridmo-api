@@ -1,5 +1,3 @@
-import { defaults } from "../../shared/defaults/defaults";
-
 export function getFirst(v: any[]) {
   return v[0];
 }

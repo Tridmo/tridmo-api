@@ -22,7 +22,7 @@ import generateSlug from "../shared/utils/generateSlug";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 import { IRequestFile } from "../shared/interface/files.interface";
 import { deleteFile, uploadFile } from "../shared/utils/fileUpload";
-import { s3Vars } from "../../config/conf";
+import { s3Vars } from "../../config";
 import { ChatUtils } from "../chat/utils";
 import slugify from "slugify";
 import { generateUsernameFromName } from "../shared/utils/generateUsername";
@@ -148,7 +148,7 @@ export default class AuthService {
     return data
   }
 
-  async signIn({ email, username, password, role_name }: ISignin) {
+  async signIn({ email, username, password, role_name, company }: ISignin) {
 
     if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
     const profile = email ? await this.usersService.getByEmail_min(email) : await this.usersService.getByUsername_min(username)
@@ -167,6 +167,10 @@ export default class AuthService {
     if (!roles) throw new ErrorResponse(404, 'Role was not found')
     const role = await this.userRolesService.getByUserAndRole({ user_id: profile.id, role_id: roles.id })
     if (!role) throw new ErrorResponse(404, reqT('user_404'))
+
+    if (role.id == authVariables.roles.admin) {
+      if (!company || company?.toLowerCase() != profile.company_name?.toLowerCase()) throw new ErrorResponse(400, reqT('user_404')); throw new ErrorResponse(400, reqT('user_404'));
+    }
 
     const { data: { user, session }, error } = await supabase.auth.signInWithPassword({
       email: profile.email,

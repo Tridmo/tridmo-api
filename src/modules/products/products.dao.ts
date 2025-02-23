@@ -58,6 +58,7 @@ export default class ProductsDAO {
         'products.has_delivery',
         'products.discount_percent',
         'products.discount_until',
+        'products.created_at',
         'product_images.src as cover',
         'categories.id as category.id',
         'categories.name as category.name',

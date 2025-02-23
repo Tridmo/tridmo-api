@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ICreateFile, IFile, IUpdateFile } from "../../interface/files.interface";
 import FilesDAO from "./dao/files.dao";
 import { checkObject } from "../../../shared/utils/s3";
-import { s3Vars } from "../../../../config/conf";
+import { s3Vars } from "../../../../config";
 
 export default class FileService {
   private filesDao = new FilesDAO()

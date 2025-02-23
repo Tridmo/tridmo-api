@@ -7,3 +7,4 @@ src/public/uploads/images/*
 src/sequlize/queries/queries.sql
 # package-lock.json
 /build
+/dist

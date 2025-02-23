@@ -48,9 +48,9 @@ class AuthController {
     }
   };
 
-  public signIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public signIn = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.authService.signIn({ ...req.body, role_name: req.params.role });
+      const data = await this.authService.signIn({ ...req.body, role_name: req.params.role, company: req.headers['x-user-company-name'] });
       res.status(201).json({ success: true, data, message: reqT('login_success') });
     } catch (error) {
       next(error);

@@ -67,10 +67,3 @@ export const s3Vars = {
   imagesBucket: env.S3_IMAGES_BUCKET_NAME,
   filesBucket: env.S3_FILES_BUCKET_NAME,
 }
-
-export const supabaseConfig = {
-  appUrl: env.SUPABASE_APP_URL,
-  anon: env.SUPABASE_ANON,
-  service_role: env.SUPABASE_SERVICE_ROLE,
-  password: pg.password
-}

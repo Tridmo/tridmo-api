@@ -89,15 +89,9 @@ export default class CategoriesDAO {
       .orWhereILike('name', `%${keyword}%`)
   }
 
-  async getParents(filters?: { type: string; models_count?: boolean; }, sorts?: IDefaultQuery): Promise<ICategory[]> {
+  async getParents(filters?: { type?: string[] | string; models_count?: boolean; }, sorts?: IDefaultQuery): Promise<ICategory[]> {
     const { limit, offset, order, orderBy } = sorts
-    const { models_count } = filters;
-    let filterBy = {}
-    if (filters.type) {
-      filterBy = {
-        'categories.type': filters.type
-      }
-    }
+    const { type, models_count } = filters;
 
     return await KnexService('categories')
       .select([
@@ -129,7 +123,9 @@ export default class CategoriesDAO {
       }, "cat.parent_id", "=", "categories.id")
       .orderBy(`categories.${orderBy}`, order)
       .whereNull("categories.parent_id")
-      .where(filterBy)
+      .modify((q) => {
+        if (type && type.length > 0) q.whereIn("categories.type", Array.isArray(type) ? type : [type])
+      })
       .groupBy("categories.id")
   }
   async getNonParents(filters?: { type: string; models_count?: boolean; }, sorts?: IDefaultQuery): Promise<ICategory[]> {

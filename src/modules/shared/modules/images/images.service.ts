@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ICreateFile, ICreateImage, IFilterImage, IImage, IUpdateFile } from "../../interface/files.interface";
 import ImagesDAO from "./dao/images.dao";
-import { s3Vars } from "../../../../config/conf";
+import { s3Vars } from "../../../../config";
 import { deleteFile } from "../../utils/fileUpload";
 
 export default class ImageService {

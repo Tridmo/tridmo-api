@@ -1,4 +1,4 @@
-import { server } from '../../../config/conf';
+import { server } from '../../../config';
 import { decode, sign } from 'jsonwebtoken';
 
 export default class TokenService {
@@ -24,7 +24,7 @@ export default class TokenService {
   private getExpiresOn(token: string) {
 
     const decoded: any = decode(token);
-    
+
     const expiresAt = new Date(decoded.exp * 1000);
 
     return { token, expiresAt };

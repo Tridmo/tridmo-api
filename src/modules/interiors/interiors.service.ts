@@ -6,7 +6,7 @@ import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
 import { isEmpty } from 'lodash';
 import InteriorImageService from './interior_images/interior_images.service';
 import { fileDefaults } from '../shared/defaults/defaults';
-import { s3Vars } from '../../config/conf';
+import { s3Vars } from '../../config';
 import ImageService from '../shared/modules/images/images.service';
 import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
 import InteriorModelsService from './interior_models/interior_models.service';

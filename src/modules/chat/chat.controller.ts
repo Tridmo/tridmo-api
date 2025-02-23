@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import ChatTokenService from "./chat_tokens/chat_tokens.service";
 import { CustomRequest } from "../shared/interface/routes.interface";
-import { chatApi } from "../../config/conf";
+import { chatApi } from "../../config";
 import { ChatUtils } from "./utils";
 import UsersDAO from '../users/users.dao'
 import axios from "axios";
