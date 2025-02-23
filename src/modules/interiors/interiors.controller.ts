@@ -296,11 +296,11 @@ export default class InteriorsController {
 
   public deleteImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const deleted = await this.interiorsService.deleteImage(req.params.image_id)
+      await this.interiorsService.deleteImage(req.params.image_id)
 
-      res.status(deleted ? 200 : 500).json({
-        success: Boolean(deleted),
-        message: deleted ? reqT('deleted_successfully') : reqT('sth_went_wrong')
+      res.status(200).json({
+        success: true,
+        message: reqT('deleted_successfully')
       })
     } catch (error) {
       next(error)

@@ -15,7 +15,7 @@ export default class ProductImagesDAO {
     return getFirst(
       await KnexService("product_images")
         .update(values)
-        .where({ product_id })
+        .where({ product_id, is_cover: true })
         .returning("*")
     )
   }

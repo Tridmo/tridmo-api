@@ -208,11 +208,11 @@ export default class ModelsController {
 
   public deleteImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const deleted = await this.modelsService.deleteImage(req.params.image_id)
+      await this.modelsService.deleteImage(req.params.image_id)
 
-      res.status(deleted ? 200 : 500).json({
-        success: Boolean(deleted),
-        message: deleted ? "Image deleted successfully" : "Something went wrong"
+      res.status(200).json({
+        success: true,
+        message: "Image deleted successfully"
       })
     } catch (error) {
       next(error)
@@ -294,9 +294,9 @@ export default class ModelsController {
         Number(req.params.material_id)
       )
 
-      res.status(deleted ? 200 : 500).json({
-        success: Boolean(deleted),
-        message: deleted ? "Material removed from product" : "Something went wrong"
+      res.status(200).json({
+        success: true,
+        message: "Material removed from product"
       })
     } catch (error) {
       next(error)
@@ -310,9 +310,9 @@ export default class ModelsController {
         Number(req.params.color_id)
       )
 
-      res.status(deleted ? 200 : 500).json({
-        success: Boolean(deleted),
-        message: deleted ? "Color removed from model" : "Something went wrong"
+      res.status(200).json({
+        success: true,
+        message: "Color removed from model"
       })
     } catch (error) {
       next(error)
@@ -323,9 +323,9 @@ export default class ModelsController {
     try {
       const deleted = await this.modelsService.deleteById(req.params.id)
 
-      res.status(deleted ? 200 : 500).json({
-        success: Boolean(deleted),
-        message: deleted ? reqT('deleted_successfully') : reqT('sth_went_wrong')
+      res.status(200).json({
+        success: true,
+        message: reqT('deleted_successfully')
       })
     } catch (error) {
       next(error)

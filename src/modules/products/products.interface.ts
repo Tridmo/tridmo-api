@@ -57,6 +57,7 @@ export interface IUpdateProduct {
   has_delivery?: boolean;
   slug?: string;
   price?: string;
+  cover?: string;
   discount_percent?: number;
   discount_until?: Date;
   length?: number;

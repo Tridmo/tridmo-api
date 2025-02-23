@@ -208,7 +208,8 @@ export default class ProductsDAO {
         )
 
         .where({
-          [`products.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+          [`products.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
+          is_deleted: false
         })
     )
   }
@@ -218,7 +219,8 @@ export default class ProductsDAO {
       await KnexService('products')
         .select('products.*')
         .where({
-          [`products.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
+          [`products.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
+          is_deleted: false
         })
     )
   }
@@ -227,20 +229,20 @@ export default class ProductsDAO {
     return await KnexService('products')
       .select(['slug'])
       .whereILike('slug', `${slug}%`)
+      .where({ is_deleted: false })
   }
 
   async getByIdMinimal(product_id: string) {
     return getFirst(
       await KnexService('products')
         .select('*')
-        .where({ id: product_id })
+        .where({ id: product_id, is_deleted: false })
     )
   }
 
-  async deleteById(product_id: string): Promise<number> {
-    const deleted = await KnexService('products')
-      .where({ id: product_id })
+  async deleteById(product_id: string): Promise<void> {
+    await KnexService('products')
+      .where({ id: product_id, is_deleted: false })
       .update({ is_deleted: true });
-    return deleted[1];
   }
 }

@@ -135,11 +135,11 @@ export default class ProductsController {
 
   public delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const deleted = await this.productsService.deleteById(req.params.id)
+      await this.productsService.deleteById(req.params.id)
 
-      res.status(deleted ? 200 : 500).json({
-        success: Boolean(deleted),
-        message: deleted ? reqT('deleted_successfully') : reqT('sth_went_wrong')
+      res.status(200).json({
+        success: true,
+        message: reqT('deleted_successfully')
       })
     } catch (error) {
       next(error)
