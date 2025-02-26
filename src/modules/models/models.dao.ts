@@ -49,7 +49,7 @@ export default class ModelsDAO {
             .groupBy('model_colors.id')
             .as('model_colors')
         }, { 'models.id': 'model_colors.model_id' })
-        .where({ is_deleted: false })
+        .where({ 'models.is_deleted': false })
         .modify((query) => {
           if (exclude_models && exclude_models.length > 0) query.whereNotIn("models.id", Array.isArray(exclude_models) ? exclude_models : [exclude_models])
           if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
@@ -124,7 +124,7 @@ export default class ModelsDAO {
       }, { 'models.id': 'model_images.model_id' })
       .limit(limit)
       .offset(offset)
-      .where({ is_deleted: otherFilters.is_deleted || false })
+      .where({ 'models.is_deleted': otherFilters.is_deleted || false })
       .modify((query) => {
         if (orderBy) {
           if (orderBy == 'views' || orderBy == 'likes' || orderBy == 'saves') {
@@ -184,7 +184,7 @@ export default class ModelsDAO {
       }, { 'models.id': 'model_images.model_id' })
       .limit(limit)
       .offset(offset)
-      .where({ is_deleted: false })
+      .where({ 'models.is_deleted': false })
       .modify((query) => {
         if (orderBy) query.orderBy(`models.${orderBy}`, order);
         if (IN && IN.length > 0) query.whereIn("models.id", Array.isArray(IN) ? IN : [IN])
@@ -415,7 +415,7 @@ export default class ModelsDAO {
 
         .where({
           [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
-          is_deleted: false
+          'models.is_deleted': false
         })
     )
   }
@@ -426,7 +426,7 @@ export default class ModelsDAO {
         .select('models.*')
         .where({
           [`models.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier,
-          is_deleted: false
+          'models.is_deleted': false
         })
     )
   }
