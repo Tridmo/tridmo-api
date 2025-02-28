@@ -8,3 +8,4 @@ src/sequlize/queries/queries.sql
 # package-lock.json
 /build
 /dist
+/.idea

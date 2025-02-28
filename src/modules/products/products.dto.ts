@@ -1,14 +1,15 @@
-import { IsBoolean, IsBooleanString, IsDateString, IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, Min } from "class-validator";
-import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../shared/custom/validators";
+import { IsDateString, IsDefined, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
+import {
+  IsArrayOrStringifiedArray,
+  IsBooleanOrStringifiedBoolean,
+  IsNumberOrStringifiedNumber
+} from "../shared/custom/validators";
 import { DefaultQueryDTO } from "../shared/dto/query.dto";
 import { ICreateProduct, ICreateProductFromModel, IGetProductsQuery, IUpdateProduct } from "./products.interface";
+import { CURRENCY } from "./constants";
 
 export class GetCartProductsQueryDTO extends DefaultQueryDTO {
   @IsDefined()
-  @IsArrayOrStringifiedArray({
-    allowEmptyArray: false,
-    typeOfArrayItems: ['string']
-  })
   in?: string[];
 }
 
@@ -48,6 +49,11 @@ export class CreateProductDTO implements ICreateProduct {
   @IsNumberOrStringifiedNumber()
   @IsNotEmpty()
   price: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  currency: string = CURRENCY.DEFAULT;
 
   @IsOptional()
   @IsString()
@@ -113,6 +119,11 @@ export class CreateProductFromModelDTO implements ICreateProductFromModel {
   @IsNotEmpty()
   @IsNumberOrStringifiedNumber()
   price: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  currency: string = CURRENCY.DEFAULT;
 }
 
 export class UpdateProductDTO implements IUpdateProduct {
@@ -147,6 +158,10 @@ export class UpdateProductDTO implements IUpdateProduct {
   @IsOptional()
   @IsNumberOrStringifiedNumber()
   price: string;
+
+  @IsString()
+  @IsOptional()
+  currency: string;
 
   @IsOptional()
   @IsString()
