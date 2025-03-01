@@ -1,21 +1,28 @@
-import { uploadFile } from '../shared/utils/fileUpload';
+import {uploadFile} from '../shared/utils/fileUpload';
 import ErrorResponse from '../shared/utils/errorResponse';
-import { fileDefaults } from '../shared/defaults/defaults';
-import { IDefaultQuery } from '../shared/interface/query.interface';
+import {fileDefaults} from '../shared/defaults/defaults';
+import {IDefaultQuery} from '../shared/interface/query.interface';
 import ProductsDAO from "./products.dao";
-import { ICreateProduct, ICreateProductFromModel, IGetProductsQuery, IProduct, IUpdateProduct } from "./products.interface";
-import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
-import { isEmpty } from 'lodash';
-import { s3Vars } from '../../config';
-import { IRequestFile } from '../shared/interface/files.interface';
+import {
+  ICreateProduct,
+  ICreateProductFromModel,
+  IGetProductsQuery,
+  IProduct,
+  IUpdateProduct
+} from "./products.interface";
+import generateSlug, {indexSlug} from '../shared/utils/generateSlug';
+import {isEmpty} from 'lodash';
+import {s3Vars} from '../../config';
+import {IRequestFile} from '../shared/interface/files.interface';
 import ProductImageService from './product_images/product_images.service';
 import flat from 'flat'
-import { IUser } from '../users/users.interface';
-import { reqT } from '../shared/utils/language';
-import { GetCartProductsQueryDTO } from './products.dto';
+import {IUser} from '../users/users.interface';
+import {reqT} from '../shared/utils/language';
+import {GetCartProductsQueryDTO} from './products.dto';
 import ModelService from '../models/models.service';
 import ColorService from '../colors/colors.service';
 import MaterialService from '../materials/materials.service';
+import {CURRENCY} from "./constants";
 
 export default class ProductService {
   private dao = new ProductsDAO()
@@ -82,6 +89,7 @@ export default class ProductService {
     if (model.product_id) throw new ErrorResponse(400, "Model already has a product")
     if (!model.furniture_cost && !data.price) throw new ErrorResponse(400, "Price can not be empty");
     const insertData: ICreateProduct = {
+      currency: data.currency || CURRENCY.DEFAULT,
       category_id: model.category_id,
       name: data.name || model.name,
       description: data.description ?? model.description,
@@ -111,7 +119,7 @@ export default class ProductService {
 
     const product = await this.dao.create(insertData)
 
-    await this.modelService.update(model_id, { product_id: product.id })
+    await this.modelService.update(model_id, {product_id: product.id})
 
     await this.productImagesService.create({
       product_id: product.id,
@@ -142,13 +150,11 @@ export default class ProductService {
     const found: IProduct = await this.dao.getByIdMinimal(id);
     if (isEmpty(found)) throw new ErrorResponse(404, reqT('model_404'));
 
-    const { removed_images, ...otherValues } = values;
+    const {removed_images, ...otherValues} = values;
 
     const product: IProduct = Object.keys(otherValues).length ? await this.dao.update(id, otherValues) : found
 
     if (cover) {
-      console.log("COVER: ", cover);
-
       const uploadedCover = (await uploadFile({
         files: cover,
         folder: `images/products/${product.slug}`,
@@ -156,7 +162,7 @@ export default class ProductService {
         fileName: 'cover',
         dimensions: fileDefaults.model_cover
       }))[0];
-      await this.productImagesService.updateProductCover(product.id, { src: uploadedCover.src });
+      await this.productImagesService.updateProductCover(product.id, {src: uploadedCover.src});
     }
 
     if (removed_images && removed_images?.length) {
@@ -169,8 +175,6 @@ export default class ProductService {
       const otherImages = await this.productImagesService.findByProduct(id)
       const maxIndex = Math.max(...otherImages.map(item => item.index));
       const startIndex = maxIndex ? maxIndex + 1 : 1;
-
-      console.log("IMAGES: ", images);
 
       const uploadedImages = await uploadFile({
         files: images,

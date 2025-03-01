@@ -13,6 +13,7 @@ export async function up(knex: Knex): Promise<void> {
       slug varchar(256) unique,
       has_delivery boolean default false,
       price decimal(10,2) not null,
+      currency varchar(3) not null,
       discount_percent int,
       discount_until TIMESTAMP WITH TIME ZONE,
       length int,

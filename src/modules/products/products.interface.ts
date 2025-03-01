@@ -1,5 +1,4 @@
-import { IImage } from "../shared/interface/files.interface";
-import { IDefaultQuery } from "../shared/interface/query.interface";
+import {IDefaultQuery} from "../shared/interface/query.interface";
 
 export interface IProduct {
   id: string;
@@ -10,6 +9,7 @@ export interface IProduct {
   has_delivery: boolean;
   slug: string;
   price: string;
+  currency: string;
   discount_percent: number;
   discount_until: Date;
   length: number;
@@ -31,6 +31,7 @@ export interface ICreateProduct {
   has_delivery?: boolean;
   slug: string;
   price: string;
+  currency: string;
   discount_percent?: number;
   discount_until?: Date;
   length: number;
@@ -45,6 +46,7 @@ export interface ICreateProductFromModel {
   name?: string;
   description?: string;
   price: string;
+  currency: string;
   discount_percent?: number;
   discount_until?: Date;
 }
@@ -57,6 +59,7 @@ export interface IUpdateProduct {
   has_delivery?: boolean;
   slug?: string;
   price?: string;
+  currency?: string;
   cover?: string;
   discount_percent?: number;
   discount_until?: Date;
@@ -80,5 +83,6 @@ export interface IGetProductsQuery extends IDefaultQuery {
   has_delivery?: boolean;
   min_price?: string;
   max_price?: string;
+  currency?: string;
   has_discount?: number;
 }
