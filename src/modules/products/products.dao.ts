@@ -90,7 +90,7 @@ export default class ProductsDAO {
       }, {'products.id': 'product_images.product_id'})
       .limit(limit)
       .offset(offset)
-      .where({'products.is_deleted': otherFilters.is_deleted || false})
+      .where({ 'products.is_deleted': otherFilters.is_deleted || false })
       .modify((query) => {
         if (orderBy) {
           query.orderBy(`products.${orderBy}`, order)
@@ -140,7 +140,7 @@ export default class ProductsDAO {
       }, {'products.id': 'product_images.product_id'})
       .limit(limit)
       .offset(offset)
-      .where({'products.is_deleted': false})
+      .where({ 'products.is_deleted': false })
       .modify((query) => {
         if (orderBy) query.orderBy(`products.${orderBy}`, order);
         if (IN && IN.length > 0) query.whereIn("products.id", Array.isArray(IN) ? IN : [IN])
