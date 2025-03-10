@@ -60,9 +60,9 @@ const routes = [
   { path: RoutePath.Base, route: new StatsRoute() },
   { path: RoutePath.Base, route: new DownloadsRoute() },
   { path: RoutePath.Base, route: new ProductsRoute() },
+  { path: RoutePath.Frontend, route: new ContentItemsRoute() },
   { path: RoutePath.Frontend, route: new WebsitesRoute() },
   { path: RoutePath.Frontend, route: new ContentTypesRoute() },
-  { path: RoutePath.Frontend, route: new ContentItemsRoute() },
   { path: RoutePath.Frontend, route: new PageSectionsRoute() },
 ]
 
