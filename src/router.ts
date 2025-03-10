@@ -23,34 +23,49 @@ import ProjectsRoute from './modules/projects/projects.route';
 import StatsRoute from './modules/stats/stats.route';
 import DownloadsRoute from './modules/downloads/downloads.route';
 import ProductsRoute from './modules/products/products.route';
+import {
+  ContentTypesRoute,
+  ContentItemsRoute,
+  PageSectionsRoute,
+  WebsitesRoute
+} from './modules/frontend/routes';
 
 const router = Router()
 
+enum RoutePath {
+  Base = '/',
+  Frontend = '/ui'
+}
+
 const routes = [
-  new AuthRoute(),
-  new UsersRoute(),
-  new CategoriesRoute(),
-  new BrandsRoute(),
-  new ModelsRoute(),
-  new ColorsRoute(),
-  new MaterialsRoute(),
-  new CostsRoute(),
-  new StylesRoute(),
-  new UserProductViewsRoute(),
-  new InteriorsRoute(),
-  new SavedInteriorsRoute(),
-  new SavedModelsRoute(),
-  new CommentsRoute(),
-  new PlatformsRoute(),
-  new NotificationsRoute(),
-  new InteriorModelsRoute(),
-  new ChatRoute(),
-  new ProjectsRoute(),
-  new StatsRoute(),
-  new DownloadsRoute(),
-  new ProductsRoute(),
+  { path: RoutePath.Base, route: new AuthRoute() },
+  { path: RoutePath.Base, route: new UsersRoute() },
+  { path: RoutePath.Base, route: new CategoriesRoute() },
+  { path: RoutePath.Base, route: new BrandsRoute() },
+  { path: RoutePath.Base, route: new ModelsRoute() },
+  { path: RoutePath.Base, route: new ColorsRoute() },
+  { path: RoutePath.Base, route: new MaterialsRoute() },
+  { path: RoutePath.Base, route: new CostsRoute() },
+  { path: RoutePath.Base, route: new StylesRoute() },
+  { path: RoutePath.Base, route: new UserProductViewsRoute() },
+  { path: RoutePath.Base, route: new InteriorsRoute() },
+  { path: RoutePath.Base, route: new SavedInteriorsRoute() },
+  { path: RoutePath.Base, route: new SavedModelsRoute() },
+  { path: RoutePath.Base, route: new CommentsRoute() },
+  { path: RoutePath.Base, route: new PlatformsRoute() },
+  { path: RoutePath.Base, route: new NotificationsRoute() },
+  { path: RoutePath.Base, route: new InteriorModelsRoute() },
+  { path: RoutePath.Base, route: new ChatRoute() },
+  { path: RoutePath.Base, route: new ProjectsRoute() },
+  { path: RoutePath.Base, route: new StatsRoute() },
+  { path: RoutePath.Base, route: new DownloadsRoute() },
+  { path: RoutePath.Base, route: new ProductsRoute() },
+  { path: RoutePath.Frontend, route: new WebsitesRoute() },
+  { path: RoutePath.Frontend, route: new ContentTypesRoute() },
+  { path: RoutePath.Frontend, route: new ContentItemsRoute() },
+  { path: RoutePath.Frontend, route: new PageSectionsRoute() },
 ]
 
-routes.forEach(route => router.use('/', route.router))
+routes.forEach(i => router.use(i.path, i.route.router))
 
 export default router

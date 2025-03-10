@@ -1,16 +1,16 @@
-import {IDefaultQuery} from '../shared/interface/query.interface';
-import {getFirst} from "../shared/utils/utils";
-import {ICreateProduct, IGetProductsQuery, IProduct, IUpdateProduct} from "./products.interface";
+import { IDefaultQuery } from '../shared/interface/query.interface';
+import { getFirst } from "../shared/utils/utils";
+import { ICreateProduct, IGetProductsQuery, IProduct, IUpdateProduct } from "./products.interface";
 import KnexService from "../../database/connection";
-import {isUUID} from 'class-validator';
-import {GetCartProductsQueryDTO} from './products.dto';
+import { isUUID } from 'class-validator';
+import { GetCartProductsQueryDTO } from './products.dto';
 
 export default class ProductsDAO {
 
   async create(data: ICreateProduct) {
     return getFirst(
       await KnexService('products')
-        .insert({...data})
+        .insert({ ...data })
         .returning("*")
     )
   }
@@ -18,7 +18,7 @@ export default class ProductsDAO {
   async update(product_id: string, values: IUpdateProduct) {
     return getFirst(
       await KnexService('products')
-        .where({id: product_id})
+        .where({ id: product_id })
         .update({
           ...values
         })
@@ -27,17 +27,18 @@ export default class ProductsDAO {
   }
 
   async count(filters: IGetProductsQuery) {
-    const {categories, exclude_products, name, ...otherFilters} = filters
+    const { categories, exclude_products, name, has_discount, ...otherFilters } = filters
 
     return (
       await KnexService('products')
         .countDistinct("products.id")
-        .where({is_deleted: false})
+        .where({ is_deleted: false })
         .modify((query) => {
           if (exclude_products && exclude_products.length > 0) query.whereNotIn("products.id", Array.isArray(exclude_products) ? exclude_products : [exclude_products])
           if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
-          if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
           if (name && name.length) query.whereILike('products.name', `%${name}%`)
+          if (has_discount) query.whereNotNull('products.discount_percent').andWhere('products.discount_percent', '>', 0)
+          if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
         })
     )[0].count
   }
@@ -46,10 +47,10 @@ export default class ProductsDAO {
     filters: IGetProductsQuery,
     sorts: IDefaultQuery
   ): Promise<IProduct[]> {
-    const {limit, offset, order, orderBy} = sorts
-    const {categories, exclude_products, name, ...otherFilters} = filters
+    const { limit, offset, order, orderBy } = sorts
+    const { categories, exclude_products, name, has_discount, ...otherFilters } = filters
 
-    return KnexService("products")
+    const query = KnexService("products")
       .select([
         'products.id',
         'products.name',
@@ -74,11 +75,11 @@ export default class ProductsDAO {
           "categories.parent_id",
           "parent.name as parent_name"
         ])
-          .leftJoin({parent: "categories"}, {"categories.parent_id": "parent.id"})
+          .leftJoin({ parent: "categories" }, { "categories.parent_id": "parent.id" })
           .from("categories")
           .as("categories")
           .groupBy("categories.id", "parent.id")
-      }, {"products.category_id": "categories.id"})
+      }, { "products.category_id": "categories.id" })
       .innerJoin(function () {
         this.select([
           'product_images.product_id',
@@ -87,7 +88,7 @@ export default class ProductsDAO {
           .from('product_images')
           .as('product_images')
           .where('product_images.is_cover', '=', true)
-      }, {'products.id': 'product_images.product_id'})
+      }, { 'products.id': 'product_images.product_id' })
       .limit(limit)
       .offset(offset)
       .where({ 'products.is_deleted': otherFilters.is_deleted || false })
@@ -97,8 +98,9 @@ export default class ProductsDAO {
         }
         if (exclude_products && exclude_products.length > 0) query.whereNotIn("products.id", Array.isArray(exclude_products) ? exclude_products : [exclude_products])
         if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
-        if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
         if (name && name.length) query.whereILike('products.name', `%${name}%`)
+        if (has_discount) query.whereNotNull('products.discount_percent').andWhere('products.discount_percent', '>', 0)
+        if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
       })
       .groupBy(
         'products.id',
@@ -108,14 +110,16 @@ export default class ProductsDAO {
         'categories.parent_id',
         'categories.parent_name'
       )
+
+    return query;
   }
 
   async getForCart(
     filters: GetCartProductsQueryDTO,
     sorts: IDefaultQuery
   ): Promise<IProduct[]> {
-    const {limit, offset, order, orderBy} = sorts
-    const {in: IN} = filters
+    const { limit, offset, order, orderBy } = sorts
+    const { in: IN } = filters
 
     return KnexService("products")
       .select([
@@ -137,7 +141,7 @@ export default class ProductsDAO {
           .from('product_images')
           .as('product_images')
           .where('product_images.is_cover', '=', true)
-      }, {'products.id': 'product_images.product_id'})
+      }, { 'products.id': 'product_images.product_id' })
       .limit(limit)
       .offset(offset)
       .where({ 'products.is_deleted': false })
@@ -187,11 +191,11 @@ export default class ProductsDAO {
             "categories.parent_id",
             "parent.name as parent_name"
           ])
-            .leftJoin({parent: "categories"}, {"categories.parent_id": "parent.id"})
+            .leftJoin({ parent: "categories" }, { "categories.parent_id": "parent.id" })
             .from("categories")
             .as("categories")
             .groupBy("categories.id", "parent.id")
-        }, {"products.category_id": "categories.id"})
+        }, { "products.category_id": "categories.id" })
         .innerJoin(function () {
           this.select([
             'product_images.product_id',
@@ -200,7 +204,7 @@ export default class ProductsDAO {
             .from('product_images')
             .as('product_images')
             .where('product_images.is_cover', '=', true)
-        }, {'products.id': 'product_images.product_id'})
+        }, { 'products.id': 'product_images.product_id' })
         .groupBy(
           'products.id',
           'categories.id',
@@ -232,20 +236,20 @@ export default class ProductsDAO {
     return KnexService('products')
       .select(['slug'])
       .whereILike('slug', `${slug}%`)
-      .where({is_deleted: false});
+      .where({ is_deleted: false });
   }
 
   async getByIdMinimal(product_id: string) {
     return getFirst(
       await KnexService('products')
         .select('*')
-        .where({id: product_id, is_deleted: false})
+        .where({ id: product_id, is_deleted: false })
     )
   }
 
   async deleteById(product_id: string): Promise<void> {
     await KnexService('products')
-      .where({id: product_id, is_deleted: false})
-      .update({is_deleted: true});
+      .where({ id: product_id, is_deleted: false })
+      .update({ is_deleted: true });
   }
 }

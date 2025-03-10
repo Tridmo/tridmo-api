@@ -2,8 +2,6 @@ import { type Knex } from "knex";
 
 export async function seed(knex: Knex): Promise<void> {
   // Deletes ALL existing entries
-  const count = await knex("role_access_modules").count("id");
-  if (Number(count[0]?.count)) return
   await knex("role_access_modules").del();
 
   // Inserts seed entries
@@ -62,6 +60,8 @@ export async function seed(knex: Knex): Promise<void> {
     { access_module_id: 43, role_id: 1 },
     { access_module_id: 44, role_id: 1 },
     { access_module_id: 45, role_id: 1 },
+
+    { access_module_id: 46, role_id: 1 },
 
     //Brand
     { access_module_id: 6, role_id: 2 },

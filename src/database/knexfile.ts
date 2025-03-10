@@ -14,11 +14,8 @@ const commonConfig = {
   },
   migrations: {
     tableName: "migrations",
-    directory: path.resolve(__dirname, "migrations"),
-    loadExtensions: [".js"]
   },
   seeds: {
-    directory: path.resolve(__dirname, "seeds"),
     loadExtensions: [".js"]
   }
 }

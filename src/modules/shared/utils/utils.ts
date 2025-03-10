@@ -1,3 +1,5 @@
+import slugify from "slugify";
+
 export function getFirst(v: any[]) {
   return v[0];
 }
@@ -44,4 +46,14 @@ export function minutesDiff(d1: Date, d2: Date) {
 
 export function secondsDiff(d1: Date, d2: Date) {
   return Math.round((d2.valueOf() - d1.valueOf()) / 1000);
+}
+
+
+export function createSlug(input: string): string {
+  return slugify(input, {
+    replacement: '-',
+    remove: /[^a-zA-Z\s]/g, // Remove non-English alphabet characters
+    lower: true,            // Convert to lowercase
+    trim: true              // Remove leading and trailing whitespace
+  })
 }

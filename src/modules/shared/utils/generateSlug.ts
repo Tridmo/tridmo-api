@@ -9,12 +9,13 @@ const generateSlug = (
     lower?: boolean;
     strict?: boolean;
     locale?: string;
-    trim?: boolean;
   }
 ) => {
   return slugify(text, {
     replacement: options?.replacement || '-',
-    lower: options?.lower || true
+    lower: options?.lower || true,
+    remove: /[^a-zA-Z\s]/g, // Remove non-English alphabet characters
+    trim: true              // Remove leading and trailing whitespace
   })
 }
 

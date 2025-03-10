@@ -17,6 +17,7 @@ import supabase from "../../database/supabase/supabase";
 import { generateUsername } from "unique-username-generator";
 import { generateHash } from "../shared/utils/bcrypt";
 import { ChatUtils } from "../chat/utils";
+import { fileDefaults } from "../shared/defaults/defaults";
 
 export default class BrandService {
   private brandsDao = new BrandsDAO()
@@ -32,10 +33,10 @@ export default class BrandService {
     brand: IBrand,
     admin: IUser
   }> {
-    const slug = generateSlug(name, { replacement: "", lower: false })
+    const slug = generateSlug(name)
 
     const foundBrand: IBrand = await this.brandsDao.getBySlug(slug);
-    if (foundBrand) throw new ErrorResponse(400, reqT('same_name_exists'));
+    if (foundBrand) throw new ErrorResponse(409, reqT('same_name_exists'));
 
     username = username || generateUsername('', 0, 32, `${name.toLocaleLowerCase()}admin`)
 
@@ -55,7 +56,14 @@ export default class BrandService {
 
     let image_src = null;
     if (!!brand) {
-      const upload = await uploadFile({ files: brand_image, folder: `images/brands/`, fileName: slug, bucketName: s3Vars.imagesBucket })
+      const upload = await uploadFile({
+        files: brand_image,
+        folder: `images/brands/`,
+        fileName: slug,
+        bucketName: s3Vars.imagesBucket,
+        dimensions: fileDefaults.brand_image,
+        compress: fileDefaults.brand_image_compression
+      })
       const newImage = await this.imagesService.create(upload[0])
       await this.brandsDao.update(brand.id, {
         image_id: newImage.id
@@ -92,12 +100,18 @@ export default class BrandService {
   }
 
   async update(brand_id: string, values: IUpdateBrand & IBrandAuth, brand_image?: IRequestFile): Promise<IBrand> {
-    console.log(brand_id, values, brand_image);
 
     const foundBrand: IBrand = await this.brandsDao.getById(brand_id);
     if (isEmpty(foundBrand)) throw new ErrorResponse(400, reqT('brand_404'));
 
     const { styles, username, password, ...otherValues } = values;
+
+    if (otherValues.name) {
+      const slug = generateSlug(otherValues.name);
+      const foundBrand: IBrand = await this.brandsDao.getBySlug(slug);
+      if (foundBrand) throw new ErrorResponse(409, reqT('same_name_exists'));
+      otherValues.slug = slug
+    }
 
     if (username || password) {
       let brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
@@ -112,6 +126,7 @@ export default class BrandService {
         }
       }
     }
+
 
     let brand: IBrand = Object.keys(otherValues).length ? await this.brandsDao.update(brand_id, otherValues) : foundBrand
 
@@ -140,7 +155,14 @@ export default class BrandService {
       await this.imagesService.delete(brand.image_id);
     }
 
-    const upload = await uploadFile({ files: image, folder: "images/brands", bucketName: s3Vars.imagesBucket })
+    const upload = await uploadFile({
+      files: image,
+      folder: "images/brands",
+      fileName: brand.slug,
+      bucketName: s3Vars.imagesBucket,
+      dimensions: fileDefaults.brand_image,
+      compress: fileDefaults.brand_image_compression
+    })
     const newImage = await this.imagesService.create(upload[0])
 
     const imageUpdate: IBrand = await this.brandsDao.update(brand_id, {

@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.raw(`
     create table if not exists roles ( 
         id int primary key,
-        name varchar(256) not null,
+        name varchar(256) unique not null,
         description text,
         created_at timestamp with time zone not null default current_timestamp,
         updated_at timestamp with time zone not null default current_timestamp
