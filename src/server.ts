@@ -6,10 +6,7 @@ import expressFileUpload from 'express-fileupload';
 import path from "path";
 import consoleStamp from 'console-stamp'
 import requestLang from './middleware/requestLang';
-
-consoleStamp(console, {
-  format: ':date(HH:MM:ss)'
-})
+import { server } from "./config";
 
 class App {
   public app: Express;
@@ -32,7 +29,9 @@ class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(expressFileUpload() as unknown as RequestHandler);
     this.app.use(express.static(path.join(__dirname, "public", "uploads")));
-    this.app.use(morgan("tiny"));
+    if (server.logLevel) {
+      this.app.use(morgan(server.logLevel));
+    }
   }
 
   private initializeRoutes(router: Router) {

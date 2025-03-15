@@ -23,6 +23,7 @@ export const pg = {
 
 export const server = {
   httpPort: env.HTTP_PORT || 4000,
+  logLevel: env.LOG_LEVEL,
   nodeEnv: env.NODE_ENV || 'development',
   refreshToken: {
     secret: env.REFRESH_TOKEN_SECRET,

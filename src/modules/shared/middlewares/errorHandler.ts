@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import ErrorResponse from '../utils/errorResponse';
 import { CustomRequest } from '../interface/routes.interface';
+import { AxiosError } from 'axios';
 
 
-const errorHandler = (error: ErrorResponse, req: CustomRequest, res: Response, next: NextFunction) => {
+const errorHandler = (error: ErrorResponse | AxiosError, req: CustomRequest, res: Response, next: NextFunction) => {
 
-  const { reason, ...x } = error
+  const { reason, ...x } = error as ErrorResponse
 
-  console.error(error);
+  console.error(error instanceof AxiosError ? error.response.data : error);
 
   const ErrorObject = {
     error: x,
