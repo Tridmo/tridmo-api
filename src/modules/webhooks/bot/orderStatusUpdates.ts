@@ -36,10 +36,10 @@ export const timberOrderStatusHandler = async (req: Request, res: Response) => {
 
         const updatedText =
           originalMessage +
-          `\n${moment(new Date().getTime())
+          `\n\n${moment(new Date().getTime())
             .tz("Asia/Tashkent")
             .format("DD-MM-YYYY HH:mm")}\n ${statusText}\n📞 Оператор: ${userName}${userUsername ? ` | @${userUsername}` : ""
-          }\n`;
+          }`;
 
         await axios.post(
           `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`,
