@@ -29,12 +29,14 @@ import {
   PageSectionsRoute,
   WebsitesRoute
 } from './modules/frontend/routes';
+import { WebhooksRoute } from './modules/webhooks/router';
 
 const router = Router()
 
 enum RoutePath {
   Base = '/',
-  Frontend = '/ui'
+  Frontend = '/ui',
+  Webhooks = '/webhooks'
 }
 
 const routes = [
@@ -64,6 +66,7 @@ const routes = [
   { path: RoutePath.Frontend, route: new WebsitesRoute() },
   { path: RoutePath.Frontend, route: new ContentTypesRoute() },
   { path: RoutePath.Frontend, route: new PageSectionsRoute() },
+  { path: RoutePath.Webhooks, route: new WebhooksRoute() },
 ]
 
 routes.forEach(i => router.use(i.path, i.route.router))

@@ -6,8 +6,6 @@ import expressFileUpload from 'express-fileupload';
 import path from "path";
 import consoleStamp from 'console-stamp'
 import requestLang from './middleware/requestLang';
-import { generateHash } from "./modules/shared/utils/bcrypt";
-import { timberOrderStatusHandler } from "./webhooks/bot/orderStatusUpdates";
 
 consoleStamp(console, {
   format: ':date(HH:MM:ss)'
@@ -38,7 +36,6 @@ class App {
   }
 
   private initializeRoutes(router: Router) {
-    this.app.post('/webhooks/telegram-bot/timber/update-order-status', (req, res) => timberOrderStatusHandler(req, res));
     this.app.get('/health', (req, res) => res.status(200).json({ success: true }));
     this.app.use('/api', requestLang, router);
   }

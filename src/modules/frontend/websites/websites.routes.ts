@@ -14,14 +14,11 @@ export class WebsitesRoute implements Routes {
   }
 
   private initializeRoutes() {
-    // Apply middleware to all routes in this router.
-    this.router.use(protect, check_access('frontend_content_control'));
-
-    this.router.get(this.path + '/', this.controller.getAll);
-    this.router.get(this.path + '/byname/:name', this.controller.getByName);
-    this.router.get(this.path + '/:id', this.controller.getById);
-    this.router.post(this.path + '/', this.controller.create);
-    this.router.put(this.path + '/:id', this.controller.update);
-    this.router.delete(this.path + '/:id', this.controller.delete);
+    this.router.get(this.path + '/', protect, check_access('frontend_content_control'), this.controller.getAll);
+    this.router.get(this.path + '/byname/:name', protect, check_access('frontend_content_control'), this.controller.getByName);
+    this.router.get(this.path + '/:id', protect, check_access('frontend_content_control'), this.controller.getById);
+    this.router.post(this.path + '/', protect, check_access('frontend_content_control'), this.controller.create);
+    this.router.put(this.path + '/:id', protect, check_access('frontend_content_control'), this.controller.update);
+    this.router.delete(this.path + '/:id', protect, check_access('frontend_content_control'), this.controller.delete);
   }
 }
