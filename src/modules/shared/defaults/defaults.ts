@@ -59,14 +59,14 @@ export const fileDefaults = {
   banner_image_compression: 90,
   banner_desktop_image: {
     width: 1920,
-    height: 500
+    height: 380
   },
   banner_tablet_image: {
     width: 1280,
-    height: 500
+    height: 380
   },
   banner_mobile_image: {
     width: 768,
-    height: 500
+    height: 380
   },
 };
