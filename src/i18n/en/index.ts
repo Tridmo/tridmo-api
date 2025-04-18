@@ -13,6 +13,9 @@ const en = {
   signup_success: 'Signed up successfully',
   invalid_login_credentials: 'Invalid login credentials',
   you_are_banned: 'Account has been blocked',
+  reset_password_email_sent: 'Link to reset the password has been sent to your email.',
+  passwords_not_matching: 'Passwords not matching',
+  password_changed_successfully: 'Password has been updated successfully',
   you_are_banned_until: 'Account is blocked until ',
 
   created_successfully: 'Created successfully',

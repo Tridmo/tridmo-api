@@ -29,6 +29,8 @@ import { generateUsernameFromName } from "../shared/utils/generateUsername";
 import BrandService from "../brands/brands.service";
 import UserBanService from "../users/user_bans/user_bans.service";
 import { IBrand } from "../brands/brands.interface";
+import { ResetPasswordDTO, UpdatePasswordDTO } from "./auth.dto";
+import { IReqUser } from "../shared/interface/routes.interface";
 
 
 export default class AuthService {
@@ -44,6 +46,25 @@ export default class AuthService {
   private sessionsDao = new SessionsDAO();
 
   private jwtService = new TokenService()
+
+  private buildSessionData({ user, session }) {
+    return {
+      user: {
+        id: user.id,
+        email: user.email!,
+        fullName: user.user_metadata.full_name,
+        is_verified: Boolean(user.confirmed_at),
+        createdAt: user.created_at,
+        updatedAt: user.updated_at!,
+      },
+      token: {
+        refreshToken: session.refresh_token,
+        accessToken: session.access_token,
+        expiresIn: session.expires_in,
+        tokenType: session.token_type
+      }
+    }
+  }
 
   async signup({ email, full_name, password, company_name }: ISignup) {
 
@@ -148,6 +169,64 @@ export default class AuthService {
     return data
   }
 
+  async sendResetPasswordEmail({ email, redirectUrl }: { email: string, redirectUrl: string }) {
+
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl
+    })
+
+    if (error) {
+      console.error(error)
+      throw new ErrorResponse(error.status, error.message);
+    }
+
+    return data
+  }
+
+  async updatePassword(user: IReqUser, { newPassword }: UpdatePasswordDTO) {
+
+    const { data: { user: updatedUser }, error } = await supabase.auth.admin.updateUserById(user.profile.user_id, {
+      password: newPassword
+    })
+    if (error) {
+      console.error(error)
+      throw new ErrorResponse(error.status, error.message);
+    }
+
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: updatedUser.email,
+      password: newPassword
+    });
+
+    if (signInError) {
+      console.error(signInError)
+      throw new ErrorResponse(signInError.status, signInError.message);
+    }
+
+    return this.buildSessionData(signInData);
+  }
+
+  async resetPassword({ newPassword, token }: ResetPasswordDTO) {
+
+    const { data: { user }, error: getUserError } = await supabase.auth.getUser(token);
+
+    if (getUserError) {
+      console.error(getUserError)
+      throw new ErrorResponse(getUserError.status, getUserError.message);
+    }
+
+    const { data: updatedUser, error: updateUserError } = await supabase.auth.admin.updateUserById(user.id, {
+      password: newPassword
+    })
+
+    if (updateUserError) {
+      console.error(updateUserError)
+      throw new ErrorResponse(updateUserError.status, updateUserError.message);
+    }
+
+    return updatedUser
+  }
+
   async signIn({ email, username, password, role_name, company }: ISignin) {
 
     if (!(email || username)) throw new ErrorResponse(400, reqT('email_or_username_required'));
@@ -191,22 +270,7 @@ export default class AuthService {
     if (session && user) {
       await this.chat.syncUser(profile, role?.role_id || authVariables.roles.designer)
 
-      return {
-        user: {
-          id: user.id,
-          email: user.email!,
-          fullName: user.user_metadata.full_name,
-          is_verified: Boolean(user.confirmed_at),
-          createdAt: user.created_at,
-          updatedAt: user.updated_at!,
-        },
-        token: {
-          refreshToken: session.refresh_token,
-          accessToken: session.access_token,
-          expiresIn: session.expires_in,
-          tokenType: session.token_type
-        }
-      }
+      return this.buildSessionData({ user, session });
     } else {
       throw new ErrorResponse(500, reqT('sth_went_wrong'))
     }

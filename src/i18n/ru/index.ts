@@ -13,6 +13,9 @@ const ru = {
   signup_success: 'Регистрация прошла успешно',
   invalid_login_credentials: 'Неверные логин или пароль',
   you_are_banned: 'Aккаунт заблокирован',
+  reset_password_email_sent: 'Ссылка для сброса пароля отправлена на вашу почту.',
+  passwords_not_matching: 'Пароли не совпадают',
+  password_changed_successfully: 'Пароль успешно обновлен',
   you_are_banned_until: 'Aккаунт заблокирован до ',
 
   created_successfully: 'Успешно создано',

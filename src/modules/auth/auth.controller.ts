@@ -5,6 +5,7 @@ import { IRefreshToken, ISignin } from './interface/auth.interface';
 import supabase from '../../database/supabase/supabase';
 import { reqT } from '../shared/utils/language';
 import { CustomRequest } from '../shared/interface/routes.interface';
+import ErrorResponse from '../shared/utils/errorResponse';
 
 class AuthController {
   public authService = new AuthService();
@@ -52,6 +53,41 @@ class AuthController {
     try {
       const data = await this.authService.signIn({ ...req.body, role_name: req.params.role, company: req.headers['x-user-company-name'] });
       res.status(201).json({ success: true, data, message: reqT('login_success') });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+  public sendResetPasswordEmail = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // const redirectTo = `${req.protocol}://${req.get('host')}/account/change-password`
+      const redirectTo = `http://localhost:3000/account/change-password`;
+
+      const data = await this.authService.sendResetPasswordEmail({
+        email: req.body.email,
+        redirectUrl: redirectTo
+      });
+      res.status(200).json({ success: true, data, message: reqT('reset_password_email_sent') });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+  public updatePassword = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.authService.updatePassword(req.user, req.body);
+      res.status(200).json({ success: true, data, message: reqT('password_changed_successfully') });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public resetPassword = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.authService.resetPassword(req.body);
+      res.status(200).json({ success: true, data, message: reqT('password_changed_successfully') });
     } catch (error) {
       next(error);
     }

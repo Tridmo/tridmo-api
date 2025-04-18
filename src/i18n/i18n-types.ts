@@ -63,6 +63,18 @@ type RootTranslation = {
 	 */
 	you_are_banned: string
 	/**
+	 * L​i​n​k​ ​t​o​ ​r​e​s​e​t​ ​t​h​e​ ​p​a​s​s​w​o​r​d​ ​h​a​s​ ​b​e​e​n​ ​s​e​n​t​ ​t​o​ ​y​o​u​r​ ​e​m​a​i​l​.
+	 */
+	reset_password_email_sent: string
+	/**
+	 * P​a​s​s​w​o​r​d​s​ ​n​o​t​ ​m​a​t​c​h​i​n​g
+	 */
+	passwords_not_matching: string
+	/**
+	 * P​a​s​s​w​o​r​d​ ​h​a​s​ ​b​e​e​n​ ​u​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+	 */
+	password_changed_successfully: string
+	/**
 	 * A​c​c​o​u​n​t​ ​i​s​ ​b​l​o​c​k​e​d​ ​u​n​t​i​l​ 
 	 */
 	you_are_banned_until: string
@@ -197,6 +209,18 @@ export type TranslationFunctions = {
 	 * Account has been blocked
 	 */
 	you_are_banned: () => LocalizedString
+	/**
+	 * Link to reset the password has been sent to your email.
+	 */
+	reset_password_email_sent: () => LocalizedString
+	/**
+	 * Passwords not matching
+	 */
+	passwords_not_matching: () => LocalizedString
+	/**
+	 * Password has been updated successfully
+	 */
+	password_changed_successfully: () => LocalizedString
 	/**
 	 * Account is blocked until 
 	 */

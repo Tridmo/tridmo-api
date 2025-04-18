@@ -7,7 +7,8 @@ import {
   MinLength,
   IsOptional,
   IsDate,
-  IsDateString
+  IsDateString,
+  Matches
 } from 'class-validator';
 import {
   IResendOtp,
@@ -76,4 +77,29 @@ export class ResendOtpDTO implements IResendOtp {
   @IsEmail()
   email: string;
 
+}
+
+export class SendResetPasswordEmailDTO {
+  @IsDefined()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+}
+
+export class UpdatePasswordDTO {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
+
+export class ResetPasswordDTO {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+
+  @IsNotEmpty()
+  @IsString()
+  token: string;
 }
