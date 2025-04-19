@@ -64,7 +64,10 @@ class AuthController {
 
   public sendResetPasswordEmail = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const redirectTo = isDevelopment() ? `http://localhost:3000${resetPasswordRedirectRoute}` : `${req.protocol}://${req.get('host')}${resetPasswordRedirectRoute}`;
+      const redirectTo = `${req.protocol}://${req.get('host')}${resetPasswordRedirectRoute}`;
+
+      console.log(req);
+      console.log(redirectTo);
 
       const data = await this.authService.sendResetPasswordEmail({
         email: req.body.email,
