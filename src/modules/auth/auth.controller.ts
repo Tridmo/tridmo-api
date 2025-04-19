@@ -6,6 +6,9 @@ import supabase from '../../database/supabase/supabase';
 import { reqT } from '../shared/utils/language';
 import { CustomRequest } from '../shared/interface/routes.interface';
 import ErrorResponse from '../shared/utils/errorResponse';
+import { server } from '../../config';
+import { isDevelopment } from '../shared/utils/nodeEnv';
+import { resetPasswordRedirectRoute } from './variables';
 
 class AuthController {
   public authService = new AuthService();
@@ -61,8 +64,7 @@ class AuthController {
 
   public sendResetPasswordEmail = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // const redirectTo = `${req.protocol}://${req.get('host')}/account/change-password`
-      const redirectTo = `http://localhost:3000/account/change-password`;
+      const redirectTo = isDevelopment() ? `http://localhost:3000${resetPasswordRedirectRoute}` : `${req.protocol}://${req.get('host')}${resetPasswordRedirectRoute}`;
 
       const data = await this.authService.sendResetPasswordEmail({
         email: req.body.email,
