@@ -15,7 +15,6 @@ const validationMiddleware = (
         {
           skipMissingProperties
         });
-      console.log(errors);
 
       if (errors.length >= 1) {
 

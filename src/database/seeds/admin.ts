@@ -10,7 +10,7 @@ export async function seed(knex: Knex): Promise<void> {
     const existingProfile = await knex('profiles').select('id', 'user_id').where({ email, username }).first();
 
     if (existingProfile) {
-      console.log(`User ${email} already exists.`);
+      console.info(`User ${email} already exists.`);
       return;
     }
 
@@ -26,9 +26,8 @@ export async function seed(knex: Knex): Promise<void> {
 
     if (error) {
       if (error.code === 'email_exists') {
-        console.log(`Email ${email} already exists in Supabase. Fetching existing user.`);
+        console.info(`Email ${email} already exists in Supabase. Fetching existing user.`);
         const existingUser = await knex('auth.users').select('*').where({ email });
-        console.log("NIGGA: ", existingUser);
         user = existingUser[0]; // Get first matched user
       } else {
         console.error(`Error creating user ${email}:`, error);
@@ -55,7 +54,7 @@ export async function seed(knex: Knex): Promise<void> {
     // Assign role
     await knex("user_roles").insert([{ user_id: profile.id, role_id: authVariables.roles.admin }]);
 
-    console.log(`Admin profile created for ${email}`);
+    console.info(`Admin profile created for ${email}`);
   }
 
   // Create Demod Admin

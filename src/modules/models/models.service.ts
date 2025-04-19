@@ -77,11 +77,11 @@ export default class ModelService {
 
         await deleteFile(s3Vars.imagesBucket, image.key)
 
-        console.log('______________________________________');
-        console.log(image);
-        console.log(uploadedImage);
-        console.log(updated);
-        console.log('______________________________________');
+        console.info('______________________________________');
+        console.info(image);
+        console.info(uploadedImage);
+        console.info(updated);
+        console.info('______________________________________');
       }
       done.push(model.id)
     }
@@ -610,7 +610,7 @@ const addIdsToJsonArray = (arr: string[]) => {
         if (err) {
           console.error("Error writing to the file:", err);
         } else {
-          console.log("ID added successfully.");
+          console.info("ID added successfully.");
         }
       });
       return jsonData

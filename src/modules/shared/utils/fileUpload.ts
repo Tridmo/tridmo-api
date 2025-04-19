@@ -39,7 +39,7 @@ export const uploadFile = async (
 
     return arr
   } catch (error) {
-    console.log("UPLOAD ERROR: ", error);
+    console.error("File Upload Error: ", error);
   }
 }
 

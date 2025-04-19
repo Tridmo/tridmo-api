@@ -20,7 +20,6 @@ export default class InteriorViewsDAO {
         .returning('*');
 
       const res = await query;
-      console.log(res);
       return res;
     } else {
       // Unregistered user
@@ -36,7 +35,6 @@ export default class InteriorViewsDAO {
         .returning('*');
 
       const res = await query;
-      console.log(res);
       return res;
     }
   }

@@ -44,7 +44,7 @@ export class ChatUtils {
       )
       return res?.data?.access_token;
     } catch (error) {
-      console.log(error);
+      console.error("GET Chat Token Error: ", error);
     }
   }
 
@@ -73,7 +73,6 @@ export class ChatUtils {
               headers: { 'Authorization': `Bearer ${chatApi.key}` }
             }
           )
-          console.log("WEBHOOK UPDATED: ", res?.data);
           return res?.data;
         }
       }
@@ -91,10 +90,9 @@ export class ChatUtils {
           headers: { 'Authorization': `Bearer ${chatApi.key}` }
         }
       )
-      console.log("WEBHOOK CREATED: ", res?.data);
       return res?.data;
     } catch (error) {
-      console.log("WEBHOOK ERROR: ", error);
+      console.error("WEBHOOK ERROR: ", error);
     }
   }
 
@@ -125,7 +123,7 @@ export class ChatUtils {
       )
       return res?.data;
     } catch (error) {
-      console.log(error);
+      console.error("Char Sync User Error: ", error);
     }
   }
 
@@ -142,7 +140,7 @@ export class ChatUtils {
 
       return res?.data;
     } catch (error) {
-      console.log(error);
+      console.error("Chat Delete User Error: ", error);
     }
   }
 }

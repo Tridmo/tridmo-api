@@ -104,9 +104,6 @@ export default class InteriorModelsController {
       const interior = await this.interiors.findById(tag.interior_id)
       if (!interior) throw new ErrorResponse(403, req.t.interior_404(), 'not_found');
 
-      console.log(interior);
-      console.log(req.user.profile);
-
       if (req.user.profile.role_id == authVariables.roles.admin || req.user.profile.id == interior.user_id) {
         await this.service.deleteBy({ id: req.params.id })
 

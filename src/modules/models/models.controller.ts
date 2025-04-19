@@ -26,7 +26,7 @@ export default class ModelsController {
         data
       })
     } catch (error) {
-      console.log('COMPRESS: ', error);
+      console.error('Model Image Compress Error: ', error);
 
       next(error)
     }

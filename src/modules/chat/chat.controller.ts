@@ -28,8 +28,6 @@ export default class ChatController {
 
   public handleWebhooks = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      console.log(req.headers)
-
       res.status(200)
     } catch (error) {
       next(error)

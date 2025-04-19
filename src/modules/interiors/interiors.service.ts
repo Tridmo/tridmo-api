@@ -43,9 +43,6 @@ export default class InteriorService {
     const largeImages = []
 
     for (const interior of interiors) {
-      console.log('-------------------START--------------------');
-      console.log(`${interior.id} | ${interior.slug}`)
-
       const images = await this.interiorImageService.findByModelWithImage(interior.id)
       for (const image of images) {
         // if ((typeof image.size == 'string' ? Number(image.size) : image.size) > 100000) {}
@@ -73,11 +70,9 @@ export default class InteriorService {
         await deleteFile(s3Vars.imagesBucket, image.key)
 
         var imageActionInfo = `${image.key}: ${image.size} -> ${uploadedImage[0].size}`;
-        console.log(imageActionInfo);
       }
       done.push(interior.id)
       addIdsToJsonArray(interior.id)
-      console.log('--------------------END---------------------');
 
       const action = `
       -------------------START--------------------
@@ -431,7 +426,7 @@ const addIdsToJsonArray = (arr: string[] | string) => {
         if (err) {
           console.error("Error writing to the file:", err);
         } else {
-          console.log("ID added successfully.");
+          console.info("ID added successfully.");
         }
       });
       return jsonData
@@ -453,7 +448,7 @@ const writeActionToFile = (action: string) => {
         if (err) {
           console.error("Error writing to the file:", err);
         } else {
-          console.log("Action written successfully.");
+          console.info("Action written successfully.");
         }
       });
     } catch (parseErr) {

@@ -8,8 +8,6 @@ const errorHandler = (error: ErrorResponse | AxiosError, req: CustomRequest, res
 
   const { reason, ...x } = error as ErrorResponse
 
-  console.error(error instanceof AxiosError ? error.response.data : error);
-
   const ErrorObject = {
     error: x,
     reason: reason || 'not_specified',
