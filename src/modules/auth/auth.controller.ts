@@ -64,7 +64,7 @@ class AuthController {
 
   public sendResetPasswordEmail = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const redirectTo = `${req.protocol}://${req.get('host')}${resetPasswordRedirectRoute}`;
+      const redirectTo = `${req.get('origin')}${resetPasswordRedirectRoute}`;
 
       console.log(req);
       console.log(redirectTo);
