@@ -64,14 +64,9 @@ class AuthController {
 
   public sendResetPasswordEmail = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const redirectTo = `${req.get('origin')}${resetPasswordRedirectRoute}`;
-
-      console.log(req);
-      console.log(redirectTo);
-
       const data = await this.authService.sendResetPasswordEmail({
         email: req.body.email,
-        redirectUrl: redirectTo
+        redirectUrl: `${req.get('origin')}${resetPasswordRedirectRoute}`
       });
       res.status(200).json({ success: true, data, message: reqT('reset_password_email_sent') });
     } catch (error) {
