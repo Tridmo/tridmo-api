@@ -2,11 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import ErrorResponse from '../utils/errorResponse';
 import { CustomRequest } from '../interface/routes.interface';
 import { AxiosError } from 'axios';
+import { isDevelopment } from '../utils/nodeEnv';
 
 
 const errorHandler = (error: ErrorResponse | AxiosError, req: CustomRequest, res: Response, next: NextFunction) => {
 
   const { reason, ...x } = error as ErrorResponse
+
+  if (isDevelopment()) console.error(error instanceof AxiosError ? error.response.data : error);
 
   const ErrorObject = {
     error: x,
