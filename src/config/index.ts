@@ -1,10 +1,5 @@
 import { config } from 'dotenv';
-import path from 'path';
-
-config({
-  path: path.join(__dirname, '..', '..', '.env')
-});
-
+config();
 const { env } = process;
 
 export const adminUsername = env.ADMIN_USERNAME;
