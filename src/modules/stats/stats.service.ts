@@ -201,4 +201,9 @@ export default class StatsService {
     const data = await this.dao.getMostUsedModels({ limit, month, year, week, brand_id })
     return data;
   }
+
+  async getMainStats() {
+    const data = await this.dao.getMainStats();
+    return data;
+  }
 }

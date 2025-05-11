@@ -244,4 +244,17 @@ export default class StatsController {
       next(error)
     }
   }
+
+  public getMainStats = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      const stats = await this.service.getMainStats();
+
+      res.status(200).json({
+        success: true,
+        data: stats
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

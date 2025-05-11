@@ -26,5 +26,6 @@ export default class StatsRoute implements Routes {
     this.router.get(`${this.path}/downloads/chart`, protect, check_access('update_brand'), this.controller.getDownloadsChart);
     this.router.get(`${this.path}/tags/count`, protect, check_access('update_brand'), this.controller.getTagsCount);
     this.router.get(`${this.path}/tags/chart`, protect, check_access('update_brand'), this.controller.getTagsChart);
+    this.router.get(`${this.path}/main`, this.controller.getMainStats);
   }
 }

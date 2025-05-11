@@ -665,5 +665,29 @@ export default class StatsDao {
     return result;
   }
 
+  async getMainStats() {
+    const [brandsCount, modelsCount, usersCount] = await Promise.all([
+      knexInstance('brands').count('id').first(),
+      knexInstance('models').count('id').where({ is_deleted: false }).first(),
+      knexInstance('profiles')
+        .countDistinct('profiles.id')
+        .innerJoin(function () {
+          this.select('id', 'role_id', 'user_id')
+            .from('user_roles')
+            .as('user_roles')
+            .where('role_id', '=', authVariables.roles.designer)
+        }, { 'user_roles.user_id': 'profiles.id' })
+        .first()
+    ]);
+
+    console.log(brandsCount, modelsCount, usersCount);
+    
+
+    return {
+      brands_count: Number(brandsCount?.count || 0),
+      models_count: Number(modelsCount?.count || 0),
+      users_count: Number(usersCount?.count || 0)
+    };
+  }
 
 }
