@@ -1,7 +1,7 @@
-import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { IsArrayOrStringifiedArray, IsBooleanOrStringifiedBoolean, IsNumberOrStringifiedNumber } from "../shared/custom/validators";
 import { DefaultQueryDTO } from "../shared/dto/query.dto";
-import { ICreateModel, ICreateModelBody, IGetCartModelsQuery, IGetCountsQuery, IGetModelsQuery, IUpdateModel } from "./models.interface";
+import { ICreateModelBody, IGetCartModelsQuery, IGetCountsQuery, IGetModelsQuery, IUpdateModel } from "./models.interface";
 
 export class CreateModelDTO implements ICreateModelBody {
   @IsString()
@@ -191,6 +191,9 @@ export class GetModelsQueryDTO extends DefaultQueryDTO implements IGetModelsQuer
 
   @IsString()
   brand_id?: string;
+
+  @IsString()
+  country_id?: string;
 
   @IsNumberOrStringifiedNumber()
   availability?: number;

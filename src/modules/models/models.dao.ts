@@ -1,9 +1,8 @@
+import { isUUID } from 'class-validator';
+import KnexService from "../../database/connection";
 import { IDefaultQuery } from '../shared/interface/query.interface';
 import { getFirst } from "../shared/utils/utils";
 import { ICreateModel, IGetCartModelsQuery, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
-import KnexService from "../../database/connection";
-import { isUUID } from 'class-validator';
-import { availabilityData } from './constants';
 
 export default class ModelsDAO {
 
@@ -38,7 +37,7 @@ export default class ModelsDAO {
   }
 
   async count(filters: IGetModelsQuery) {
-    const { categories, exclude_models, styles, name, ...otherFilters } = filters
+    const { categories, exclude_models, styles, name, country_id, ...otherFilters } = filters
 
     return (
       await KnexService('models')
@@ -49,13 +48,22 @@ export default class ModelsDAO {
             .groupBy('model_colors.id')
             .as('model_colors')
         }, { 'models.id': 'model_colors.model_id' })
+        .innerJoin(function () {
+          this.select(['brands.*'])
+            .from('brands')
+            .as('brands')
+            .modify((query) => {
+              if (country_id?.length) query.where('brands.country_id', country_id)
+            })
+            .groupBy('brands.id')
+        }, { 'models.brand_id': 'brands.id' })
         .where({ 'models.is_deleted': false })
         .modify((query) => {
           if (exclude_models && exclude_models.length > 0) query.whereNotIn("models.id", Array.isArray(exclude_models) ? exclude_models : [exclude_models])
           if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
           if (styles && styles.length > 0) query.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
           if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
-          if (name && name.length) query.whereILike('models.name', `%${name}%`)
+          if (name?.length) query.whereILike('models.name', `%${name}%`)
         })
     )[0].count
   }
@@ -65,7 +73,7 @@ export default class ModelsDAO {
     sorts: IDefaultQuery
   ): Promise<IModel[]> {
     const { limit, offset, order, orderBy } = sorts
-    const { categories, exclude_models, styles, name, ...otherFilters } = filters
+    const { categories, exclude_models, styles, name, country_id, ...otherFilters } = filters
 
     return await KnexService("models")
       .select([
@@ -74,6 +82,7 @@ export default class ModelsDAO {
         'brands.name as brand.name',
         'brands.slug as brand.slug',
         'brands.description as brand.description',
+        'brand_country as brand.country',
 
         'style.id as style.id',
         'style.name as style.name',
@@ -91,7 +100,19 @@ export default class ModelsDAO {
         KnexService.raw('count(distinct downloads.id) as downloads_count'),
 
       ])
-      .leftJoin("brands", { 'models.brand_id': 'brands.id' })
+      .innerJoin(function () {
+        this.select([
+          'brands.*',
+          'countries.name as brand_country'
+        ])
+          .from('brands')
+          .as('brands')
+          .leftJoin('countries', { 'countries.id': 'brands.country_id' })
+          .groupBy('brands.id', 'countries.id')
+          .modify((query) => {
+            if (country_id?.length) query.where('brands.country_id', country_id)
+          })
+      }, { 'models.brand_id': 'brands.id' })
       .leftJoin("downloads", { 'models.id': 'downloads.model_id' })
       .leftJoin("interactions", { 'models.interaction_id': 'interactions.id' })
       .leftJoin({ style: "styles" }, { "models.style_id": "style.id" })
@@ -139,11 +160,15 @@ export default class ModelsDAO {
         if (categories && categories.length > 0) query.whereIn("category_id", Array.isArray(categories) ? categories : [categories])
         if (styles && styles.length > 0) query.whereIn("style_id", Array.isArray(styles) ? styles : [styles])
         if (Object.keys(otherFilters).length > 0) query.andWhere(otherFilters)
-        if (name && name.length) query.whereILike('models.name', `%${name}%`)
+        if (name?.length) query.whereILike('models.name', `%${name}%`)
       })
       .groupBy(
         'models.id',
         'brands.id',
+        'brands.name',
+        'brands.slug',
+        'brands.description',
+        'brands.brand_country',
         'style.id',
         'interactions.id',
         'categories.id',
@@ -208,6 +233,7 @@ export default class ModelsDAO {
           'brands.slug as brand.slug',
           'brands.description as brand.description',
           'brands.address as brand.address',
+          'brand_country as brand.country',
           'brands.phone as brand.phone',
           "brand_admin_user_id as brand.admin_user_id",
 
@@ -287,13 +313,15 @@ export default class ModelsDAO {
           this.select([
             "brands.*",
             "images.key as brand_logo",
-            "brand_admins.profile_id as brand_admin_user_id"
+            "brand_admins.profile_id as brand_admin_user_id",
+            "countries.name as brand_country"
           ])
             .from('brands')
             .as('brands')
             .leftJoin('images', { 'images.id': 'brands.image_id' })
             .leftJoin('brand_admins', { 'brand_admins.brand_id': 'brands.id' })
-            .groupBy('brands.id', 'brand_admins.profile_id', 'images.key')
+            .leftJoin('countries', { 'countries.id': 'brands.country_id' })
+            .groupBy('brands.id', 'brand_admins.profile_id', 'images.key', 'countries.name')
         }, { 'models.brand_id': 'brands.id' })
         .leftJoin(function () {
           this.select([
@@ -402,6 +430,7 @@ export default class ModelsDAO {
           'brands.brand_logo',
           'brands.description',
           'brands.brand_admin_user_id',
+          'brands.brand_country',
           'style.id',
           'model_platforms.name',
           'render_platforms.name',

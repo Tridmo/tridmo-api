@@ -1,6 +1,6 @@
-import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, MinLength } from "class-validator";
-import { ICreateBrand, IUpdateBrand } from "./brands.interface";
+import { IsDefined, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 import { IsArrayOrStringifiedArray } from "../shared/custom/validators";
+import { ICreateBrand, IUpdateBrand } from "./brands.interface";
 
 export class CreateBrandDTO implements ICreateBrand {
   @IsDefined()
@@ -51,6 +51,11 @@ export class CreateBrandDTO implements ICreateBrand {
   @IsOptional()
   @IsArrayOrStringifiedArray()
   styles?: string[];
+
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  country_id?: string;
 }
 export class UpdateBrandDTO implements IUpdateBrand {
   @IsString()
@@ -93,4 +98,8 @@ export class UpdateBrandDTO implements IUpdateBrand {
   @IsOptional()
   @IsArrayOrStringifiedArray()
   styles?: string[];
+
+  @IsOptional()
+  @IsString()
+  country_id?: string;
 }

@@ -123,6 +123,7 @@ export interface IGetModelsQuery extends IDefaultQuery {
   orderBy?: string;
   availability?: number;
   brand_id?: string;
+  country_id?: string;
   model_platforms?: string[];
   render_platforms?: string[];
   brands?: string[];

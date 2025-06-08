@@ -1,4 +1,3 @@
-import { adminUsername } from "../../config"
 import knexInstance from "../../database/connection"
 import { authVariables } from "../auth/variables"
 import { IFilterDownload } from "../downloads/downloads.interface"
@@ -679,9 +678,6 @@ export default class StatsDao {
         }, { 'user_roles.user_id': 'profiles.id' })
         .first()
     ]);
-
-    console.log(brandsCount, modelsCount, usersCount);
-    
 
     return {
       brands_count: Number(brandsCount?.count || 0),

@@ -1,33 +1,31 @@
 import { isEmpty } from "class-validator";
-import { IDefaultQuery, ISearchQuery } from "../shared/interface/query.interface";
-import ErrorResponse from "../shared/utils/errorResponse";
-import BrandsDAO from "./brands.dao";
-import { IBrand, IBrandAuth, ICreateBrand, IGetBrandsQuery, IUpdateBrand } from "./brands.interface";
-import ModelService from "../models/models.service";
-import { uploadFile } from "../shared/utils/fileUpload";
-import { IImage, IRequestFile } from "../shared/interface/files.interface";
+import { generateUsername } from "unique-username-generator";
 import { s3Vars } from "../../config";
-import ImageService from "../shared/modules/images/images.service";
+import supabase from "../../database/supabase/supabase";
 import AuthService from "../auth/auth.service";
-import { IUser } from "../users/users.interface";
-import UsersService from "../users/users.service";
+import ModelService from "../models/models.service";
+import { fileDefaults } from "../shared/defaults/defaults";
+import { IRequestFile } from "../shared/interface/files.interface";
+import { IDefaultQuery } from "../shared/interface/query.interface";
+import ImageService from "../shared/modules/images/images.service";
+import ErrorResponse from "../shared/utils/errorResponse";
+import { uploadFile } from "../shared/utils/fileUpload";
 import generateSlug from '../shared/utils/generateSlug';
 import { reqT } from '../shared/utils/language';
-import supabase from "../../database/supabase/supabase";
-import { generateUsername } from "unique-username-generator";
-import { generateHash } from "../shared/utils/bcrypt";
-import { ChatUtils } from "../chat/utils";
-import { fileDefaults } from "../shared/defaults/defaults";
+import { IUser } from "../users/users.interface";
+import UsersService from "../users/users.service";
+import BrandsDAO from "./brands.dao";
+import { IBrand, IBrandAuth, ICreateBrand, IGetBrandsQuery, IUpdateBrand } from "./brands.interface";
 
 export default class BrandService {
-  private brandsDao = new BrandsDAO()
-  private modelsService = new ModelService()
-  private imagesService = new ImageService()
-  private authService = new AuthService()
-  private usersService = new UsersService()
+  private readonly brandsDao = new BrandsDAO()
+  private readonly modelsService = new ModelService()
+  private readonly imagesService = new ImageService()
+  private readonly authService = new AuthService()
+  private readonly usersService = new UsersService()
 
   async create(
-    { name, site_link, description, username, password, phone, email, address, styles, instagram }: ICreateBrand & IBrandAuth,
+    { name, site_link, description, username, password, phone, email, address, styles, instagram, country_id }: ICreateBrand & IBrandAuth,
     brand_image: IRequestFile
   ): Promise<{
     brand: IBrand,
@@ -51,11 +49,12 @@ export default class BrandService {
       address,
       site_link,
       description,
-      instagram
+      instagram,
+      country_id
     })
 
     let image_src = null;
-    if (!!brand) {
+    if (brand) {
       const upload = await uploadFile({
         files: brand_image,
         folder: `images/brands/`,
@@ -91,7 +90,7 @@ export default class BrandService {
 
     if (styles && styles.length > 0) {
       if (!Array.isArray(styles)) styles = [styles]
-      for await (const style_id of styles) {
+      for (const style_id of styles) {
         await this.brandsDao.createBrandStyle({ brand_id: brand.id, style_id: Number(style_id) })
       }
     }
@@ -118,10 +117,10 @@ export default class BrandService {
 
       if (brandAdmin) {
         if (username) {
-          await this.usersService.update(brandAdmin?.id, { username })
+          await this.usersService.update(brandAdmin.id, { username })
         }
         if (password) {
-          const { data, error } = await supabase.auth.admin.updateUserById(brandAdmin?.profiles?.user_id, { password })
+          const { data: _, error } = await supabase.auth.admin.updateUserById(brandAdmin?.profiles?.user_id, { password })
           if (error) throw new ErrorResponse(400, error.message);
         }
       }
@@ -131,14 +130,14 @@ export default class BrandService {
     let brand: IBrand = Object.keys(otherValues).length ? await this.brandsDao.update(brand_id, otherValues) : foundBrand
 
     if (brand_image) {
-      let brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
+      const brandAdmin = await this.brandsDao.getBrandAdmin({ brand_id });
       brand = await this.updateImage(brand_id, brand_image);
       if (brandAdmin) await this.usersService.update(brandAdmin.id, {}, brand_image);
     }
 
     if (styles && styles.length > 0) {
       await this.brandsDao.deleteBrandStyles(brand_id)
-      for await (const style_id of styles) {
+      for (const style_id of styles) {
         await this.brandsDao.createBrandStyle({ brand_id, style_id: Number(style_id) })
       }
     }

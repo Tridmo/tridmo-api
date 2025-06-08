@@ -94,13 +94,16 @@ export default class BrandsDAO {
         "brands.name",
         "brands.slug",
         "brands.site_link",
+        "brands.country_id",
         "brands.description",
         "images.key as image_src",
         KnexService.raw(`count(distinct "models"."id") as models_count`),
-        KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`)
+        KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`),
+        KnexService.raw(`countries.name as country`)
       ])
       .leftJoin('images', { 'brands.image_id': 'images.id' })
       .leftJoin('models', { 'models.brand_id': 'brands.id' })
+      .leftJoin('countries', { 'countries.id': 'brands.country_id' })
       .leftJoin(function () {
         this.distinct([
           'brand_id',
@@ -115,7 +118,7 @@ export default class BrandsDAO {
       .limit(limit)
       .offset(offset)
       .orderBy(orderBy == 'models_count' ? 'models_count' : `brands.${orderBy}`, order)
-      .groupBy("brands.id", "images.key")
+      .groupBy("brands.id", "images.key", "countries.name")
       .modify((q) => {
         if (name) q.whereILike('brands.name', `%${name}%`)
         if (Object.entries(otherFilters)) q.andWhere(otherFilters)
@@ -165,14 +168,17 @@ export default class BrandsDAO {
           "brands.instagram",
           "brands.email",
           "brands.phone",
+          "brands.country_id",
           "brands.description",
           "images.key as image_src",
+          "countries.name as country",
           "brand_admins.profile_id as admin_user_id",
 
           KnexService.raw(`jsonb_agg(distinct brand_styles) as styles`)
         ])
         .leftJoin('images', { 'brands.image_id': 'images.id' })
         .leftJoin('brand_admins', { 'brand_admins.brand_id': 'brands.id' })
+        .leftJoin('countries', { 'countries.id': 'brands.country_id' })
         .leftJoin(function () {
           this.distinct([
             'brand_id',
@@ -184,7 +190,7 @@ export default class BrandsDAO {
             .leftJoin('styles', { 'brand_styles.style_id': 'styles.id' })
             .groupBy('brand_styles.id', 'styles.id')
         }, { 'brand_styles.brand_id': 'brands.id' })
-        .groupBy("brands.id", "images.key", "brand_admins.profile_id")
+        .groupBy("brands.id", "images.key", "brand_admins.profile_id", "countries.name")
         .where({
           [`brands.${isUUID(identifier) ? 'id' : 'slug'}`]: identifier
         })
@@ -202,12 +208,15 @@ export default class BrandsDAO {
           "brands.address",
           "brands.email",
           "brands.phone",
+          "brands.country_id",
           "brands.description",
           "images.key as image_src",
+          "countries.name as country",
         ])
         .leftJoin('images', { 'brands.image_id': 'images.id' })
         .innerJoin('brand_admins', { 'brand_admins.brand_id': 'brands.id' })
-        .groupBy("brands.id", "images.key")
+        .leftJoin('countries', { 'countries.id': 'brands.country_id' })
+        .groupBy("brands.id", "images.key", "countries.name")
         .where('brand_admins.profile_id', '=', user_id)
     )
   }

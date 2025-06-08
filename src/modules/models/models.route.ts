@@ -1,17 +1,16 @@
 import { Router } from 'express';
+import checkUser from '../../modules/shared/middlewares/auth/check_user';
+import { defaults } from "../shared/defaults/defaults";
 import { ValidateUuidDTO } from '../shared/dto/params.dto';
 import { Routes } from '../shared/interface/routes.interface';
+import check_access from '../shared/middlewares/auth/check_access';
+import protect from '../shared/middlewares/auth/protect';
+import { ParserMiddleware } from '../shared/middlewares/parser';
 import validate from '../shared/middlewares/validate';
+import validateFiles from '../shared/middlewares/validateFiles';
 import ModelsController from './models.controller';
 import { AddColorsDTO, AddMaterialsDTO, CreateModelDTO, GetCartModelsQueryDTO, GetCountsQueryDTO, GetModelsQueryDTO, UpdateModelDTO } from './models.dto';
-import validateFiles from '../shared/middlewares/validateFiles';
-import { defaults } from "../shared/defaults/defaults"
-import protect from '../shared/middlewares/auth/protect';
-import check_access from '../shared/middlewares/auth/check_access';
-import checkUser from '../../modules/shared/middlewares/auth/check_user';
 const { reqCoverName, reqFilesName, reqImagesName, reqFileName } = defaults
-import modelsFilterMiddleware from '../shared/middlewares/models/filter';
-import { ParserMiddleware } from '../shared/middlewares/parser';
 
 export default class ModelsRoute implements Routes {
   public path = '/models';

@@ -1,48 +1,47 @@
-import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
-import ErrorResponse from '../shared/utils/errorResponse';
-import { defaults, fileDefaults } from '../shared/defaults/defaults';
-import { IDefaultQuery } from './../shared/interface/query.interface';
-import ModelsDAO from "./models.dao";
-import { IAddImageResult, ICreateModel, ICreateModelBody, IGetCartModelsQuery, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
-import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
-import FileService from '../shared/modules/files/files.service';
+import flat from 'flat';
+import fs from 'fs';
 import { isEmpty } from 'lodash';
+import path from 'path';
 import { s3Vars } from '../../config';
-import { IFile, IFilePublic, IImage, IRequestFile } from '../shared/interface/files.interface';
-import ModelMaterialService from './model_materials/model_materials.service';
-import ModelColorService from './model_colors/model_colors.service';
-import ImageService from '../shared/modules/images/images.service';
-import ModelImageService from './model_images/model_images.service';
-import flat from 'flat'
-import { IModelColor } from './model_colors/interface/model_colors.interface';
-import { checkObject, generatePresignedUrl, getFile } from '../shared/utils/s3';
-import { IModelMaterial } from './model_materials/interface/model_materials.interface';
+import { authVariables } from '../auth/variables';
+import BrandsDAO from '../brands/brands.dao';
 import DownloadsService from '../downloads/downloads.service';
 import InteractionService from '../interactions/interactions.service';
-import BrandsDAO from '../brands/brands.dao';
-import SavedModelsService from '../saved_models/saved_models.service';
-import { IUser } from '../users/users.interface';
-import { reqT } from '../shared/utils/language';
 import NotificationsService from '../notifications/notifications.service';
+import SavedModelsService from '../saved_models/saved_models.service';
+import { fileDefaults } from '../shared/defaults/defaults';
+import { IFile, IFilePublic, IRequestFile } from '../shared/interface/files.interface';
 import { IReqUser } from '../shared/interface/routes.interface';
-import { authVariables } from '../auth/variables';
-import fs from 'fs'
-import path from 'path';
-import sharp from 'sharp';
+import FileService from '../shared/modules/files/files.service';
+import ImageService from '../shared/modules/images/images.service';
 import compressFile from '../shared/utils/compressFile';
+import ErrorResponse from '../shared/utils/errorResponse';
+import { deleteFile, uploadFile } from '../shared/utils/fileUpload';
+import generateSlug, { indexSlug } from '../shared/utils/generateSlug';
+import { reqT } from '../shared/utils/language';
+import { checkObject, generatePresignedUrl, getFile } from '../shared/utils/s3';
+import { IUser } from '../users/users.interface';
+import { IDefaultQuery } from './../shared/interface/query.interface';
+import { IModelColor } from './model_colors/interface/model_colors.interface';
+import ModelColorService from './model_colors/model_colors.service';
+import ModelImageService from './model_images/model_images.service';
+import { IModelMaterial } from './model_materials/interface/model_materials.interface';
+import ModelMaterialService from './model_materials/model_materials.service';
+import ModelsDAO from "./models.dao";
+import { IAddImageResult, ICreateModelBody, IGetCartModelsQuery, IGetModelsQuery, IModel, IUpdateModel } from "./models.interface";
 
 export default class ModelService {
-  private modelsDao = new ModelsDAO()
-  private fileService = new FileService()
-  private modelMaterialService = new ModelMaterialService()
-  private modelColorService = new ModelColorService()
-  private modelImageService = new ModelImageService()
-  private imageService = new ImageService()
-  private downloadService = new DownloadsService()
-  private interactionService = new InteractionService()
-  private savedModelsService = new SavedModelsService()
-  private notificationsService = new NotificationsService()
-  private brandsDao = new BrandsDAO()
+  private readonly modelsDao = new ModelsDAO()
+  private readonly fileService = new FileService()
+  private readonly modelMaterialService = new ModelMaterialService()
+  private readonly modelColorService = new ModelColorService()
+  private readonly modelImageService = new ModelImageService()
+  private readonly imageService = new ImageService()
+  private readonly downloadService = new DownloadsService()
+  private readonly interactionService = new InteractionService()
+  private readonly savedModelsService = new SavedModelsService()
+  private readonly notificationsService = new NotificationsService()
+  private readonly brandsDao = new BrandsDAO()
 
   async compressModelsImages(alreadyDoneIds?: string[], limit?: number) {
     const models = await this.modelsDao.getAll({ exclude_models: alreadyDoneIds }, { limit: limit || 10, orderBy: 'created_at' });

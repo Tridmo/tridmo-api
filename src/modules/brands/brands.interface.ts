@@ -5,6 +5,7 @@ export interface IBrand {
   id: string;
   name: string;
   slug: string;
+  country_id: string;
   description: string;
   site_link: string;
   phone: string;
@@ -28,10 +29,12 @@ export interface ICreateBrand {
   image_id?: string;
   slug?: string;
   styles?: string[];
+  country_id?: string;
 }
 
 export interface IGetBrandsQuery {
   name?: string;
+  country_id?: string;
 }
 
 export interface IBrandAuth {
@@ -80,4 +83,5 @@ export interface IUpdateBrand {
   site_link?: string;
   image_id?: string;
   styles?: string[];
+  country_id?: string;
 } 
