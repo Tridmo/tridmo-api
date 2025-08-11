@@ -1,0 +1,1498 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Tridmo API Collection",
+		"description": "Complete API collection for Tridmo - Interior Design and Furniture Platform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"username\": \"johndoe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "signup"]
+						}
+					}
+				},
+				{
+					"name": "Sign In",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signin",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "signin"]
+						}
+					}
+				},
+				{
+					"name": "Sign In with Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signin/designer",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "signin", "designer"]
+						}
+					}
+				},
+				{
+					"name": "Verify Account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/verify",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "verify"]
+						}
+					}
+				},
+				{
+					"name": "Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/resendcode",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "resendcode"]
+						}
+					}
+				},
+				{
+					"name": "Send Reset Password Email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/sendResetPasswordEmail",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "sendResetPasswordEmail"]
+						}
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newPassword\": \"newpassword123\",\n  \"confirmPassword\": \"newpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/resetPassword",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "resetPassword"]
+						}
+					}
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/updatePassword",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "updatePassword"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/refreshToken",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "refreshToken"]
+						}
+					}
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/deleteAccount",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "deleteAccount"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["users", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"username\": \"johndoe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["users", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["users"]
+						}
+					}
+				},
+				{
+					"name": "Get Designers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/designers",
+							"host": ["{{base_url}}"],
+							"path": ["users", "designers"]
+						}
+					}
+				},
+				{
+					"name": "Get User by Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:username",
+							"host": ["{{base_url}}"],
+							"path": ["users", ":username"]
+						}
+					}
+				},
+				{
+					"name": "Check Username Availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/check/:username",
+							"host": ["{{base_url}}"],
+							"path": ["users", "check", ":username"]
+						}
+					}
+				},
+				{
+					"name": "Ban User (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/ban/:id",
+							"host": ["{{base_url}}"],
+							"path": ["users", "ban", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Unban User (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/unban/:id",
+							"host": ["{{base_url}}"],
+							"path": ["users", "unban", ":id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Furniture Models",
+			"item": [
+				{
+					"name": "Get All Models",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/models?page=1&limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["models"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Model by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/models/:identifier",
+							"host": ["{{base_url}}"],
+							"path": ["models", ":identifier"]
+						}
+					}
+				},
+				{
+					"name": "Create Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Modern Chair",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A beautiful modern chair",
+									"type": "text"
+								},
+								{
+									"key": "category_id",
+									"value": "uuid-here",
+									"type": "text"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/models",
+							"host": ["{{base_url}}"],
+							"path": ["models"]
+						}
+					}
+				},
+				{
+					"name": "Update Model",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Model Name\",\n  \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/models/:id",
+							"host": ["{{base_url}}"],
+							"path": ["models", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Delete Model",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/models/:id",
+							"host": ["{{base_url}}"],
+							"path": ["models", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Add Colors to Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"colors\": [\"color-uuid-1\", \"color-uuid-2\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/models/colors/:id",
+							"host": ["{{base_url}}"],
+							"path": ["models", "colors", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Add Materials to Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"materials\": [\"material-uuid-1\", \"material-uuid-2\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/models/materials/:id",
+							"host": ["{{base_url}}"],
+							"path": ["models", "materials", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Download Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/models/download/:id",
+							"host": ["{{base_url}}"],
+							"path": ["models", "download", ":id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Interior Designs",
+			"item": [
+				{
+					"name": "Get All Interiors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/interiors?page=1&limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["interiors"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Interiors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/myinteriors",
+							"host": ["{{base_url}}"],
+							"path": ["myinteriors"]
+						}
+					}
+				},
+				{
+					"name": "Get Interior by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/interiors/:identifier",
+							"host": ["{{base_url}}"],
+							"path": ["interiors", ":identifier"]
+						}
+					}
+				},
+				{
+					"name": "Create Interior",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Modern Living Room",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "A modern living room design",
+									"type": "text"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/interiors",
+							"host": ["{{base_url}}"],
+							"path": ["interiors"]
+						}
+					}
+				},
+				{
+					"name": "Update Interior",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Interior Name\",\n  \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/interiors/:id",
+							"host": ["{{base_url}}"],
+							"path": ["interiors", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Like Interior",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/interiors/lk/:id",
+							"host": ["{{base_url}}"],
+							"path": ["interiors", "lk", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Unlike Interior",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/interiors/lk/:id",
+							"host": ["{{base_url}}"],
+							"path": ["interiors", "lk", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Delete Interior",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/interiors/:id",
+							"host": ["{{base_url}}"],
+							"path": ["interiors", ":id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Brands",
+			"item": [
+				{
+					"name": "Get All Brands",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/brands",
+							"host": ["{{base_url}}"],
+							"path": ["brands"]
+						}
+					}
+				},
+				{
+					"name": "Get Brand by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/brands/:identifier",
+							"host": ["{{base_url}}"],
+							"path": ["brands", ":identifier"]
+						}
+					}
+				},
+				{
+					"name": "Create Brand",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Brand Name",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Brand description",
+									"type": "text"
+								},
+								{
+									"key": "website",
+									"value": "https://brand.com",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/brands",
+							"host": ["{{base_url}}"],
+							"path": ["brands"]
+						}
+					}
+				},
+				{
+					"name": "Update Brand",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Brand Name\",\n  \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/brands/:id",
+							"host": ["{{base_url}}"],
+							"path": ["brands", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Delete Brand",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/brands/:id",
+							"host": ["{{base_url}}"],
+							"path": ["brands", ":id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": ["{{base_url}}"],
+							"path": ["categories"]
+						}
+					}
+				},
+				{
+					"name": "Get Main Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/main",
+							"host": ["{{base_url}}"],
+							"path": ["categories", "main"]
+						}
+					}
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/:id",
+							"host": ["{{base_url}}"],
+							"path": ["categories", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Get Categories by Brand",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/brand/:brand_id",
+							"host": ["{{base_url}}"],
+							"path": ["categories", "brand", ":brand_id"]
+						}
+					}
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Category Name\",\n  \"description\": \"Category description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": ["{{base_url}}"],
+							"path": ["categories"]
+						}
+					}
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Category Name\",\n  \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/:id",
+							"host": ["{{base_url}}"],
+							"path": ["categories", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/:id",
+							"host": ["{{base_url}}"],
+							"path": ["categories", ":id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "E-commerce",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products?page=1&limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["products"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Cart Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/cart",
+							"host": ["{{base_url}}"],
+							"path": ["products", "cart"]
+						}
+					}
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/:identifier",
+							"host": ["{{base_url}}"],
+							"path": ["products", ":identifier"]
+						}
+					}
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Product Name",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "99.99",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Product description",
+									"type": "text"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": ["{{base_url}}"],
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "Add Item to Cart",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": \"product-uuid\",\n  \"quantity\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": ["{{base_url}}"],
+							"path": ["cart"]
+						}
+					}
+				},
+				{
+					"name": "Remove Item from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/item/:item_id",
+							"host": ["{{base_url}}"],
+							"path": ["cart", "item", ":item_id"]
+						}
+					}
+				},
+				{
+					"name": "Checkout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/checkout",
+							"host": ["{{base_url}}"],
+							"path": ["cart", "checkout"]
+						}
+					}
+				},
+				{
+					"name": "Get Current Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/current",
+							"host": ["{{base_url}}"],
+							"path": ["cart", "current"]
+						}
+					}
+				},
+				{
+					"name": "Get Purchase History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/purchases",
+							"host": ["{{base_url}}"],
+							"path": ["cart", "purchases"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Materials & Colors",
+			"item": [
+				{
+					"name": "Get All Materials",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/materials",
+							"host": ["{{base_url}}"],
+							"path": ["materials"]
+						}
+					}
+				},
+				{
+					"name": "Create Material",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Wood\",\n  \"description\": \"Natural wood material\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/materials",
+							"host": ["{{base_url}}"],
+							"path": ["materials"]
+						}
+					}
+				},
+				{
+					"name": "Get All Colors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/colors",
+							"host": ["{{base_url}}"],
+							"path": ["colors"]
+						}
+					}
+				},
+				{
+					"name": "Create Color",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Blue\",\n  \"hex_code\": \"#0000FF\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/colors",
+							"host": ["{{base_url}}"],
+							"path": ["colors"]
+						}
+					}
+				},
+				{
+					"name": "Get All Styles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/styles",
+							"host": ["{{base_url}}"],
+							"path": ["styles"]
+						}
+					}
+				},
+				{
+					"name": "Create Style",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Modern\",\n  \"description\": \"Modern design style\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/styles",
+							"host": ["{{base_url}}"],
+							"path": ["styles"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects & Saved Items",
+			"item": [
+				{
+					"name": "Get All Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/projects",
+							"host": ["{{base_url}}"],
+							"path": ["projects"]
+						}
+					}
+				},
+				{
+					"name": "Create Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"My Project\",\n  \"description\": \"Project description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/projects",
+							"host": ["{{base_url}}"],
+							"path": ["projects"]
+						}
+					}
+				},
+				{
+					"name": "Add Model to Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/projects/:id/model/:model_id",
+							"host": ["{{base_url}}"],
+							"path": ["projects", ":id", "model", ":model_id"]
+						}
+					}
+				},
+				{
+					"name": "Get Saved Interiors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/saved/interiors",
+							"host": ["{{base_url}}"],
+							"path": ["saved", "interiors"]
+						}
+					}
+				},
+				{
+					"name": "Save Interior",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interior_id\": \"interior-uuid\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/saved/interiors",
+							"host": ["{{base_url}}"],
+							"path": ["saved", "interiors"]
+						}
+					}
+				},
+				{
+					"name": "Unsave Interior",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/saved/interiors/:interior_id",
+							"host": ["{{base_url}}"],
+							"path": ["saved", "interiors", ":interior_id"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get All Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications",
+							"host": ["{{base_url}}"],
+							"path": ["notifications"]
+						}
+					}
+				},
+				{
+					"name": "Get Notification Counts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/counts",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "counts"]
+						}
+					}
+				},
+				{
+					"name": "Create Notification",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Notification Title\",\n  \"message\": \"Notification message\",\n  \"type\": \"info\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/notifications",
+							"host": ["{{base_url}}"],
+							"path": ["notifications"]
+						}
+					}
+				},
+				{
+					"name": "Mark as Read",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/:id",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", ":id"]
+						}
+					}
+				},
+				{
+					"name": "Mark All as Read",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/all",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "all"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Analytics & Statistics",
+			"item": [
+				{
+					"name": "Get Main Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/statistics/main",
+							"host": ["{{base_url}}"],
+							"path": ["statistics", "main"]
+						}
+					}
+				},
+				{
+					"name": "Get Registration Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/statistics/registrations",
+							"host": ["{{base_url}}"],
+							"path": ["statistics", "registrations"]
+						}
+					}
+				},
+				{
+					"name": "Get Brand Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/statistics/brands",
+							"host": ["{{base_url}}"],
+							"path": ["statistics", "brands"]
+						}
+					}
+				},
+				{
+					"name": "Get Model Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/statistics/models",
+							"host": ["{{base_url}}"],
+							"path": ["statistics", "models"]
+						}
+					}
+				},
+				{
+					"name": "Get Downloads Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/statistics/downloads/count",
+							"host": ["{{base_url}}"],
+							"path": ["statistics", "downloads", "count"]
+						}
+					}
+				},
+				{
+					"name": "Get Downloads Chart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/statistics/downloads/chart",
+							"host": ["{{base_url}}"],
+							"path": ["statistics", "downloads", "chart"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "CMS & Frontend",
+			"item": [
+				{
+					"name": "Get All Websites",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ui/websites",
+							"host": ["{{base_url}}"],
+							"path": ["ui", "websites"]
+						}
+					}
+				},
+				{
+					"name": "Get Website by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ui/websites/byname/:name",
+							"host": ["{{base_url}}"],
+							"path": ["ui", "websites", "byname", ":name"]
+						}
+					}
+				},
+				{
+					"name": "Create Website",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Website Name\",\n  \"domain\": \"example.com\",\n  \"description\": \"Website description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ui/websites",
+							"host": ["{{base_url}}"],
+							"path": ["ui", "websites"]
+						}
+					}
+				},
+				{
+					"name": "Get All Content Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ui/content-items",
+							"host": ["{{base_url}}"],
+							"path": ["ui", "content-items"]
+						}
+					}
+				},
+				{
+					"name": "Create Content Item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Content Title",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"value": "Content body",
+									"type": "text"
+								},
+								{
+									"key": "desktop_image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/ui/content-items",
+							"host": ["{{base_url}}"],
+							"path": ["ui", "content-items"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Utilities",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					}
+				},
+				{
+					"name": "Get All Form Factors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/formfactors",
+							"host": ["{{base_url}}"],
+							"path": ["formfactors"]
+						}
+					}
+				},
+				{
+					"name": "Get All Countries",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/countries",
+							"host": ["{{base_url}}"],
+							"path": ["countries"]
+						}
+					}
+				},
+				{
+					"name": "Get All Platforms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/platforms",
+							"host": ["{{base_url}}"],
+							"path": ["platforms"]
+						}
+					}
+				}
+			]
+		}
+	]
+} 
