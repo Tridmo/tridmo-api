@@ -5,11 +5,17 @@ import path from "path";
 import { config } from 'dotenv'
 import { OrderItem } from "../types";
 import ErrorResponse from "../../shared/utils/errorResponse";
+import logger from "../../../lib/logger";
 config({ path: path.join('..', '..', '.env') });
 
 
 export const timberSendOrderToChat = async (req: Request, res: Response) => {
   try {
+    logger.info('Webhook: Send order to Telegram chat requested', { 
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+
     const token: string = process.env.TIMBER_TELEGRAM_BOT_TOKEN as string;
     const chatId: string = process.env.TIMBER_TELEGRAM_ORDERS_CHAT_ID as string;
     const siteUrl: string = process.env.TIMBER_SITE_URL as string;
@@ -20,7 +26,18 @@ export const timberSendOrderToChat = async (req: Request, res: Response) => {
     if (body && body.order) {
       const order = body.order;
 
-      if (!order) throw new ErrorResponse(400, "Invalid data");
+      if (!order) {
+        logger.warn('Webhook: Invalid order data received', { 
+          body: JSON.stringify(body).substring(0, 200) 
+        });
+        throw new ErrorResponse(400, "Invalid data");
+      }
+
+      logger.info('Webhook: Processing order for Telegram notification', { 
+        orderId: order.id,
+        customerName: order.customerFullName,
+        itemCount: order.items?.length || 0
+      });
 
       const orderItemText = (item: OrderItem, index: number) => `
     ${index + 1}. ${item.name}
@@ -36,6 +53,11 @@ export const timberSendOrderToChat = async (req: Request, res: Response) => {
 📋 Товары:\n${order.items.map((item, i) => orderItemText(item, i)).join('')}\n
 📝 История обновлений:
       `;
+
+      logger.info('Webhook: Sending order notification to Telegram', { 
+        orderId: order.id,
+        chatId: chatId?.substring(0, 5) + '***'
+      });
 
       await axios.post(api('sendMessage'),
         {
@@ -69,12 +91,25 @@ export const timberSendOrderToChat = async (req: Request, res: Response) => {
             ]
           }
         }
-      )
+      );
+
+      logger.info('Webhook: Order notification sent to Telegram successfully', { 
+        orderId: order.id 
+      });
+    } else {
+      logger.warn('Webhook: No order data in request body', { 
+        body: JSON.stringify(body).substring(0, 200) 
+      });
     }
 
     res.status(200).send("Order has been sent");
   } catch (error) {
-    console.error("Error:", error);
+    logger.error('Webhook: Error sending order to Telegram', { 
+      error: error.message,
+      stack: error.stack,
+      orderId: req.body?.order?.id,
+      ip: req.ip
+    });
     throw new ErrorResponse(500, "Server error");
   }
 };

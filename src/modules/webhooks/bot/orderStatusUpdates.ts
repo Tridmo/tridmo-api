@@ -3,11 +3,17 @@ import { Request, Response } from "express";
 import moment from "moment-timezone";
 import path from "path";
 import { config } from 'dotenv'
+import logger from "../../../lib/logger";
 config({ path: path.join('..', '..', '.env') });
 
 
 export const timberOrderStatusHandler = async (req: Request, res: Response) => {
   try {
+    logger.info('Webhook: Order status update requested', { 
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+
     const TELEGRAM_BOT_TOKEN = process.env.TIMBER_TELEGRAM_BOT_TOKEN;
     const body = req.body;
 
@@ -25,6 +31,13 @@ export const timberOrderStatusHandler = async (req: Request, res: Response) => {
       if (action === "update_order_status") {
         const status = searchParams.get("status");
 
+        logger.info('Webhook: Processing order status update', { 
+          status, 
+          operatorName: userName,
+          operatorUsername: userUsername,
+          chatId: chatId?.toString()?.substring(0, 5) + '***'
+        });
+
         const statusText =
           status == "confirmed"
             ? "✅ Заказ подтвержден"
@@ -40,6 +53,11 @@ export const timberOrderStatusHandler = async (req: Request, res: Response) => {
             .tz("Asia/Tashkent")
             .format("DD-MM-YYYY HH:mm")}\n ${statusText}\n📞 Оператор: ${userName}${userUsername ? ` | @${userUsername}` : ""
           }`;
+
+        logger.info('Webhook: Updating order message in Telegram', { 
+          messageId, 
+          newStatus: status 
+        });
 
         await axios.post(
           `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`,
@@ -61,13 +79,27 @@ export const timberOrderStatusHandler = async (req: Request, res: Response) => {
           }
         );
 
+        logger.info('Webhook: Order status updated successfully', { 
+          status, 
+          messageId, 
+          operatorName: userName 
+        });
+
         return res.status(200).send("Message updated");
       }
     }
 
+    logger.warn('Webhook: No callback query found in request', { 
+      body: JSON.stringify(body).substring(0, 200) 
+    });
+
     res.status(400).send("No callback query");
   } catch (error) {
-    console.error("Error:", error);
+    logger.error('Webhook: Error updating order status', { 
+      error: error.message,
+      stack: error.stack,
+      ip: req.ip
+    });
     res.status(500).send("Server error");
   }
 };

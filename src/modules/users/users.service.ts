@@ -18,8 +18,15 @@ export default class UsersService {
   private usersDao = new UsersDAO();
 
   async create({ full_name, email, user_id, username, company_name, image_src }: ICreateUser): Promise<IUser> {
+    logger.info('Creating new user profile', { 
+      full_name, 
+      email: email?.substring(0, 3) + '***',
+      username, 
+      company_name,
+      user_id 
+    });
 
-    return await this.usersDao.create({
+    const user = await this.usersDao.create({
       full_name,
       username,
       company_name,
@@ -27,35 +34,82 @@ export default class UsersService {
       user_id,
       image_src,
     });
+
+    logger.info('User profile created successfully', { 
+      userId: user.id,
+      username: user.username 
+    });
+
+    return user;
   }
 
   async update(id: string, values: IUpdateUser, image?: IRequestFile): Promise<IUser> {
+    logger.info('Updating user profile', { 
+      userId: id,
+      updateFields: Object.keys(values),
+      hasImage: !!image 
+    });
+
     const user = await this.usersDao.getById(id)
-    if (!user) throw new ErrorResponse(404, 'User was not found');
+    if (!user) {
+      logger.warn('User update failed - user not found', { userId: id });
+      throw new ErrorResponse(404, 'User was not found');
+    }
 
     let updatedUser = null;
 
-    if (Object.keys(values).length)
+    if (Object.keys(values).length) {
       updatedUser = await this.usersDao.update(id, values);
+      logger.info('User profile data updated', { 
+        userId: id, 
+        fields: Object.keys(values) 
+      });
+    }
 
     if (image) {
+      logger.info('Updating user profile image', { userId: id });
+      
       await deleteFile(s3Vars.imagesBucket, user.image_src)
       const uploadedCover = await uploadFile({ files: image, folder: "images/pfps", bucketName: s3Vars.imagesBucket, fileName: user.username, dimensions: fileDefaults.avatar })
       updatedUser = await this.usersDao.update(id, {
         image_src: uploadedCover[0].src
       })
+      
+      logger.info('User profile image updated, syncing to chat', { 
+        userId: id, 
+        imageSrc: uploadedCover[0].src 
+      });
+      
       await new ChatUtils().syncUser(updatedUser)
     }
+
+    logger.info('User profile update completed', { 
+      userId: id, 
+      username: user.username 
+    });
 
     return updatedUser || user;
   }
 
   async updateUserPassword_admin(user_id: string, password: string): Promise<User> {
+    logger.info('Admin password update requested', { 
+      targetUserId: user_id 
+    });
+
     const { data, error } = await supabase.auth.admin.updateUserById(user_id, { password });
     if (error) {
-      logger.error(error);
+      logger.error('Admin password update failed', { 
+        targetUserId: user_id,
+        error: error.message,
+        status: error.status 
+      });
       throw new ErrorResponse(error.status, error.message)
     }
+
+    logger.info('Admin password update successful', { 
+      targetUserId: user_id 
+    });
+
     return data.user
   }
 
