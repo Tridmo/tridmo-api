@@ -1,6 +1,9 @@
 node_modules/
 uploads/
 .env
+.env.local
+datadog.env
+datadog.env.local
 package-lock.json/
 src/public/uploads/files/*
 src/public/uploads/images/*

@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: tridmo_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - tridmo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Tridmo API Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    environment:
+      EMAIL_USERNAME: ${EMAIL_USERNAME:-}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:-}
+      EMAIL_HOSTNAME: ${EMAIL_HOSTNAME:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      TIMBER_ADMIN_USERNAME: ${TIMBER_ADMIN_USERNAME:-}
+      TIMBER_ADMIN_PASSWORD: ${TIMBER_ADMIN_PASSWORD:-}
+      TIMBER_ADMIN_EMAIL: ${TIMBER_ADMIN_EMAIL:-}
+      CHAT_API_URL: ${CHAT_API_URL:-}
+      CHAT_API_KEY: ${CHAT_API_KEY:-}
+      CHAT_EXPIRES_IN: ${CHAT_EXPIRES_IN:-}
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-}
+      ACCESS_TOKEN_EXPIRES_IN: ${ACCESS_TOKEN_EXPIRES_IN:-}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-}
+      REFRESH_TOKEN_EXPIRES_IN: ${REFRESH_TOKEN_EXPIRES_IN:-}
+      PORT: ${PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      PG_PORT: ${PG_PORT:-5432}
+      DB_URL: ${DB_URL:-}
+      PG_HOST: ${PG_HOST:-localhost}
+      PG_USER: ${PG_USER:-postgres}
+      PG_PASSWORD: ${PG_PASSWORD:-}
+      PG_DB_NAME: ${PG_DB_NAME:-postgres}
+      S3_ACCOUNT_ID: ${S3_ACCOUNT_ID:-}
+      S3_ACCESS_ID: ${S3_ACCESS_ID:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      S3_IMAGES_BUCKET_NAME: ${S3_IMAGES_BUCKET_NAME:-images}
+      S3_FILES_BUCKET_NAME: ${S3_FILES_BUCKET_NAME:-files}
+      BASE_IMG_URL: ${BASE_IMG_URL:-}
+      BASE_FILES_URL: ${BASE_FILES_URL:-}
+      PRODUCT_ID: ${PRODUCT_ID:-}
+      SUPABASE_PROJECT_PASSWORD: ${SUPABASE_PROJECT_PASSWORD:-}
+      SUPABASE_APP_URL: ${SUPABASE_APP_URL:-}
+      SUPABASE_ANON: ${SUPABASE_ANON:-}
+      SUPABASE_SERVICE_ROLE: ${SUPABASE_SERVICE_ROLE:-}
+      CHAT_WEBHOOK_PAYLOAD_URL: ${CHAT_WEBHOOK_PAYLOAD_URL:-}
+      CHAT_WEBHOOK_SECRET: ${CHAT_WEBHOOK_SECRET:-}
+      TIMBER_TELEGRAM_BOT_TOKEN: ${TIMBER_TELEGRAM_BOT_TOKEN:-}
+      TIMBER_TELEGRAM_ORDERS_CHAT_ID: ${TIMBER_TELEGRAM_ORDERS_CHAT_ID:-}
+      TIMBER_SITE_URL: ${TIMBER_SITE_URL:-}
+      TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3030}
+    ports:
+      - "4000:4000"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - tridmo-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "tridmo-api"}]'
+      com.datadoghq.ad.tags: '["env:prod", "service:tridmo-api"]'
+
+  # Database Migration Service (runs once)
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    environment:
+      DB_URL: postgresql://postgres:postgres_password@db:5432/tridmo_db
+      NODE_ENV: production
+    networks:
+      - tridmo-network
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "run", "migrate:latest"]
+    restart: "no"
+
+  # Datadog Agent
+  datadog:
+    image: gcr.io/datadoghq/agent:7
+    container_name: dd-agent
+    environment:
+      DD_API_KEY: ${DD_API_KEY:-}
+      DD_SITE: ${DD_SITE:-ap1.datadoghq.com}
+      DD_ENV: ${DD_ENV:-prod}
+      DD_VERSION: ${DD_VERSION:-1.0.0}
+      DD_TAGS: ${DD_TAGS:-team:backend,component:api}
+      DD_LOGS_ENABLED: ${DD_LOGS_ENABLED:-true}
+      DD_APM_ENABLED: ${DD_APM_ENABLED:-true}
+      DD_PROCESS_AGENT_ENABLED: ${DD_PROCESS_AGENT_ENABLED:-true}
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: ${DD_DOGSTATSD_NON_LOCAL_TRAFFIC:-true}
+      DD_HOSTNAME: ${DD_HOSTNAME:-tridmo-api-server}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
+    networks:
+      - tridmo-network
+    restart: unless-stopped
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "datadog-agent", "service": "datadog-agent"}]'
+
+networks:
+  tridmo-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  uploads_data: 
