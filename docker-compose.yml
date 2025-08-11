@@ -73,10 +73,15 @@ services:
       TIMBER_SITE_URL: ${TIMBER_SITE_URL:-}
       TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3030}
+      DD_API_KEY: ${DD_API_KEY:-}
+      DD_SITE: ${DD_SITE:-ap1.datadoghq.com}
+      DD_ENV: ${DD_ENV:-prod}
+      DD_HOSTNAME: ${DD_HOSTNAME:-tridmo-api-server}
+      DD_SOURCE: ${DD_SOURCE:-nodejs}
+      DD_SERVICE: ${DD_SERVICE:-tridmo-api}
+      DD_TAGS: ${DD_TAGS:-team:backend,component:api}
     ports:
       - "4000:4000"
-    volumes:
-      - uploads_data:/app/uploads
     networks:
       - tridmo-network
     depends_on:
@@ -88,9 +93,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "tridmo-api"}]'
-      com.datadoghq.ad.tags: '["env:prod", "service:tridmo-api"]'
 
   # Database Migration Service (runs once)
   migrate:
@@ -109,37 +111,9 @@ services:
     command: ["npm", "run", "migrate:latest"]
     restart: "no"
 
-  # Datadog Agent
-  datadog:
-    image: gcr.io/datadoghq/agent:7
-    container_name: dd-agent
-    environment:
-      DD_API_KEY: ${DD_API_KEY:-}
-      DD_SITE: ${DD_SITE:-ap1.datadoghq.com}
-      DD_ENV: ${DD_ENV:-prod}
-      DD_VERSION: ${DD_VERSION:-1.0.0}
-      DD_TAGS: ${DD_TAGS:-team:backend,component:api}
-      DD_LOGS_ENABLED: ${DD_LOGS_ENABLED:-true}
-      DD_APM_ENABLED: ${DD_APM_ENABLED:-true}
-      DD_PROCESS_AGENT_ENABLED: ${DD_PROCESS_AGENT_ENABLED:-true}
-      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: ${DD_DOGSTATSD_NON_LOCAL_TRAFFIC:-true}
-      DD_HOSTNAME: ${DD_HOSTNAME:-tridmo-api-server}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc/:/host/proc/:ro
-      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
-    networks:
-      - tridmo-network
-    restart: unless-stopped
-    labels:
-      com.datadoghq.ad.logs: '[{"source": "datadog-agent", "service": "datadog-agent"}]'
-
 networks:
   tridmo-network:
     driver: bridge
 
 volumes:
   postgres_data:
-  uploads_data: 

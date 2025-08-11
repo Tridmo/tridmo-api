@@ -31,6 +31,7 @@ import UserBanService from "../users/user_bans/user_bans.service";
 import { IBrand } from "../brands/brands.interface";
 import { ResetPasswordDTO, UpdatePasswordDTO } from "./auth.dto";
 import { IReqUser } from "../shared/interface/routes.interface";
+import logger from "../../lib/logger";
 
 
 export default class AuthService {
@@ -176,7 +177,7 @@ export default class AuthService {
     })
 
     if (error) {
-      console.error(error)
+      logger.error(error)
       throw new ErrorResponse(error.status, error.message);
     }
 
@@ -189,7 +190,7 @@ export default class AuthService {
       password: newPassword
     })
     if (error) {
-      console.error(error)
+      logger.error(error)
       throw new ErrorResponse(error.status, error.message);
     }
 
@@ -199,7 +200,7 @@ export default class AuthService {
     });
 
     if (signInError) {
-      console.error(signInError)
+      logger.error(signInError)
       throw new ErrorResponse(signInError.status, signInError.message);
     }
 
@@ -211,7 +212,7 @@ export default class AuthService {
     const { data: { user }, error: getUserError } = await supabase.auth.getUser(token);
 
     if (getUserError) {
-      console.error(getUserError)
+      logger.error(getUserError)
       throw new ErrorResponse(getUserError.status, getUserError.message);
     }
 
@@ -220,7 +221,7 @@ export default class AuthService {
     })
 
     if (updateUserError) {
-      console.error(updateUserError)
+      logger.error(updateUserError)
       throw new ErrorResponse(updateUserError.status, updateUserError.message);
     }
 

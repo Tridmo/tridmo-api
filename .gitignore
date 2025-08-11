@@ -3,7 +3,7 @@ uploads/
 .env
 .env.local
 datadog.env
-datadog.env.local
+datadog.local.env
 package-lock.json/
 src/public/uploads/files/*
 src/public/uploads/images/*

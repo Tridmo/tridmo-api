@@ -2,6 +2,7 @@ import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectC
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { defaults } from "../defaults/defaults";
 import { s3Vars } from "../../../config";
+import logger from "../../../lib/logger";
 
 function getS3() {
   return new S3Client({
@@ -24,7 +25,7 @@ export const getFile = async (bucket, key): Promise<Uint8Array> => {
     }));
     return file.Body.transformToByteArray()
   } catch (err) {
-    console.error('Get S3 File Error: ', err.code);
+    logger.error('Get S3 File Error: ', err.code);
   }
 }
 
@@ -55,7 +56,7 @@ export const s3upload = async (file, { bucket_name, filename }) => {
 
     await s3.send(new PutObjectCommand(params));
   } catch (error) {
-    console.error("Upload S3 File Error: ", error);
+    logger.error("Upload S3 File Error: ", error);
   }
 }
 
@@ -73,7 +74,7 @@ export const s3delete = async (bucket_name: string, filename: string) => {
 
     await s3.send(new DeleteObjectCommand(params));
   } catch (error) {
-    console.error("Delete S3 File Error: ", error);
+    logger.error("Delete S3 File Error: ", error);
   }
 }
 
@@ -91,7 +92,7 @@ export const s3deleteMany = async (bucket_name: string, objects: { Key: string }
 
     await s3.send(new DeleteObjectsCommand(params));
   } catch (error) {
-    console.error("Delete Many S3 Files Error: ", error);
+    logger.error("Delete Many S3 Files Error: ", error);
   }
 }
 

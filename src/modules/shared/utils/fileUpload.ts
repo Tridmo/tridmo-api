@@ -6,6 +6,7 @@ import { s3Vars } from "../../../config";
 import { IFile, IImage } from "../interface/files.interface";
 import mimeTypes from 'mime-types';
 import compressFile from "./compressFile";
+import logger from "../../../lib/logger";
 
 interface FileUploadArgs {
   files,
@@ -39,7 +40,7 @@ export const uploadFile = async (
 
     return arr
   } catch (error) {
-    console.error("File Upload Error: ", error);
+    logger.error("File Upload Error: ", error);
   }
 }
 

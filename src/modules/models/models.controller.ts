@@ -11,6 +11,7 @@ import { UploadedFile } from "express-fileupload";
 import ModelImageService from "./model_images/model_images.service";
 import { reqT } from "../shared/utils/language";
 import InteractionService from "../interactions/interactions.service";
+import logger from "../../lib/logger";
 
 
 export default class ModelsController {
@@ -26,7 +27,7 @@ export default class ModelsController {
         data
       })
     } catch (error) {
-      console.error('Model Image Compress Error: ', error);
+      logger.error('Model Image Compress Error: ', error);
 
       next(error)
     }

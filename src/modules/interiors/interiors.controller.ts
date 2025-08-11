@@ -25,6 +25,7 @@ import InteriorViewsDAO from './interior_views/dao';
 import requestIp from 'request-ip';
 import path from 'path';
 import fs from 'fs';
+import logger from '../../lib/logger';
 
 export default class InteriorsController {
   private interiorsService = new InteriorService()
@@ -41,7 +42,7 @@ export default class InteriorsController {
         data
       })
     } catch (error) {
-      console.error('COMPRESS ERROR: ', error);
+      logger.error('COMPRESS ERROR: ', error);
       next(error)
     }
   }

@@ -4,6 +4,7 @@ import { IUser } from "../../users/users.interface";
 import { IRequestFile } from "../../shared/interface/files.interface";
 import ErrorResponse from "../../shared/utils/errorResponse";
 import { authVariables } from "../../auth/variables";
+import logger from "../../../lib/logger";
 
 export class ChatUtils {
 
@@ -44,7 +45,7 @@ export class ChatUtils {
       )
       return res?.data?.access_token;
     } catch (error) {
-      console.error("GET Chat Token Error: ", error);
+      logger.error("GET Chat Token Error: ", error);
     }
   }
 
@@ -92,7 +93,7 @@ export class ChatUtils {
       )
       return res?.data;
     } catch (error) {
-      console.error("WEBHOOK ERROR: ", error);
+      logger.error("WEBHOOK ERROR: ", error);
     }
   }
 
@@ -123,7 +124,7 @@ export class ChatUtils {
       )
       return res?.data;
     } catch (error) {
-      console.error("Char Sync User Error: ", error);
+      logger.error("Char Sync User Error: ", error);
     }
   }
 
@@ -140,7 +141,7 @@ export class ChatUtils {
 
       return res?.data;
     } catch (error) {
-      console.error("Chat Delete User Error: ", error);
+      logger.error("Chat Delete User Error: ", error);
     }
   }
 }

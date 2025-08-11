@@ -74,39 +74,24 @@ services:
       TIMBER_SITE_URL: ${TIMBER_SITE_URL:-}
       TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3030}
+      DD_API_KEY: ${DD_API_KEY:-}
+      DD_SITE: ${DD_SITE:-ap1.datadoghq.com}
+      DD_ENV: ${DD_ENV:-dev}
+      DD_HOSTNAME: ${DD_HOSTNAME:-tridmo-api-server}
+      DD_SOURCE: ${DD_SOURCE:-nodejs}
+      DD_SERVICE: ${DD_SERVICE:-tridmo-api}
+      DD_TAGS: ${DD_TAGS:-team:backend,component:api}
     ports:
       - "4000:4000"
     volumes:
       - .:/app
       - /app/node_modules
-      - uploads_dev_data:/app/uploads
     networks:
       - tridmo-dev-network
     depends_on:
       db:
         condition: service_healthy
     command: ["npm", "run", "dev"]
-    labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "tridmo-api-dev"}]'
-      com.datadoghq.ad.tags: '["env:dev", "service:tridmo-api"]'
-
-  # Datadog Agent (Development)
-  datadog:
-    image: gcr.io/datadoghq/agent:7
-    container_name: dd-agent-dev
-    env_file:
-      - datadog.env.local
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc/:/host/proc/:ro
-      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
-    networks:
-      - tridmo-dev-network
-    restart: unless-stopped
-    labels:
-      com.datadoghq.ad.logs: '[{"source": "datadog-agent", "service": "datadog-agent-dev"}]'
 
 networks:
   tridmo-dev-network:
@@ -114,4 +99,3 @@ networks:
 
 volumes:
   postgres_dev_data:
-  uploads_dev_data: 
