@@ -70,9 +70,6 @@ COPY --chown=nodejs:nodejs src/database/migrations ./src/database/migrations
 COPY --chown=nodejs:nodejs src/database/seeds ./src/database/seeds
 COPY --chown=nodejs:nodejs src/database/knexfile.ts ./src/database/knexfile.ts
 
-# Create uploads directory
-RUN mkdir -p uploads && chown nodejs:nodejs uploads
-
 # Switch to non-root user
 USER nodejs
 
