@@ -3,15 +3,6 @@ import App from "./server";
 import router from "./router";
 import logger from './lib/logger';
 
-// Enable Datadog tracing
-require('dd-trace').init({
-  service: process.env.DD_SERVICE || 'tridmo-api',
-  env: process.env.DD_ENV || 'prod',
-  version: process.env.DD_VERSION || '1.0.0',
-  traceAgentless: process.env.DD_TRACE_AGENTLESS_ENABLED || true,
-  tags: process.env.DD_TAGS || 'team:backend,component:api'
-});
-
 const ExpressApp = new App(router)
 
 const server = http.createServer(ExpressApp.getServer);
@@ -46,7 +37,7 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught errors
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception occurred', { error: error.message, stack: error.stack });
+  logger.error('Uncaught exception occurred', { error: (error as Error).message, stack: (error as Error).stack });
   process.exit(1);
 });
 
